@@ -27,7 +27,14 @@ jobs:
       - name: Install ffmpeg
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends ffmpeg fonts-noto-cjk
+          sudo apt-get install -y --no-install-recommends ffmpeg
+
+      - name: Install test font
+        run: |
+          mkdir -p fonts
+          curl -fL --retry 3 \
+            https://raw.githubusercontent.com/notofonts/noto-cjk/main/Sans/OTF/SimplifiedChinese/NotoSansCJKsc-Black.otf \
+            -o fonts/NotoSansCJKsc-Black.otf
 
       - name: Install Python dependencies
         run: |
@@ -36,6 +43,9 @@ jobs:
 
       - name: Compile
         run: python -m compileall -q scripts tests
+
+      - name: Shell syntax
+        run: bash -n install.sh && bash -n bin/koubo
 
       - name: Run tests
         run: python -m unittest discover -s tests -v

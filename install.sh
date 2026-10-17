@@ -173,6 +173,13 @@ remove_link() {
 
 if [ "$UNINSTALL" = 1 ]; then
   info "卸载 $APP"
+  if [ "$FORCE" = 1 ] && ! { [ "$LOCAL_SOURCE" = 1 ] && [ "$INSTALL_DIR" = "$SCRIPT_DIR" ]; }; then
+    case "$INSTALL_DIR" in
+      "$HOME"/*) ;;
+      *) die "拒绝删除 HOME 之外的目录：$INSTALL_DIR" ;;
+    esac
+    [ "$INSTALL_DIR" != "$HOME" ] || die "拒绝删除 HOME"
+  fi
   remove_link "$HOME/.local/bin/koubo" "$INSTALL_DIR/bin/koubo"
   remove_link "$CANONICAL_DIR" "$INSTALL_DIR"
   remove_link "$HOME/.codex/skills/$NAME" "$INSTALL_DIR"
@@ -180,11 +187,6 @@ if [ "$UNINSTALL" = 1 ]; then
   if [ "$LOCAL_SOURCE" = 1 ] && [ "$INSTALL_DIR" = "$SCRIPT_DIR" ]; then
     dim "安装目录就是当前 checkout，保留源码和 .venv"
   elif [ "$FORCE" = 1 ]; then
-    case "$INSTALL_DIR" in
-      "$HOME"/*) ;;
-      *) die "拒绝删除 HOME 之外的目录：$INSTALL_DIR" ;;
-    esac
-    [ "$INSTALL_DIR" != "$HOME" ] || die "拒绝删除 HOME"
     run rm -rf "$INSTALL_DIR"
     [ "$DRY_RUN" = 1 ] || ok "已删除 $INSTALL_DIR"
   else
@@ -242,7 +244,8 @@ install_source() {
   fi
 
   if [ -f "$INSTALL_DIR/SKILL.md" ]; then
-    ok "目录里已有安装：${INSTALL_DIR}（加 --force 不会自动覆盖，请手动更新）"
+    warn "目录里已有安装：${INSTALL_DIR}；保留现有文件，不自动覆盖"
+    dim "要重装：先备份/删除该目录，再重跑安装器"
     return
   fi
   [ ! -e "$INSTALL_DIR" ] || die "目标已存在且不是安装目录：$INSTALL_DIR"

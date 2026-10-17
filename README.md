@@ -252,6 +252,7 @@ python -m unittest discover -s tests
 代码以 [MIT](LICENSE) 许可发布。
 
 `assets/sfx/` 下的音效来自 Pixabay，适用 [Pixabay Content License](https://pixabay.com/service/license-summary/)。
+安装器下载的 Noto Sans CJK 字体遵循 SIL Open Font License 1.1。
 `capcut-cli`、`ffmpeg`、`Pillow`、`numpy`、`faster-whisper`、`edge-tts` 等依赖遵循各自许可。
 
 如果这个项目帮你省下了一个下午，欢迎点个 ⭐，或者把踩到的坑写进 [references/lessons.md](references/lessons.md)。

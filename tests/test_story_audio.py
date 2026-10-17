@@ -1,5 +1,6 @@
 import importlib.util
 import json
+import os
 import subprocess
 import sys
 import tempfile
@@ -87,6 +88,25 @@ class StoryAudioTests(unittest.TestCase):
     def test_cli_requires_approval_and_preserves_existing_audio(self):
         with tempfile.TemporaryDirectory() as tmp:
             project = Path(tmp).resolve()
+            fake_bin = project / "fake-bin"
+            fake_bin.mkdir()
+            fake_say = fake_bin / "say"
+            fake_say.write_text(
+                "#!/bin/sh\n"
+                'out=""\n'
+                'while [ $# -gt 0 ]; do\n'
+                '  case "$1" in\n'
+                '    -o) out="$2"; shift 2 ;;\n'
+                '    *) shift ;;\n'
+                '  esac\n'
+                'done\n'
+                '[ -n "$out" ] || exit 2\n'
+                'exec ffmpeg -v error -y -f lavfi -i "sine=frequency=440:duration=0.10" '
+                '-ac 2 -ar 48000 -c:a pcm_s16le "$out"\n',
+                encoding="utf-8")
+            fake_say.chmod(0o755)
+            env = os.environ.copy()
+            env["PATH"] = f"{fake_bin}{os.pathsep}{env.get('PATH', '')}"
             (project / "work").mkdir()
             (project / "work" / "edit-plan.json").write_text(json.dumps(self.plan()))
             (project / "work" / "storyboard.json").write_text(json.dumps(self.story()))
@@ -113,7 +133,7 @@ class StoryAudioTests(unittest.TestCase):
             self.assertNotEqual(complete.returncode, 0)
             complete = subprocess.run(cmd + ["--approve-story", "--replace-audio",
                                               "--replace-captions"],
-                                      capture_output=True, text=True)
+                                      capture_output=True, text=True, env=env)
             self.assertEqual(complete.returncode, 0, complete.stderr)
             self.assertNotEqual(voice.read_bytes(), b"human")
             self.assertTrue((project / "work" / "bgm.wav").is_file())
