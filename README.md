@@ -249,7 +249,7 @@ python -m unittest discover -s tests
 
 ## 许可与致谢
 
-代码以 [MIT](LICENSE) 许可发布。
+代码以 [MIT](LICENSE) 许可发布。随仓库分发的音效、安装器下载的字体等第三方素材见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
 
 `assets/sfx/` 下的音效来自 Pixabay，适用 [Pixabay Content License](https://pixabay.com/service/license-summary/)。
 安装器下载的 Noto Sans CJK 字体遵循 SIL Open Font License 1.1。
