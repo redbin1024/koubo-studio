@@ -89,6 +89,8 @@ FONT_SEARCH_DIRS = (
     Path("/System/Library/Fonts"),
     Path("/System/Library/Fonts/Supplemental"),
     Path("/usr/share/fonts"),
+    Path("/usr/share/fonts/truetype/noto"),
+    Path("/usr/share/fonts/opentype/noto"),
     Path("/usr/local/share/fonts"),
     Path.home() / ".local/share/fonts",
 )
@@ -97,6 +99,8 @@ FONT_SEARCH_DIRS = (
 CJK_FONT_CANDIDATES = (
     "NotoSansCJKsc-Black.otf",
     "NotoSansCJKsc-Bold.otf",
+    "NotoSansCJK-Bold.ttc",
+    "NotoSansCJK-Regular.ttc",
     "NotoSansSC-Black.otf",
     "SourceHanSansSC-Bold.otf",
     "SourceHanSansSC-Heavy.otf",
