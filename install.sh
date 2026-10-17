@@ -352,10 +352,18 @@ install_system_deps() {
       warn "没有 Homebrew；跳过系统依赖。需要时手动安装：https://brew.sh"
       return 0
     fi
-    if ! command -v ffmpeg >/dev/null 2>&1; then
+    local ff=""
+    if command -v ffmpeg >/dev/null 2>&1; then
+      ff="$(command -v ffmpeg)"
+    elif [ -x /opt/homebrew/opt/ffmpeg-full/bin/ffmpeg ]; then
+      ff="/opt/homebrew/opt/ffmpeg-full/bin/ffmpeg"
+    elif [ -x /usr/local/opt/ffmpeg-full/bin/ffmpeg ]; then
+      ff="/usr/local/opt/ffmpeg-full/bin/ffmpeg"
+    fi
+    if [ -z "$ff" ]; then
       info "安装 ffmpeg-full（带 libass）"
       brew install ffmpeg-full || warn "ffmpeg-full 安装失败；普通 ffmpeg 也能渲染默认字幕层"
-    elif ! ffmpeg -hide_banner -filters 2>/dev/null | grep -q ' subtitles '; then
+    elif ! "$ff" -hide_banner -filters 2>/dev/null | grep -q ' subtitles '; then
       warn "现有 ffmpeg 没有 libass；默认 captions.burn=layer 不受影响"
     fi
     if [ "$WITH_CAPCUT" = 1 ] && ! command -v node >/dev/null 2>&1; then
