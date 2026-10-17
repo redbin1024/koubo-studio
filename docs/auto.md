@@ -30,7 +30,7 @@ my-video/work/auto-report.json          本轮自动报告（耗时/修复/质�
  │   └─ Vlog：视觉分析 + 故事方案（顺序/旁白/音乐/节拍）
  ├─ 生成 work/edit-plan.json → 粗剪 input/clean-cut.mp4
  ├─ 重新识别粗剪 → 原声证据 / 画面字幕
- ├─ 无声素材 → 自动旁白（edge-tts）+ 旁白字幕 + voice-cues
+ ├─ 无声 Vlog → 自动旁白（edge-tts）+ 旁白字幕 + voice-cues
  ├─ 自动 BGM / 音效 / 轻微调色
  ├─ run_all --auto：字幕层、包装层、渲染、剪映草稿、质检
  └─ 按 qc-report.json 红项做有限次自动修复
