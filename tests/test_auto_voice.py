@@ -47,7 +47,9 @@ class AutoVoiceTests(unittest.TestCase):
             path = make_wav(Path(cache) / f"fake-{index}.wav", 0.7)
             return path, "+5%", 0.7
 
-        with mock.patch("tts.fit_line", side_effect=fake_fit):
+        with mock.patch("workflow.auto_voice.importlib.util.find_spec",
+                        return_value=object()), \
+                mock.patch("tts.fit_line", side_effect=fake_fit):
             result = build_narration(self.project, self.cfg, [
                 {"start": 0.2, "end": 1.5, "text": "第一句",
                  "shot_index": 1, "shot_ref": {"source": "a.mp4", "in": 0, "duration": 2}},
