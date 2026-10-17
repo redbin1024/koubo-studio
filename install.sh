@@ -363,8 +363,13 @@ install_system_deps() {
     if [ -z "$ff" ]; then
       info "安装 ffmpeg-full（带 libass）"
       brew install ffmpeg-full || warn "ffmpeg-full 安装失败；普通 ffmpeg 也能渲染默认字幕层"
-    elif ! "$ff" -hide_banner -filters 2>/dev/null | grep -q ' subtitles '; then
-      warn "现有 ffmpeg 没有 libass；默认 captions.burn=layer 不受影响"
+    else
+      local filters
+      filters="$("$ff" -hide_banner -filters 2>/dev/null || true)"
+      case "$filters" in
+        *" subtitles "*) ;;
+        *) warn "现有 ffmpeg 没有 libass；默认 captions.burn=layer 不受影响" ;;
+      esac
     fi
     if [ "$WITH_CAPCUT" = 1 ] && ! command -v node >/dev/null 2>&1; then
       if [ "$MODE" = "full" ]; then
