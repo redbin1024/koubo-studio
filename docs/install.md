@@ -95,7 +95,7 @@ brew install --cask font-noto-sans-cjk-sc
 | 剪映桌面版 | macOS | 用草稿必需 | 打开 / 继续编辑 / 导出 | 只能拿 mp4 |
 | edge-tts | 见 `requirements-narration.txt` | 可选 | 解说旁白 | 旁白不可用 |
 | faster-whisper | 见 `requirements-transcribe.txt` | 可选 | 离线 ASR / 自动字幕 | 手工写字幕 |
-| mediainfo + pymediainfo | 可选 | `jy_hybrid.py` 混合后端 | 元数据 | 默认后端不受影响 |
+| mediainfo + pymediainfo | 任意 | 仅 `jy_hybrid.py` | 元数据 | 默认后端不受影响 |
 
 ## 平台
 
@@ -134,8 +134,17 @@ koubo update --no-deps  # 只拉代码
 ## 卸载
 
 ```bash
-bash install.sh --uninstall           # 删除软链接，保留安装目录
-bash install.sh --uninstall --force   # 连安装目录一起删除
+# 删除软链接，保留安装目录
+curl -fsSL https://raw.githubusercontent.com/redbin1024/koubo-studio/main/install.sh | bash -s -- --uninstall
+
+# 连安装目录一起删除
+curl -fsSL https://raw.githubusercontent.com/redbin1024/koubo-studio/main/install.sh | bash -s -- --uninstall --force
+```
+
+如果从安装目录里直接运行 `install.sh --uninstall --force`，脚本会保留正在执行的源码目录（避免误删开发 checkout）。要彻底删除请从目录外运行上面的命令，或手动：
+
+```bash
+rm -rf ~/.agents/skills/koubo-studio
 ```
 
 手动删除时注意别删到自己的素材工程。

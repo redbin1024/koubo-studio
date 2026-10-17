@@ -97,6 +97,8 @@ $EDITOR my-video/input/captions.srt
 koubo run my-video
 ```
 
+> 素材路径可以是绝对路径；写相对路径时从 `my-video/input/` 查找。
+
 跑完会得到：
 
 ```text
@@ -203,7 +205,7 @@ Vlog 会先完成粗剪、画面/文案审核，再生成旁白；缺语音会�
 | [配置字段表](references/config-schema.md) | `config.json` 全字段 |
 | [踩坑记录](references/lessons.md) | 30+ 条真实事故与修法 |
 | [CapCut CLI 笔记](docs/capcut-cli-notes.md) | capcut-cli 的命令、资源库与版本边界 |
-| [示例](examples/) | 真实 config、字幕、参考片拆解结果 |
+| [示例](examples/) | 脱敏的 config、字幕、参考片拆解结果 |
 
 ---
 
