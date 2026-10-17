@@ -2,6 +2,9 @@
 
 本文是给人看的完整操作手册；Agent 的入口在 [SKILL.md](../SKILL.md)。安装与环境自检见 [安装文档](install.md)。
 
+> 想一条命令直接出片：`koubo auto DIR --video ...`，见 [全自动成片](auto.md)。
+> 本文的分步流程用于需要逐项控制镜头、字幕和包装的场合。
+
 ## 目录
 
 1. [工程结构](#工程结构)
@@ -439,6 +442,7 @@ koubo run my-video
 | `KOUBO_JY_STORE` | 指定剪映草稿箱 |
 | `KOUBO_JY1` | pyJianYingDraft 路径（混合后端） |
 | `KOUBO_VERBOSE=1` | 打印每条子进程命令 |
+| `DEEPSEEK_API_KEY` | 云端导演 / 视觉分析 / 故事方案（可选；不设则本地规则） |
 | `KOUBO_HOME` | 安装目录 |
 | `KOUBO_REPO` / `KOUBO_REF` | 安装源 |
 | `KOUBO_PYTHON` | 指定 Python 3.10+ |

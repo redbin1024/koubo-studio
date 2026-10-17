@@ -25,14 +25,14 @@ koubo doctor
 | ffmpeg | macOS 用 `brew install ffmpeg-full`（带 libass） | `--no-system` |
 | capcut-cli | 有 Node ≥ 18 时装到 `vendor/npm/`，不污染全局 npm | `--no-capcut` |
 | 旁白 | 安装 `edge-tts` | `--no-narration` |
-| 离线转写 | **默认不装**；`--full` 或 `--with-whisper` 才装 `faster-whisper` | 默认 |
+| 离线转写 | 安装 `faster-whisper`（全自动口播路径需要；首次运行下载模型） | `--no-whisper` / `--minimal` |
 | 软链接 | `~/.local/bin/koubo`、`~/.agents/skills/…`、Codex / Claude Code 的 skills 目录 | `--no-skill-links` |
 | 自检 | 跑 `koubo doctor` | — |
 
 ### 常用变体
 
 ```bash
-# 全量：系统依赖 + faster-whisper + Node
+# 全量：系统依赖 + faster-whisper + Node（默认已含 ASR，--full 主要补 Node）
 curl -fsSL https://raw.githubusercontent.com/redbin1024/koubo-studio/main/install.sh | bash -s -- --full
 
 # 最小：只装 Python 核心
@@ -65,7 +65,7 @@ cd ~/.agents/skills/koubo-studio
 python3 -m venv .venv
 .venv/bin/pip install -r requirements.txt
 .venv/bin/pip install -r requirements-narration.txt     # 可选：解说旁白
-.venv/bin/pip install -r requirements-transcribe.txt    # 可选：离线语音转写
+.venv/bin/pip install -r requirements-transcribe.txt    # 全自动口播 / 自动字幕
 mkdir -p ~/.local/bin
 ln -s "$PWD/bin/koubo" ~/.local/bin/koubo
 koubo doctor
@@ -93,8 +93,8 @@ brew install --cask font-noto-sans-cjk-sc
 | 中文字体 | Noto Sans CJK SC / 思源黑体等 | ✅ | 字幕、卡片、大字 | 渲染报错（不会静默换字体） |
 | capcut-cli + Node | Node ≥ 18；capcut-cli 0.25+ | 出草稿必需 | 装配 / 登记剪映草稿 | mp4 仍可出，`draft` 步骤失败 |
 | 剪映桌面版 | macOS | 用草稿必需 | 打开 / 继续编辑 / 导出 | 只能拿 mp4 |
-| edge-tts | 见 `requirements-narration.txt` | 可选 | 解说旁白 | 旁白不可用 |
-| faster-whisper | 见 `requirements-transcribe.txt` | 可选 | 离线 ASR / 自动字幕 | 手工写字幕 |
+| edge-tts | 见 `requirements-narration.txt` | 自动旁白需要 | 无声素材旁白 | 回退无旁白 + BGM |
+| faster-whisper | 见 `requirements-transcribe.txt` | 全自动口播必需 | 离线 ASR / 自动字幕 / 原声证据 | 只能手工写字幕或走无语音 |
 | mediainfo + pymediainfo | 任意 | 仅 `jy_hybrid.py` | 元数据 | 默认后端不受影响 |
 
 ## 平台
@@ -125,7 +125,7 @@ export PATH="$HOME/.local/bin:$PATH"
 ## 升级
 
 ```bash
-koubo update            # git pull --ff-only + 更新核心依赖
+koubo update            # git pull --ff-only + 更新核心/旁白/ASR 依赖
 koubo update --no-deps  # 只拉代码
 ```
 

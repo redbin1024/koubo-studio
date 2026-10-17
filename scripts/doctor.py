@@ -168,7 +168,7 @@ def check_capcut(report: Report) -> None:
 def check_optional(report: Report) -> None:
     for module, package, purpose, hint in (
         ("edge_tts", "edge-tts", "解说旁白（tts.py）", "pip install edge-tts"),
-        ("faster_whisper", "faster-whisper", "离线语音转写（自动字幕）", "pip install faster-whisper"),
+        ("faster_whisper", "faster-whisper", "离线语音转写（自动字幕 / koubo auto 口播）", "bash install.sh 或 pip install faster-whisper"),
     ):
         if importlib.util.find_spec(module) is None:
             report.add(f"optional:{package}", WARN, f"未安装 —— {purpose}不可用",

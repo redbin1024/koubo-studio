@@ -1,11 +1,12 @@
 name: koubo-studio
 display_name: 口播工坊 Koubo Studio
-short_description: 量参考片、自动粗剪、字幕包装、旁白音效，出成片与可继续编辑的剪映草稿
+short_description: 一条命令全自动成片，也可逐步控制；参考片风格、字幕、旁白、剪映草稿
 description: |
-  面向口播与多段 Vlog 的可审核智能剪辑工作流：先量参考片（卡片几何 / 强调色 / 字幕带 /
-  画中画），再把数值写进 config；用 ffmpeg + Pillow 逐帧合成字幕、信息卡、画中画、
-  插图与音效；支持外录对轨、离线 ASR、TTS 解说、本地 BGM 与三态质检。
-  每轮两条产物：压平的 mp4 + 可在剪映里继续编辑的草稿。默认去标点、不做封面、不做片尾卡。
+  面向口播与多段 Vlog 的可审核智能剪辑工作流。支持 koubo auto 一条命令从原始素材出
+  mp4 + 剪映草稿：本地规则打底，DeepSeek 可选做选段/排序/高亮/故事线；自动 ASR 字幕、
+  无声素材 TTS 旁白、BGM/音效、三态质检与常见红项自动修复。也保留逐步手工流程：
+  量参考片（卡片几何 / 强调色 / 字幕带 / 画中画）→ ffmpeg + Pillow 逐帧合成 →
+  可在剪映里继续编辑的草稿。默认去标点、不做封面、不做片尾卡。
 tags:
   - video
   - ffmpeg
@@ -15,7 +16,9 @@ tags:
   - style-transfer
   - jianying
   - capcut
+  - automation
 capabilities:
+  - auto_film
   - analyze_reference
   - auto_edit
   - merge_cut

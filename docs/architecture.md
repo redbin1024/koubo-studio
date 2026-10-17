@@ -7,17 +7,37 @@
 ```text
 scripts/
 ├── *.py                 # 命令入口：argparse、读 config、调用 workflow
-├── workflow/            # 可复用实现：镜头表、字幕计划、旁白、语音策略、交付凭据
+├── auto_film.py         # 全自动编排：候选 → 导演 → 粗剪 → 字幕/声音 → 质检修复
+├── workflow/            # 可复用实现：镜头表、字幕计划、自动导演、自动旁白、语音策略、交付凭据
 ├── _common.py           # ffmpeg/字体定位、默认值、房规、时间码、SRT 解析
 └── compat 模块          # edit_plan.py / visual_analysis.py / storyboard.py 只做再导出
 
 references/              # 数值正本、字段说明、踩坑记录、跨文件规矩登记
 examples/                # 脱敏示例
-tests/                   # 回归测试（128 项）
+tests/                   # 回归测试（145 项）
 assets/sfx/              # 可商用真实音效采样
 ```
 
 **兼容层存在的原因**：早期脚本从 `scripts/edit_plan.py` 等路径导入。拆分实现后保留同名模块再导出，避免外部导入路径失效；新代码一律从 `workflow` 包导入。`tests/test_source_layout.py` 会检查这件事。
+
+## 全自动层
+
+`auto_film.py` 不绕过现有流水线，它在前面加一层“决策”，在后面加一层“修复”：
+
+```text
+auto_film.py
+ ├── workflow/auto_director.py   本地候选 + 可选 DeepSeek 选段/排序/高亮/故事
+ ├── transcribe_audio.py         全片 ASR → 候选文本；粗剪后再识别 → 字幕/原声证据
+ ├── workflow/auto_voice.py      无声素材 edge-tts 旁白 + voice-cues + 旁白字幕
+ └── run_all.py --auto           沿用字幕/包装/渲染/草稿/质检，只跳过人工听审
+```
+
+三条纪律：
+
+- **模型只是建议。** id、时长、关键词、情绪、节拍全部校验；不合法回退本地结果。
+- **语音契约不放松。** `source` 仍需原声证据；`narration` 仍需可听旁白与逐句字幕；`none` 是显式回退。
+- **自动修复有边界。** 只修确定性红项；修不了的保留 `fail` 并以非零退出，不伪造通过。
+
 
 ## 一轮流水线
 

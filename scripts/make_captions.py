@@ -41,6 +41,34 @@ def build(cfg: dict, project: Path) -> dict:
     srt = p["input"] / (cfg["input"]["subtitle"] or "captions.srt")
     if not srt.is_file():
         raise SystemExit(f"找不到字幕：{srt}")
+
+    # 全自动 Vlog 可能只有旁白、没有画面字幕。空 SRT 不是错误：生成一个
+    # 没有 Dialogue 的合法 ASS，让 captions/frames/draft 都能继续走。
+    if not parse_srt(srt):
+        cap = cfg["captions"]
+        cw, ch = cfg["canvas"]["width"], cfg["canvas"]["height"]
+        out_ass = p["captions"] / "final.ass"
+        out_ass.parent.mkdir(parents=True, exist_ok=True)
+        out_ass.write_text(f"""[Script Info]
+Title: {cfg['name']}
+ScriptType: v4.00+
+PlayResX: {cw}
+PlayResY: {ch}
+WrapStyle: 2
+ScaledBorderAndShadow: yes
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Cap,Noto Sans CJK SC,{cap['size']},{ass_color(cap['palette']['white'])},{ass_color(cap['palette']['white'])},{ass_color(cap['palette']['outline'])},&H7A000000,0,0,0,0,100,100,{cap['spacing']},0,1,{cap['outline']},{cap['shadow']},2,{cap['margin_lr']},{cap['margin_lr']},{cap['margin_v']},1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+""", encoding="utf-8")
+        write_json(p["work"] / "captions.json",
+                   {"strip_punctuation": bool(cap["strip_punctuation"]), "cues": []})
+        print("  没有画面字幕，生成空 ASS（只有旁白字幕）")
+        return {"count": 0}
+
     from workflow.caption_timing import overlap_status
     timing_ok, timing_detail = overlap_status(
         srt, int(cfg["canvas"]["fps"]),

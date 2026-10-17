@@ -22,6 +22,7 @@ SCRIPTS = Path(__file__).resolve().parent
 VERSION = (ROOT / "VERSION").read_text(encoding="utf-8").strip() if (ROOT / "VERSION").is_file() else "unknown"
 
 ALIASES = {
+    "auto": "auto_film.py",
     "new": "new_project.py",
     "init": "new_project.py",
     "run": "run_all.py",
@@ -47,6 +48,7 @@ ALIASES = {
 }
 
 DESCRIPTIONS = {
+    "auto": "一条命令全自动：素材 → mp4 + 剪映草稿",
     "new": "建工程（可顺手量参考片）",
     "init": "new 的别名",
     "run": "跑完整流水线：成片 + 剪映草稿 + 质检",
@@ -104,13 +106,19 @@ def _update(args: list[str]) -> int:
         print("  ⚠ git pull 失败（可能有本地修改）；先处理后再试。", file=sys.stderr)
         return rc
     if "--no-deps" not in args:
-        req = ROOT / "requirements.txt"
-        if req.is_file() and (ROOT / ".venv/bin/python").is_file():
+        if (ROOT / ".venv/bin/python").is_file():
             print("  更新 Python 依赖")
-            rc = subprocess.call([_python(), "-m", "pip", "install", "-q",
-                                  "--disable-pip-version-check", "-r", str(req)])
-            if rc != 0:
-                print("  ⚠ 依赖更新失败；现有环境仍可尝试使用。", file=sys.stderr)
+            for name in ("requirements.txt", "requirements-narration.txt",
+                         "requirements-transcribe.txt"):
+                req = ROOT / name
+                if not req.is_file():
+                    continue
+                rc = subprocess.call([_python(), "-m", "pip", "install", "-q",
+                                      "--disable-pip-version-check", "-r", str(req)])
+                if rc != 0:
+                    print(f"  ⚠ {name} 更新失败；现有环境仍可尝试使用。",
+                          file=sys.stderr)
+                    break
     print("  ✓ 已更新")
     return 0
 
@@ -130,13 +138,14 @@ def help_text() -> str:
         "用法：koubo <命令> [参数...]",
         "",
         "最常用：",
+        "  koubo auto DIR --video 口播.mp4 [--reference 参考片.mp4]",
         "  koubo new DIR --video 口播.mp4 [--reference 参考片.mp4]",
         "  koubo run DIR",
         "  koubo doctor",
         "",
         "全部命令：",
     ]
-    for name in ("new", "run", "doctor", "update", "scripts", "version"):
+    for name in ("auto", "new", "run", "doctor", "update", "scripts", "version"):
         lines.append(f"  {name:<12}{DESCRIPTIONS.get(name, '')}")
     lines.append("")
     lines.append("脚本别名：koubo scripts 查看；或 koubo script auto_edit.py ...")

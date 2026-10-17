@@ -38,16 +38,43 @@ def normalize_final_audio(path: Path, target: dict) -> dict:
               f"offset={measured['target_offset']}:linear=true")
     fd, temporary = tempfile.mkstemp(prefix=".audio-normalized-", suffix=".mp4", dir=path.parent)
     os.close(fd)
-    try:
+    temp_path = Path(temporary)
+
+    def attempt(audio_filter: str) -> dict:
         subprocess.run([find_ffmpeg(), "-v", "error", "-y", "-i", str(path),
-                        "-map", "0:v:0", "-map", "0:a:0", "-c:v", "copy", "-af", effect,
+                        "-map", "0:v:0", "-map", "0:a:0", "-c:v", "copy",
+                        "-af", audio_filter,
                         "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2",
-                        "-movflags", "+faststart", temporary], check=True, capture_output=True)
-        corrected = measure_loudness(Path(temporary), target)
-        if (not corrected or abs(corrected["input_i"] - target["I"]) > 1.0 or
-                corrected["input_tp"] > target["TP"] + 0.3):
+                        "-movflags", "+faststart", str(temp_path)],
+                       check=True, capture_output=True)
+        return measure_loudness(temp_path, target)
+
+    def good(value: dict | None) -> bool:
+        return bool(value) and abs(value["input_i"] - target["I"]) <= 1.0 and \
+            value["input_tp"] <= target["TP"] + 0.3
+
+    try:
+        best = None
+        corrected = attempt(effect)
+        if good(corrected):
+            best = corrected
+        else:
+            # 实测：带 offset 的线性二次校准偶尔只走 0.16dB（BGM+短旁白尤其明显）。
+            # 先去掉 offset 再试一次，仍不达标就用一次确定性 volume 增益 + 限峰。
+            no_offset = effect.replace(f":offset={measured['target_offset']}", "")
+            candidate = attempt(no_offset)
+            best = candidate if good(candidate) else None
+            if best is None:
+                basis = measured
+                gain = target["I"] - float(basis["input_i"])
+                limit = 10 ** ((target["TP"] - 0.2) / 20)
+                candidate = attempt(f"volume={gain:.2f}dB,"
+                                    f"alimiter=level_in=1:level_out=1:limit={limit:.4f}:"
+                                    "attack=5:release=50:level=disabled")
+                best = candidate if good(candidate) else None
+        if best is None:
             raise ValueError(f"最终混音响度校准未达标：{corrected}")
-        os.replace(temporary, path)
-        return corrected
+        os.replace(temp_path, path)
+        return best
     finally:
-        Path(temporary).unlink(missing_ok=True)
+        temp_path.unlink(missing_ok=True)

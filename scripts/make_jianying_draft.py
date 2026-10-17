@@ -453,23 +453,27 @@ def build(cfg: dict, project: Path, name: str | None, install: bool,
     print("  音频 " + " + ".join(tracks))
 
     # 7. 字幕 + 关键词上色 + 出入场动画
-    cap.run("import-srt", str(proj), str(srt_jy), "--track-name", "字幕",
-            "--font-size", str(JY_FONT_SIZE), "--color", "#FFFFFF",
-            "--border-width", "0.08", "--border-color", "#000000",
-            "--shadow", "true", "--y", str(JY_TEXT_Y), "-q", check=False)
-    segs = sorted(_as_list(cap.run("segments", str(proj), "--track", "text")),
-                  key=lambda s: s.get("start_us", 0))
-    if len(segs) != len(cap_meta):
-        raise SystemExit(f"字幕段数对不上：草稿 {len(segs)} / SRT {len(cap_meta)}")
-    for seg, meta in zip(segs, cap_meta):
-        if meta["ranges"]:
-            cap.run("text-ranges", str(proj), seg["id"],
-                    "--styles", json.dumps(meta["ranges"]), check=False)
-    for seg, meta in zip(segs, cap_meta):
-        cap.run("text-anim", str(proj), seg["id"],
-                "--intro", meta["jy_anim"], "--intro-duration", "0.30s",
-                "--outro", "渐隐", "--outro-duration", "0.20s", "--jianying", "-q", check=False)
-    print(f"  字幕 {len(segs)} 条（关键词上色 + 出入场动画）")
+    # 全自动 Vlog 可能只有旁白、没有画面字幕：不建空字幕轨，草稿里只留旁白音频。
+    if cap_meta:
+        cap.run("import-srt", str(proj), str(srt_jy), "--track-name", "字幕",
+                "--font-size", str(JY_FONT_SIZE), "--color", "#FFFFFF",
+                "--border-width", "0.08", "--border-color", "#000000",
+                "--shadow", "true", "--y", str(JY_TEXT_Y), "-q", check=False)
+        segs = sorted(_as_list(cap.run("segments", str(proj), "--track", "text")),
+                      key=lambda s: s.get("start_us", 0))
+        if len(segs) != len(cap_meta):
+            raise SystemExit(f"字幕段数对不上：草稿 {len(segs)} / SRT {len(cap_meta)}")
+        for seg, meta in zip(segs, cap_meta):
+            if meta["ranges"]:
+                cap.run("text-ranges", str(proj), seg["id"],
+                        "--styles", json.dumps(meta["ranges"]), check=False)
+        for seg, meta in zip(segs, cap_meta):
+            cap.run("text-anim", str(proj), seg["id"],
+                    "--intro", meta["jy_anim"], "--intro-duration", "0.30s",
+                    "--outro", "渐隐", "--outro-duration", "0.20s", "--jianying", "-q", check=False)
+        print(f"  字幕 {len(segs)} 条（关键词上色 + 出入场动画）")
+    else:
+        print("  没有画面字幕，跳过草稿字幕轨（旁白字幕另存在 input/voice-captions.srt）")
 
     # 7.5 剪映资源库的特效 / 滤镜 / 转场 / 音效（**只进草稿**：mp4 是 ffmpeg 渲的）
     fx_done = apply_fx(cap, proj, cfg, fx_plans)
@@ -524,7 +528,9 @@ def verify_timeline(cap: Capcut, proj: Path, total: float, want_texts: int) -> d
     """复核：时间轴结尾对得上总时长、字幕条数对得上，否则草稿打开就是残的。"""
     segs = [s for s in _as_list(cap.run("segments", str(proj))) if s.get("type") != "text"]
     end = max((s.get("start_us", 0) + s.get("duration_us", 0)) for s in segs) / 1e6 if segs else 0.0
-    texts = len(_as_list(cap.run("segments", str(proj), "--track", "text")))
+    # 没有画面字幕时 capcut 会直接报 "No tracks of type text"，不能把它当失败。
+    texts = (len(_as_list(cap.run("segments", str(proj), "--track", "text")))
+             if want_texts else 0)
     if abs(end - total) > 0.05:
         raise SystemExit(f"时间轴对不上：草稿 {end:.3f}s / 预期 {total:.3f}s")
     if texts != want_texts:

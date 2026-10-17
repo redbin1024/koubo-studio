@@ -108,11 +108,16 @@ def main() -> None:
     ap.add_argument("project")
     ap.add_argument("--skip", default="", help="跳过的步骤，逗号分隔")
     ap.add_argument("--only", default="", help="只跑的步骤，逗号分隔")
+    ap.add_argument("--auto", action="store_true",
+                    help="全自动模式：跳过人工听审，pipeline 记为 automated")
     a = ap.parse_args()
 
     project = Path(a.project).resolve()
     skip = {s.strip() for s in a.skip.split(",") if s.strip()}
     only = {s.strip() for s in a.only.split(",") if s.strip()}
+    if a.auto:
+        # 全自动交付不要求人工听审；需要复核时仍可单独跑 export_voice_review.py。
+        skip.add("review")
     if any(s not in skip and (not only or s in only) for s in ("render", "draft")):
         from workflow.speech_policy import require_speech_ready
         initial = load_config(project / "config.json")
@@ -270,7 +275,7 @@ def main() -> None:
                          "详见 work/qc-report.json；本轮不算交付完成")
     completed = {s["step"] for s in log["steps"] if s["status"] == "ok"}
     required = {"render", "draft", "verify"}
-    if wants_narration(cfg) and cfg["audio"].get("voice_cues"):
+    if not a.auto and wants_narration(cfg) and cfg["audio"].get("voice_cues"):
         required.add("review")
     if not required <= completed:
         log["status"] = "partial"
@@ -283,6 +288,28 @@ def main() -> None:
     from workflow.voice_review import pipeline_review_state, refresh_review
     log["automation_complete"] = True
     log["render_receipt_sha256"] = receipt_digest(project)
+
+    if a.auto:
+        log["auto"] = True
+        log["status"] = "automated"
+        log["human_review"] = "not_required"
+        write_json(p["work"] / "human-review.json", {
+            "status": "not_required",
+            "label": "全自动模式，未要求人工听审",
+        })
+        write_json(p["work"] / "pipeline.json", log)
+        print(f"\n全自动成片完成，用时 {log['seconds']:.1f}s")
+        print(f"  成片 → {qc['output'] if qc else '见 work/qc-report.json'}")
+        print(f"  剪映草稿 → {project}/draft-store/（已登记进剪映草稿箱）")
+        print("  人工听审 → 未执行（--auto）；需要复核时跑 export_voice_review.py")
+        if qc and qc.get("summary"):
+            sm = qc["summary"]
+            print(f"  质检 {sm['pass']} 过 / {sm['fail']} 红 / {sm['unchecked']} 没查")
+            if sm["unchecked"]:
+                print(f"    ⚠ 有 {sm['unchecked']} 项没查 —— **没查不等于通过**，"
+                      f"每项为什么没查写在 work/qc-report.json 的 detail 里")
+        return
+
     human_status = refresh_review(cfg, project)
     log["status"] = pipeline_review_state(human_status["status"])
     if review:

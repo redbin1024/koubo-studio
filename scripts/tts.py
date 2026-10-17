@@ -70,7 +70,11 @@ def synth_line(text: str, rate: str, target: Path) -> Path:
     if target.is_file():
         return target
     mp3 = target.with_suffix(".mp3")
-    asyncio.run(edge_tts.Communicate(text, VOICE, rate=rate).save(str(mp3)))
+    try:
+        asyncio.run(edge_tts.Communicate(text, VOICE, rate=rate).save(str(mp3)))
+    except Exception as exc:                                    # noqa: BLE001
+        raise NarrationError(
+            f"edge-tts 合成失败：{type(exc).__name__}: {str(exc)[:160]}") from exc
     try:
         subprocess.run([find_ffmpeg(), "-v", "error", "-y", "-i", str(mp3), "-af", NR_TRIM,
                         "-ar", "48000", "-ac", "2", "-c:a", "pcm_s16le", str(target)],

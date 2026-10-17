@@ -1,8 +1,8 @@
 ---
 name: koubo-studio
-description: 口播 / Vlog 的可审核智能剪辑工作流：量参考片风格、自动粗剪、离线字幕、字幕与包装、旁白 / BGM / 音效，输出 9:16 或 16:9 的 mp4 和一份能继续编辑的剪映草稿（每轮必出，verify 会卡），并用三态质检卡住交付。用户给出参考视频说「按这个风格剪一遍」「换一个风格再剪一遍」，或要求口播 / Vlog 加字幕、信息卡、画中画、旁白、剪映草稿时使用。
+description: 口播 / Vlog 的可审核智能剪辑工作流：既支持 `koubo auto` 一条命令全自动成片（量参考片风格、ASR 字幕、自动旁白、BGM/音效、mp4 + 剪映草稿、质检自动修复），也支持逐步手工控制；本地规则打底，DeepSeek 可选。用户给出参考视频说「按这个风格剪一遍」「换一个风格再剪一遍」，或要求口播 / Vlog 自动成片、加字幕、信息卡、画中画、旁白、剪映草稿时使用。
 metadata:
-  short-description: 口播 / Vlog 的量片、粗剪、字幕、包装与剪映草稿工作流
+  short-description: 口播 / Vlog 的量片、粗剪、字幕、包装、剪映草稿与全自动成片
 ---
 
 # 口播工坊 · Koubo Studio
@@ -16,6 +16,28 @@ metadata:
 > 下面的命令默认在仓库根目录执行。装好后也可以用 `koubo <别名>`（`koubo --help` 看全部），
 > 或在任意目录用 `~/.agents/skills/koubo-studio/bin/koubo`。环境自检：`koubo doctor`。
 > 一键安装：`curl -fsSL https://raw.githubusercontent.com/redbin1024/koubo-studio/main/install.sh | bash`。
+
+## 先判断：全自动还是分步
+
+用户要的是「一条命令直接出片」时，**先用全自动入口**：
+
+```bash
+# 单条口播；自动判断口播/场景模式
+python scripts/auto_film.py PROJECT --video talk.mp4
+# 或
+koubo auto PROJECT --video talk.mp4
+
+# 多段 Vlog
+koubo auto PROJECT --clips a.mov b.mov c.mov
+```
+
+全自动会：探测素材 → 候选镜头 →（有 `DEEPSEEK_API_KEY` 时）导演选段/排序/高亮/音乐 →
+粗剪 → ASR 字幕 / 原声证据 → 无声素材自动旁白 → BGM/音效 → 渲染 → 剪映草稿 → 质检 →
+按红项自动修复。没有 Key 时本地保序全选，Vlog 不自动写旁白；**模型输出全部过校验，
+失败回退本地结果**。决策与回退见 `work/auto-decisions.json` / `work/auto-report.json`。
+完整说明见 [docs/auto.md](docs/auto.md)。
+
+用户要求逐项控制、改镜头表、改包装或只要某一阶段时，用下面的分步流程。
 
 ## 开工硬闸：先看有没有外录（单轨/双轨）
 
@@ -150,6 +172,7 @@ python scripts/recalibrate.py ~/Downloads/demo_02.mp4   # 拿参考片重量一�
 
 | 脚本 | 作用 |
 | --- | --- |
+| `auto_film.py` | **全自动**：素材 → 候选镜头 → 导演决策 → 粗剪 / 字幕 / 旁白 / 包装 → mp4 + 草稿 → 质检修复 |
 | `analyze_reference.py` | 量参考片：切点 / 强调色 / 卡片几何 / 画中画 / 字幕带 |
 | `check_measured.py` | 校验实测常量还和登记表一致（防漂移，已接进 verify 第 19 项） |
 | `recalibrate.py` | 拿参考片把实测常量重量一遍，报与登记表的差异 |

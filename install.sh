@@ -7,7 +7,7 @@
 # 从本地 checkout 安装：
 #   bash install.sh
 #
-# 全部装上（含离线语音模型、Node 与 capcut-cli）：
+# 全量（补 Node / capcut-cli；离线 ASR 默认已装）：
 #   bash install.sh --full
 #
 # 只装 Python 核心，不动系统依赖：
@@ -27,7 +27,7 @@ UNINSTALL=0
 WITH_SYSTEM=1
 WITH_FONT=1
 WITH_NARRATION=1
-WITH_WHISPER=0
+WITH_WHISPER=1            # 全自动成片需要离线 ASR；--minimal / --no-whisper 可跳过
 WITH_CAPCUT=1
 WITH_SKILL_LINKS=1
 WITH_VENV=1
@@ -64,12 +64,13 @@ usage() {
   --dir PATH           安装目录（默认 ~/.agents/skills/koubo-studio）
   --repo OWNER/NAME    仓库（默认 redbin1024/koubo-studio）
   --ref REF            分支或标签（默认 main）
-  --minimal            只装 Python 核心；不装系统依赖、字体、capcut、edge-tts
-  --full               全部装齐：系统依赖、字体、edge-tts、faster-whisper、capcut-cli
+  --minimal            只装 Python 核心；不装系统依赖、字体、capcut、edge-tts、faster-whisper
+  --full               全量：系统依赖、字体、edge-tts、faster-whisper、Node、capcut-cli
   --no-system          不运行 Homebrew / apt 等系统包安装
   --no-font            不下载 / 安装中文字体
   --no-narration       不装 edge-tts
-  --with-whisper       安装 faster-whisper（离线语音转写，体积较大）
+  --with-whisper       安装 faster-whisper（默认已装；保留此参数兼容旧命令）
+  --no-whisper         跳过 faster-whisper（自动字幕/口播证据不可用）
   --no-capcut          不安装 capcut-cli（仍可出 mp4，出不了剪映草稿）
   --no-skill-links     不创建 Codex / Claude / Agents 的 skill 软链接
   --no-venv            不创建 .venv（使用当前 Python 环境）
@@ -104,6 +105,7 @@ while [ $# -gt 0 ]; do
     --no-font) WITH_FONT=0; shift ;;
     --no-narration) WITH_NARRATION=0; shift ;;
     --with-whisper) WITH_WHISPER=1; shift ;;
+    --no-whisper) WITH_WHISPER=0; shift ;;
     --no-capcut) WITH_CAPCUT=0; shift ;;
     --no-skill-links) WITH_SKILL_LINKS=0; shift ;;
     --no-venv) WITH_VENV=0; shift ;;
@@ -450,7 +452,7 @@ install_python_deps() {
     info "安装离线语音转写：faster-whisper（体积较大）"
     "$py" -m pip install -q --disable-pip-version-check \
       -r "$INSTALL_DIR/requirements-transcribe.txt" \
-      || warn "faster-whisper 安装失败；--auto-captions 不可用"
+      || warn "faster-whisper 安装失败；自动字幕与 koubo auto 的口播路径不可用"
   fi
 }
 
