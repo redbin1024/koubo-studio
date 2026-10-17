@@ -27,7 +27,7 @@ my-video/work/auto-report.json          本轮自动报告（耗时/修复/质�
  ├─ 离线 ASR（faster-whisper）得到逐词转录
  ├─ 导演决策
  │   ├─ 口播：本地全选兜底；有 Key 时 DeepSeek 选段/排序/高亮/音乐情绪
- │   └─ Vlog：视觉分析 + 故事方案（顺序/旁白/音乐/节拍）
+ │   └─ Vlog：视觉分析 + 故事方案（排序/旁白/音乐/节拍；不自动删场景）
  ├─ 生成 work/edit-plan.json → 粗剪 input/clean-cut.mp4
  ├─ 重新识别粗剪 → 原声证据 / 画面字幕
  ├─ 无声 Vlog → 自动旁白（edge-tts）+ 旁白字幕 + voice-cues
@@ -139,6 +139,9 @@ koubo auto my-video --video talk.mp4 --force
 ## 适合与不适合
 
 **适合**：口播知识/观点/带货，单条或多段跟拍 Vlog，已经有明确素材、想先拿到一版可剪成片。
+
+**Vlog 的边界**：自动模式按场景切点保留全部候选镜头，故事方案只排序、不删镜头；
+要删掉重复/废镜头，请在 `work/edit-plan.json` 里改后重跑 `koubo auto` 或手动流程。
 
 **不适合**：需要严格事实核对的新闻、需要逐句人工润色的品牌片、没有 ASR 模型且要求字幕的口播。
 自动旁白/故事线是**建议**，发布前仍应看一遍 `work/auto-decisions.json` 和成片。
