@@ -101,6 +101,7 @@ CJK_FONT_CANDIDATES = (
     "SourceHanSansSC-Bold.otf",
     "SourceHanSansSC-Heavy.otf",
     "PingFang.ttc",
+    "Hiragino Sans GB.ttc",
     "msyhbd.ttc",
 )
 

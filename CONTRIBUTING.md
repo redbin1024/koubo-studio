@@ -14,6 +14,13 @@ python -m unittest discover -s tests
 ```
 
 测试会调用 `ffmpeg` 生成短素材，请确保 `ffmpeg` / `ffprobe` 在 PATH 里。
+测试还需要 `Noto Sans CJK SC Black` 字体；系统没有时：
+
+```bash
+mkdir -p fonts
+curl -fL https://raw.githubusercontent.com/notofonts/noto-cjk/main/Sans/OTF/SimplifiedChinese/NotoSansCJKsc-Black.otf \
+  -o fonts/NotoSansCJKsc-Black.otf
+```
 
 ## 提交前
 
