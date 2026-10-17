@@ -1,0 +1,91 @@
+{
+  "name": "示例基线（实测常量校验用）",
+  "duration": 58.2,
+  "canvas": {
+    "width": 1080,
+    "height": 1920,
+    "fps": 30
+  },
+  "input": {
+    "video": "clean-cut.mp4",
+    "subtitle": "captions.srt",
+    "clips": []
+  },
+  "captions": {
+    "font": "Noto Sans CJK SC Black",
+    "size": 70,
+    "outline": 4,
+    "shadow": 3,
+    "spacing": 1.0,
+    "margin_lr": 66,
+    "max_width": 948,
+    "margin_v": 560,
+    "skip": [],
+    "strip_punctuation": true,
+    "hook": {
+      "enabled": true,
+      "scale": 200,
+      "accel": 2.6,
+      "ms": 600
+    },
+    "palette": {
+      "accent": "#F0E098",
+      "contrast": "#F87890",
+      "gold": "#F2D26A"
+    }
+  },
+  "card": {
+    "enabled": false
+  },
+  "pip": {
+    "enabled": false
+  },
+  "gold": {
+    "enabled": false
+  },
+  "sfx": {
+    "events": [
+      { "t": 0.0, "cue": "hook" },
+      { "t": 5.6, "cue": "wipe" },
+      { "t": 13.3, "cue": "cut" },
+      { "t": 20.6, "cue": "wipe" },
+      { "t": 28.5, "cue": "cut" },
+      { "t": 38.5, "cue": "reveal" },
+      { "t": 43.5, "cue": "ping" },
+      { "t": 53.2, "cue": "wipe" },
+      { "t": 57.85, "cue": "end" }
+    ]
+  },
+  "grade": {
+    "enabled": true,
+    "eq": "eq=contrast=1.06:saturation=1.10:brightness=0.012",
+    "blur": "gblur=sigma=26",
+    "darken": 0.28
+  },
+  "audio": {
+    "speech_mode": "narration",
+    "voice_volume": 0.65,
+    "sfx_volume": 0.5,
+    "loudness": {
+      "I": -14,
+      "TP": -2.6,
+      "LRA": 11
+    },
+    "narration_volume": 1.0,
+    "bgm_volume": 0.55,
+    "duck": {
+      "threshold": 0.08,
+      "ratio": 3,
+      "attack": 25,
+      "release": 500
+    }
+  },
+  "segments": {
+    "fade_out": 0.4
+  },
+  "jianying": {
+    "name": "示例基线",
+    "install": false,
+    "ratio": "9:16"
+  }
+}

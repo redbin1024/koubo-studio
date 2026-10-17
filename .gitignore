@@ -1,0 +1,53 @@
+# ---------------------------------------------------------------- 顶层目录
+# 默认忽略所有顶层目录，只放行源码目录 —— 新剪的工程、素材、剪映草稿不会误进仓库。
+/*/
+!/scripts/
+!/tests/
+!/assets/
+!/references/
+!/examples/
+!/docs/
+!/agents/
+!/fonts/
+!/bin/
+!/.github/
+
+# 工程内的过程产物（即使工程目录被放行，这些也不进）
+/*/input/
+/*/output/
+/*/work/
+/*/draft-store/
+/*/assets/
+/*/captions/
+/*/fonts/
+
+# 内部草稿/盘点：留在本机，不发布
+/docs/superpowers/
+/docs/workflow-gap-assessment.md
+/capcut-cli-盘点.md
+
+# ---------------------------------------------------------------- 安装器产物
+/.venv/
+/vendor/
+/.cache/
+/*.egg-info/
+
+# 字体文件：用 fonts/README.md 说明，不把 17MB 字体提交进 git
+*.otf
+*.ttf
+*.ttc
+
+# 媒体文件：示例只保留 SRT / JSON / 文本
+*.mp4
+*.mov
+*.mkv
+*.m4a
+*.wav
+*.aiff
+*.flac
+
+# ---------------------------------------------------------------- Python / macOS
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.DS_Store

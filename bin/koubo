@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+# 口播工坊 Koubo Studio 的薄包装：找到安装目录，用安装时建好的 venv 跑 scripts/koubo.py。
+# 通过软链接调用也能解析出真实路径（~/.local/bin/koubo -> <repo>/bin/koubo）。
+set -euo pipefail
+
+SOURCE="${BASH_SOURCE[0]}"
+while [ -L "$SOURCE" ]; do
+  DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
+  SOURCE="$(readlink "$SOURCE")"
+  case "$SOURCE" in
+    /*) ;;
+    *) SOURCE="$DIR/$SOURCE" ;;
+  esac
+done
+
+ROOT="$(cd -P "$(dirname "$SOURCE")/.." && pwd)"
+PY="$ROOT/.venv/bin/python"
+if [ ! -x "$PY" ]; then
+  PY="${KOUBO_PYTHON:-$(command -v python3 || command -v python)}"
+fi
+
+# 安装器下载的字体和本地安装的 capcut-cli 不写进用户全局环境
+if [ -d "$ROOT/fonts" ]; then
+  export KOUBO_FONT_DIRS="$ROOT/fonts${KOUBO_FONT_DIRS:+:$KOUBO_FONT_DIRS}"
+fi
+if [ -d "$ROOT/vendor/npm/node_modules/.bin" ]; then
+  export PATH="$ROOT/vendor/npm/node_modules/.bin:$PATH"
+fi
+
+exec "$PY" "$ROOT/scripts/koubo.py" "$@"

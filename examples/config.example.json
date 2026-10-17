@@ -1,0 +1,151 @@
+{
+  "name": "示例：口播成片（9:16）",
+  "duration": 37.095,
+  "canvas": {
+    "width": 1080,
+    "height": 1920,
+    "fps": 30
+  },
+  "input": {
+    "video": "clean-cut.mp4",
+    "subtitle": "captions.srt"
+  },
+  "captions": {
+    "skip": [
+      7,
+      8,
+      9
+    ],
+    "margin_v": 190,
+    "max_width": 948,
+    "margin_lr": 66,
+    "size": 90
+  },
+  "card": {
+    "enabled": true,
+    "start": 10.5,
+    "end": 20.98,
+    "title": "这些细节",
+    "title_at": 10.62,
+    "rows": [
+      {
+        "num": "1",
+        "main": "精致的营养餐",
+        "sub": "每一份  准时送到",
+        "icon": "🍱",
+        "at": 10.9
+      },
+      {
+        "num": "2",
+        "main": "不被打扰的安宁",
+        "sub": "留给她  一整段清净",
+        "icon": "🌙",
+        "at": 14.85
+      },
+      {
+        "num": "3",
+        "main": "一直都在",
+        "sub": "放心  我们一直都在",
+        "icon": "💗",
+        "at": 17.35
+      }
+    ]
+  },
+  "pip": {
+    "enabled": true,
+    "at": 10.52,
+    "center": [
+      0.555,
+      0.432
+    ]
+  },
+  "gold": {
+    "enabled": true,
+    "text": "示例品牌",
+    "in": 32.36,
+    "out": 33.51
+  },
+  "sfx": {
+    "events": [
+      {
+        "t": 0.0,
+        "cue": "hook"
+      },
+      {
+        "t": 10.9,
+        "clip": "riser",
+        "peak_db": -22
+      },
+      {
+        "t": 1.09,
+        "cue": "wipe"
+      },
+      {
+        "t": 3.23,
+        "cue": "tick"
+      },
+      {
+        "t": 5.52,
+        "cue": "wipe"
+      },
+      {
+        "t": 7.18,
+        "cue": "wipe"
+      },
+      {
+        "t": 8.8,
+        "cue": "reveal"
+      },
+      {
+        "t": 10.5,
+        "cue": "cut"
+      },
+      {
+        "t": 10.9,
+        "cue": "row"
+      },
+      {
+        "t": 14.85,
+        "cue": "row"
+      },
+      {
+        "t": 17.35,
+        "cue": "row"
+      },
+      {
+        "t": 20.98,
+        "cue": "return"
+      },
+      {
+        "t": 22.74,
+        "cue": "wipe"
+      },
+      {
+        "t": 25.25,
+        "cue": "wipe"
+      },
+      {
+        "t": 28.35,
+        "cue": "ping"
+      },
+      {
+        "t": 30.4,
+        "cue": "ping"
+      },
+      {
+        "t": 32.36,
+        "cue": "shine"
+      },
+      {
+        "t": 36.9,
+        "cue": "end"
+      }
+    ]
+  },
+  "jianying": {
+    "name": "示例_风格包装_v1",
+    "install": true,
+    "ratio": "9:16"
+  },
+  "_comment": "这是从一条早期成片反推出来的完整配置示例（已脱敏）。参考片是 720x1280 竖屏，卡片几何与强调色都由 analyze_reference.py 量出。字段含义见 references/config-schema.md。"
+}

@@ -1,0 +1,48 @@
+{
+  "_note": "随 skill 打包的 9 个真实采样，Pixabay Content License（可商用免署名）。cue → 素材的默认映射见 scripts/make_sfx.py 的 CUES 与 references/style-recipes.md。",
+  "impact-bass-2": {
+    "file": "impact-bass-2.mp3",
+    "duration": 2.59,
+    "description": "Bass impact with a short swell — brief anticipation then a deep hit. Place so the peak lands on the reveal."
+  },
+  "whoosh-cinematic": {
+    "file": "whoosh-cinematic.mp3",
+    "duration": 5.54,
+    "description": "Cinematic whoosh build (~5.5s) — sweeping scene transition. Align so the swell peaks on the cut."
+  },
+  "whoosh-short": {
+    "file": "whoosh-short.mp3",
+    "duration": 0.57,
+    "description": "Short whoosh — quick swipe/slide accent, fast element move, snappy transition. Sync to the motion."
+  },
+  "riser": {
+    "file": "riser.mp3",
+    "duration": 10.03,
+    "description": "Long cinematic riser (~10s build, peak at the end). Trigger at (climax_time − 10.03s) so it crests exactly on the reveal."
+  },
+  "pop": {
+    "file": "pop.mp3",
+    "duration": 0.72,
+    "description": "Quick pop — element appear/spawn, chip/tag/badge in. Small precise accent, sync to the pop-in."
+  },
+  "ping": {
+    "file": "ping.mp3",
+    "duration": 1.32,
+    "description": "Sharp electronic ping — punchy accent on a key reveal or data point. Sync to the beat."
+  },
+  "sparkle": {
+    "file": "sparkle.mp3",
+    "duration": 1.8,
+    "description": "Bright sparkle / shimmer — magical reveal or 'shine' highlight on a hero element. Sync to the highlight."
+  },
+  "chime": {
+    "file": "chime.mp3",
+    "duration": 2.5,
+    "description": "Soft melodic chime — gentle positive beat: success/confirmation or a lighthearted transition. Sync to the visual moment."
+  },
+  "click-soft": {
+    "file": "click-soft.mp3",
+    "duration": 0.37,
+    "description": "Quiet short click — low-key UI tap / soft selection. Short accent, sync exactly to the on-screen action."
+  }
+}

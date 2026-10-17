@@ -1,0 +1,335 @@
+{
+  "version": 1,
+  "reference": "/path/to/reference.mp4",
+  "probe": {
+    "path": "/path/to/reference.mp4",
+    "duration": 24.148005,
+    "width": 720,
+    "height": 1280,
+    "fps": 30.0,
+    "video_codec": "hevc",
+    "audio_codec": "aac",
+    "video_index": 1,
+    "audio_index": 0,
+    "has_audio": true,
+    "sample_rate": "44100",
+    "channels": 2,
+    "note": "逐帧解码一律显式 -map 0:v，别依赖默认流选择。"
+  },
+  "scene_cuts": [
+    {
+      "t": 9.633,
+      "score": 0.2465
+    },
+    {
+      "t": 14.8,
+      "score": 0.2126
+    },
+    {
+      "t": 20.667,
+      "score": 0.2332
+    },
+    {
+      "t": 20.8,
+      "score": 0.3369
+    },
+    {
+      "t": 23.7,
+      "score": 0.4843
+    }
+  ],
+  "accent_colors": [
+    {
+      "hex": "#D09078",
+      "rgb": [
+        208,
+        144,
+        120
+      ],
+      "hue": "red",
+      "count": 837507
+    },
+    {
+      "hex": "#C07858",
+      "rgb": [
+        192,
+        120,
+        88
+      ],
+      "hue": "orange",
+      "count": 125380
+    },
+    {
+      "hex": "#F8B088",
+      "rgb": [
+        248,
+        176,
+        136
+      ],
+      "hue": "orange",
+      "count": 96246
+    },
+    {
+      "hex": "#B86818",
+      "rgb": [
+        184,
+        104,
+        24
+      ],
+      "hue": "orange",
+      "count": 15586
+    },
+    {
+      "hex": "#E8D068",
+      "rgb": [
+        232,
+        208,
+        104
+      ],
+      "hue": "yellow",
+      "count": 14444
+    },
+    {
+      "hex": "#B05848",
+      "rgb": [
+        176,
+        88,
+        72
+      ],
+      "hue": "red",
+      "count": 5772
+    },
+    {
+      "hex": "#C85870",
+      "rgb": [
+        200,
+        88,
+        112
+      ],
+      "hue": "pink",
+      "count": 3863
+    },
+    {
+      "hex": "#1898C8",
+      "rgb": [
+        24,
+        152,
+        200
+      ],
+      "hue": "cyan",
+      "count": 2561
+    },
+    {
+      "hex": "#C8B058",
+      "rgb": [
+        200,
+        176,
+        88
+      ],
+      "hue": "yellow",
+      "count": 2004
+    },
+    {
+      "hex": "#E85050",
+      "rgb": [
+        232,
+        80,
+        80
+      ],
+      "hue": "red",
+      "count": 1105
+    },
+    {
+      "hex": "#A8F0F8",
+      "rgb": [
+        168,
+        240,
+        248
+      ],
+      "hue": "cyan",
+      "count": 695
+    },
+    {
+      "hex": "#E8D848",
+      "rgb": [
+        232,
+        216,
+        72
+      ],
+      "hue": "yellow",
+      "count": 633
+    },
+    {
+      "hex": "#3878E8",
+      "rgb": [
+        56,
+        120,
+        232
+      ],
+      "hue": "azure",
+      "count": 189
+    },
+    {
+      "hex": "#80C8D8",
+      "rgb": [
+        128,
+        200,
+        216
+      ],
+      "hue": "cyan",
+      "count": 182
+    }
+  ],
+  "card": {
+    "start": 14.75,
+    "end": 20.5,
+    "samples": 24,
+    "bbox_norm": [
+      0.1148,
+      0.15,
+      0.8593,
+      0.8479
+    ],
+    "area": 0.3137,
+    "rectangularity": 0.659,
+    "fill_hex": "#A09E9F",
+    "fill_rgb": [
+      160,
+      158,
+      159
+    ],
+    "note": "bbox_norm 是含亮描边的外沿；圆角与描边宽度量不出来，按画布短边 2-3% / 1.4% 目测取。"
+  },
+  "pip": {
+    "bbox_norm": [
+      0.4889,
+      0.5125,
+      1.0,
+      0.9125
+    ],
+    "area": 0.2044,
+    "aspect": 0.719,
+    "sharpness_contrast": 2.93,
+    "note": "返回的是画中画的**保守内框**（一定落在画中画里）：低对比的暗部边缘长不过去，实测比真值内缩 5-10%。外沿按构图微调；框贴到 1.0 说明画中画越出了画面边缘。"
+  },
+  "caption_band": {
+    "detected": true,
+    "samples": 65,
+    "y_top_norm": 0.5771,
+    "y_bottom_norm": 0.8813,
+    "x_min_norm": 0.0911,
+    "x_max_norm": 0.9926,
+    "note": "按 10/90 分位取，避开个别溢出帧。MarginV = (1 - y_bottom_norm) × 画布高。"
+  },
+  "flat_bands": [
+    {
+      "y_from": 0.0,
+      "y_to": 0.05,
+      "gradient": 0.49
+    },
+    {
+      "y_from": 0.05,
+      "y_to": 0.1,
+      "gradient": 0.46
+    },
+    {
+      "y_from": 0.1,
+      "y_to": 0.15,
+      "gradient": 0.91
+    },
+    {
+      "y_from": 0.15,
+      "y_to": 0.2,
+      "gradient": 2.91
+    },
+    {
+      "y_from": 0.2,
+      "y_to": 0.25,
+      "gradient": 5.8
+    },
+    {
+      "y_from": 0.25,
+      "y_to": 0.3,
+      "gradient": 4.07
+    },
+    {
+      "y_from": 0.3,
+      "y_to": 0.35,
+      "gradient": 6.06
+    },
+    {
+      "y_from": 0.35,
+      "y_to": 0.4,
+      "gradient": 6.47
+    },
+    {
+      "y_from": 0.4,
+      "y_to": 0.45,
+      "gradient": 4.18
+    },
+    {
+      "y_from": 0.45,
+      "y_to": 0.5,
+      "gradient": 6.38
+    },
+    {
+      "y_from": 0.5,
+      "y_to": 0.55,
+      "gradient": 5.59
+    },
+    {
+      "y_from": 0.55,
+      "y_to": 0.6,
+      "gradient": 8.96
+    },
+    {
+      "y_from": 0.6,
+      "y_to": 0.65,
+      "gradient": 12.73
+    },
+    {
+      "y_from": 0.65,
+      "y_to": 0.7,
+      "gradient": 12.91
+    },
+    {
+      "y_from": 0.7,
+      "y_to": 0.75,
+      "gradient": 9.43
+    },
+    {
+      "y_from": 0.75,
+      "y_to": 0.8,
+      "gradient": 6.8
+    },
+    {
+      "y_from": 0.8,
+      "y_to": 0.85,
+      "gradient": 6.34
+    },
+    {
+      "y_from": 0.85,
+      "y_to": 0.9,
+      "gradient": 7.21
+    },
+    {
+      "y_from": 0.9,
+      "y_to": 0.95,
+      "gradient": 5.78
+    },
+    {
+      "y_from": 0.95,
+      "y_to": 1.0,
+      "gradient": 4.4
+    }
+  ],
+  "how_to_use": [
+    "accent_colors 里 hue=yellow 的是正向强调色，hue=magenta/red 的是反差强调色 → captions.palette。",
+    "card.bbox_norm → card.box；fill_hex → card.fill；card.start/end 直接抄成卡段起止。",
+    "pip.bbox_norm → pip.box（贴到 1.0 就是出血边）。",
+    "captions.margin_v = (1 - caption_band.y_bottom_norm) × canvas 高；size 按 x 跨度反推。",
+    "scene_cuts 里 score 高的才是真镜头切换，字幕变化也会被计入，别当成切点。",
+    "flat_bands 里 gradient 最小的几段是画面最平的安全带，字幕优先放这里。"
+  ],
+  "_comment": "analyze_reference.py 的真实输出（参考片：一条 24.148s 的竖屏口播）。card.start/end、card.bbox_norm、card.fill_hex、accent_colors 已经被抄进 examples/config.example.json。pip.bbox_norm 是保守内框，外沿需人工微调。"
+}

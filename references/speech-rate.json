@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "char_count_basis": "unicode-codepoints, whitespace-stripped, punctuation-kept",
+  "records": [
+    {
+      "date": "2026-10-16",
+      "project": "demo-vlog",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "synth_params": {
+        "engine": "edge-tts",
+        "rate": "+0%"
+      },
+      "script": {
+        "lines": 17,
+        "chars": 146,
+        "char_count_basis": "unicode-codepoints, whitespace-stripped, punctuation-kept"
+      },
+      "method": {
+        "speech_sec": 27.44,
+        "span_sec": 56.82,
+        "note": "净说话 = 能量门限 −35dB 相对峰值、去首尾静音；跨度 = 首句起播→末句结束"
+      },
+      "result": {
+        "cpm_speech": 319.2,
+        "cpm_narration": 154.2,
+        "cpm_film": 150.5,
+        "coverage_span": 0.976,
+        "coverage_speech": 0.471,
+        "samples": 17
+      }
+    }
+  ]
+}
