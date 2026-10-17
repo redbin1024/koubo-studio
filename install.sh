@@ -353,12 +353,12 @@ install_system_deps() {
       return 0
     fi
     local ff=""
-    if command -v ffmpeg >/dev/null 2>&1; then
-      ff="$(command -v ffmpeg)"
-    elif [ -x /opt/homebrew/opt/ffmpeg-full/bin/ffmpeg ]; then
+    if [ -x /opt/homebrew/opt/ffmpeg-full/bin/ffmpeg ]; then
       ff="/opt/homebrew/opt/ffmpeg-full/bin/ffmpeg"
     elif [ -x /usr/local/opt/ffmpeg-full/bin/ffmpeg ]; then
       ff="/usr/local/opt/ffmpeg-full/bin/ffmpeg"
+    elif command -v ffmpeg >/dev/null 2>&1; then
+      ff="$(command -v ffmpeg)"
     fi
     if [ -z "$ff" ]; then
       info "安装 ffmpeg-full（带 libass）"
