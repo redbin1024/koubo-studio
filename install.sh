@@ -533,7 +533,10 @@ printf '\n%s\n' "${C_GREEN}${APP} 安装完成${C_RESET}"
 printf '  安装目录  %s\n' "$INSTALL_DIR"
 printf '  命令      koubo\n'
 printf '  自检      koubo doctor\n\n'
-printf '  下一步：\n'
+printf '  全自动（推荐）：\n'
+printf '    koubo auto my-video --video /path/to/口播.mp4\n'
+printf '    # 可选：export DEEPSEEK_API_KEY=... 让模型做选段 / 旁白 / 故事线\n\n'
+printf '  手动分步：\n'
 printf '    koubo new my-video --video /path/to/口播.mp4 --reference /path/to/参考片.mp4\n'
 printf '    # 编辑 my-video/input/captions.srt\n'
 printf '    koubo run my-video\n\n'
