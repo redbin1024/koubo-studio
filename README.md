@@ -11,6 +11,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-3776AB.svg)](https://www.python.org/)
 [![macOS](https://img.shields.io/badge/macOS-12%2B-000000.svg)](docs/install.md)
+[![CI](https://github.com/redbin1024/koubo-studio/actions/workflows/ci.yml/badge.svg)](https://github.com/redbin1024/koubo-studio/actions/workflows/ci.yml)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
 [一键安装](#一键安装) · [30 秒上手](#30-秒上手) · [功能](#它到底能做什么) · [文档](#文档地图) · [限制](#先把丑话说在前面)

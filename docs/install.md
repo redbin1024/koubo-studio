@@ -66,6 +66,7 @@ python3 -m venv .venv
 .venv/bin/pip install -r requirements.txt
 .venv/bin/pip install -r requirements-narration.txt     # 可选：解说旁白
 .venv/bin/pip install -r requirements-transcribe.txt    # 可选：离线语音转写
+mkdir -p ~/.local/bin
 ln -s "$PWD/bin/koubo" ~/.local/bin/koubo
 koubo doctor
 ```

@@ -433,7 +433,7 @@ swell，落点更靠前，更像成片。重音只留给真正的结构切点（
   草稿默认写到工程内 `draft-store/`，再复制+登记进剪映草稿箱
   （`~/Movies/JianyingPro/User Data/Projects/com.lveditor.draft`，可用 `KOUBO_JY_STORE` 覆盖）。
   只建草稿不装进剪映：`make_jianying_draft.py DIR --no-install`。
-- 可用环境变量覆盖：`KOUBO_FFMPEG` / `KOUBO_FFPROBE` / `KOUBO_FONTS_DIR` / `KOUBO_FONT_DIRS` / `KOUBO_EMOJI_FONT` / `KOUBO_CAPCUT` / `KOUBO_JY_STORE` / `KOUBO_VERBOSE=1`。
+- 可用环境变量覆盖：`KOUBO_FFMPEG` / `KOUBO_FFPROBE` / `KOUBO_FONTS_DIR` / `KOUBO_FONT_DIRS` / `KOUBO_EMOJI_FONT` / `KOUBO_CAPCUT` / `KOUBO_JY_STORE` / `KOUBO_JY1` / `KOUBO_VERBOSE=1`。
   旧名 `THSP_*` 仍然兼容，但新配置请写 `KOUBO_*`。
 
 ## 字幕为什么不走 libass
