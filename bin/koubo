@@ -16,7 +16,11 @@ done
 ROOT="$(cd -P "$(dirname "$SOURCE")/.." && pwd)"
 PY="$ROOT/.venv/bin/python"
 if [ ! -x "$PY" ]; then
-  PY="${KOUBO_PYTHON:-$(command -v python3 || command -v python)}"
+  PY="${KOUBO_PYTHON:-$(command -v python3 || command -v python || true)}"
+fi
+if [ -z "$PY" ] || [ ! -x "$PY" ]; then
+  echo "找不到 Python 3.10+；先跑：bash \"$ROOT/install.sh\"" >&2
+  exit 1
 fi
 
 # 安装器下载的字体和本地安装的 capcut-cli 不写进用户全局环境

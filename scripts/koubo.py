@@ -48,6 +48,7 @@ ALIASES = {
 
 DESCRIPTIONS = {
     "new": "建工程（可顺手量参考片）",
+    "init": "new 的别名",
     "run": "跑完整流水线：成片 + 剪映草稿 + 质检",
     "doctor": "环境自检",
     "analyze": "量参考片",

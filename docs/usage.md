@@ -297,6 +297,9 @@ koubo review my-video
 ### BGM 与音效
 
 ```bash
+# 先在 config.json 里打开 BGM
+# "audio": { "bgm": { "enabled": true, "mood": "warm" } }
+
 # 本地合成 BGM（零素材、零版权、逐字节可复现）
 koubo bgm my-video
 
@@ -304,7 +307,7 @@ koubo bgm my-video
 # 事件写在 config.sfx.events，或按故事方案生成
 ```
 
-想换曲子：把选好的音频放到 `work/bgm.wav` 的位置替换。剪映音乐库是云端内容，capcut-cli 没有音乐接口。
+`koubo run` 的 `music` 步只在 `audio.bgm.enabled = true` 时插手；关着就跳过，`work/bgm.wav` 存在也不会上混音。想换曲子：把选好的音频放到 `work/bgm.wav` 的位置替换。剪映音乐库是云端内容，capcut-cli 没有音乐接口。
 
 ### 响度
 
