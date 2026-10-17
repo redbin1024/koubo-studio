@@ -20,7 +20,7 @@
 | **语速折算口径** | `references/speech-rate.md`（方法）+ `references/speech-rate.json`（数值） | `SKILL.md` 写旁白一节（只写公式，不写数值） |
 | **参考片拆解字段的含义** | `references/reference-teardown.md` | `analyze_reference.py` 输出里的 `note` 字段（各说各的那一条） |
 | **音效 cue 表** | `scripts/make_sfx.py` 的 `CUES` | `references/style-recipes.md` 的 cue 表（**这是副本**，改 `CUES` 要同步） |
-| **本轮成片凭据的输入集合** | `scripts/workflow/delivery.py` 的 `_fingerprint` | `render.py` 写入、`verify.py` 读取同一实现；`docs/workflow-gap-assessment.md` 只说明行为 |
+| **本轮成片凭据的输入集合** | `scripts/workflow/delivery.py` 的 `_fingerprint` | `render.py` 写入、`verify.py` 读取同一实现；`docs/architecture.md` 的「交付凭据」只说明行为 |
 | **草稿属于哪次渲染** | `scripts/workflow/delivery.py` 的 `receipt_digest` / `draft_matches_receipt` | `make_jianying_draft.py` 写入报告、`verify.py` 校验同一摘要 |
 | **字幕同帧重叠判定** | `scripts/workflow/caption_timing.py` 的 `overlap_status` | `make_captions.py`、`speech_policy.py` 预检，`verify.py` 复查同一实现 |
 | **旁白镜头锚点判定** | `scripts/workflow/speech_policy.py` 的 `_check_shot_anchors` | `story_audio.py` 与 `rebuild_sample.py` 写逐句证据；`export_voice_review.py` 给人工审查映射 |
