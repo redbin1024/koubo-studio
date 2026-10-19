@@ -4,6 +4,11 @@
     python scripts/auto_film.py my-video --video ~/Movies/口播.mp4
     koubo auto my-video --video ~/Movies/口播.mp4 --reference ~/Movies/参考片.mp4
 
+没有 API Key 时可在 DeepSeek / Agent 窗口里用宿主导演模式：
+    koubo auto my-video --video ~/Movies/口播.mp4 --prepare
+    # 当前窗口的模型读 work/host-director-request.json，写 host-director-decision.json
+    koubo auto my-video --video ~/Movies/口播.mp4 --resume
+
 它做的是「决策 + 执行 + 修复」三件事：
 
 1. 本地规则先跑：探测素材、静音/场景切点、ASR、候选镜头表；
@@ -764,6 +769,117 @@ def _write_report(project: Path, *, mode: str, clips: list[Path], cfg: dict,
     return report
 
 
+# ---------------------------------------------------------------- 宿主 Agent 导演
+
+HOST_REQUEST = "host-director-request.json"
+HOST_DECISION = "host-director-decision.json"
+HOST_PROMPT = "host-director-prompt.md"
+
+HOST_RULES = {
+    "talking-head": [
+        "shots 是最终播放顺序，只能引用候选 id，不能重复，不能改片段边界。",
+        "只删口头填充、重复、未完句和废话；选中的总时长不得低于候选总时长的 35%。",
+        "highlights 是 0–8 个关键词，必须逐字出现在候选转录里，不带标点。",
+        "music_mood 只能是 calm/upbeat/warm/tense/none。",
+        "beats 最多三个，shot_id 必须被选中，cue 只能是 cut/wipe/reveal。",
+    ],
+    "vlog": [
+        "order 必须覆盖全部候选 id，不能重复；自动模式不删场景。",
+        "narration 每句 1–30 字，shot_id 必须存在，evidence 必须包含该 shot_id。",
+        "音乐情绪只能是 calm/upbeat/warm/tense/none。",
+        "beats 最多三个，cue 只能是 cut/wipe/reveal。",
+    ],
+}
+
+
+def _host_frames(project: Path, candidates: list[dict], mode: str) -> dict[str, str]:
+    """Vlog 给宿主抽代表帧；口播主要靠转录，不抽。"""
+    if mode != "vlog" or not candidates:
+        return {}
+    from workflow.visual_analysis import extract_frame
+    work = project_paths(project)["work"]
+    out_dir = work / "host-frames"
+    frames = {}
+    for shot in candidates[:auto_director.MAX_SHOTS]:
+        target = out_dir / f"{shot['id']}.jpg"
+        try:
+            extract_frame(Path(shot["source"]),
+                          float(shot["in"]) + float(shot["duration"]) / 2, target)
+            frames[str(shot["id"])] = str(target.relative_to(project))
+        except (OSError, ValueError):
+            continue
+    return frames
+
+
+def _write_host_request(project: Path, mode: str, candidates: list[dict]) -> Path:
+    work = project_paths(project)["work"]
+    frames = _host_frames(project, candidates, mode)
+    payload = [{"id": str(s["id"]), "duration": round(float(s["duration"]), 3),
+                "transcript": str(s.get("transcript") or "")[:800]}
+               for s in candidates]
+    if frames:
+        for row in payload:
+            row["frame"] = frames.get(row["id"])
+    request = {
+        "version": 1,
+        "mode": mode,
+        "project": project.name,
+        "candidates": payload,
+        "transcript_text": "\n".join(str(s.get("transcript") or "") for s in candidates)[:6000],
+        "rules": HOST_RULES[mode],
+        "decision_schema": ("{shots:[id...],highlights:[词...],music_mood:'warm',"
+                            "beats:[{shot_id:'shot_1',cue:'cut'}],notes:'...'}"
+                            if mode == "talking-head" else
+                            "{order:[id...],narration:[{shot_id:'shot_1',text:'...',"
+                            "evidence:['shot_1']}],music_mood:'warm',"
+                            "beats:[{shot_id:'shot_1',cue:'cut'}],notes:'...'}"),
+        "decision_path": f"work/{HOST_DECISION}",
+        "resume_command": f"koubo auto {project} --resume",
+    }
+    request_path = work / HOST_REQUEST
+    write_json(request_path, request)
+    lines = [
+        f"# 宿主导演请求 · {project.name}",
+        "",
+        f"模式：**{mode}**。请直接根据本文件与候选转录（Vlog 还看 `work/host-frames/` 的帧）",
+        "做导演决策，然后把 JSON 写到：",
+        "",
+        f"```text\nwork/{HOST_DECISION}\n```",
+        "",
+        "## 规则",
+        "",
+        *[f"- {rule}" for rule in HOST_RULES[mode]],
+        "",
+        "## 输出 JSON",
+        "",
+        "```json",
+        request["decision_schema"],
+        "```",
+        "",
+        f"写完后运行：`{request['resume_command']}`",
+    ]
+    (work / HOST_PROMPT).write_text("\n".join(lines) + "\n", encoding="utf-8")
+    print(f"  宿主导演请求 → {request_path}")
+    print(f"  说明 → {work / HOST_PROMPT}")
+    print(f"  写好后跑：koubo auto {project} --resume")
+    return request_path
+
+
+def _load_host_decision(project: Path, explicit: str | None) -> dict:
+    path = Path(explicit).expanduser() if explicit else project_paths(project)["work"] / HOST_DECISION
+    if not path.is_file():
+        raise AutoError(f"找不到宿主导演结果：{path}\n"
+                        f"  先跑 --prepare，把 work/{HOST_REQUEST} 交给当前窗口的 DeepSeek/Agent，"
+                        f"把决策写到 work/{HOST_DECISION}，再 --resume")
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        raise AutoError(f"宿主导演结果不是合法 JSON：{exc}") from exc
+    if not isinstance(data, dict):
+        raise AutoError("宿主导演结果必须是 JSON 对象")
+    return data
+
+
 # ---------------------------------------------------------------- 主流程
 
 def _check_capcut() -> None:
@@ -798,14 +914,26 @@ def main() -> None:
     ap.add_argument("--max-repairs", type=int, default=2,
                     help="质检红项的最多自动修复轮数（默认 2）")
     ap.add_argument("--force", action="store_true", help="重建配置并清掉可再生的中间产物")
+    ap.add_argument("--prepare", action="store_true",
+                    help="只生成候选与宿主导演请求；让当前窗口的 Agent 写 decision 后 --resume")
+    ap.add_argument("--resume", action="store_true",
+                    help="读取 work/host-director-decision.json 继续出片（无需 API Key）")
+    ap.add_argument("--decision", help="宿主导演 decision JSON 路径（默认 work/host-director-decision.json）")
     args = ap.parse_args()
+    if args.prepare and args.resume:
+        ap.error("--prepare 与 --resume 只能二选一")
 
     started = time.time()
     project = Path(args.project).resolve()
     ensure_dirs(project)
     clips = _resolve_clips(args, project)
-    _check_capcut()
-    if args.no_llm:
+    if not args.prepare:
+        _check_capcut()
+    if args.prepare:
+        print("  --prepare：生成候选与宿主导演请求，让当前窗口的 Agent 直接做决策")
+    elif args.resume:
+        print("  --resume：读取宿主导演结果继续，不需要 DEEPSEEK_API_KEY")
+    elif args.no_llm:
         print("  --no-llm：只用本地规则，不调用云端模型")
     else:
         _check_llm()
@@ -841,11 +969,22 @@ def main() -> None:
     if not candidates:
         raise AutoError("没有生成候选镜头；检查素材是否有可检测的说话段/场景")
 
+    if args.prepare:
+        _write_host_request(project, mode, candidates)
+        return
+
     transcript_text = "\n".join(str(c.get("transcript") or "") for c in candidates)
-    key = None if args.no_llm else api_key_from_env()
-    result = auto_director.direct(
-        candidates, mode, transcript_text=transcript_text,
-        api_key=key, model=args.llm_model)
+    if args.resume:
+        decision = _load_host_decision(project, args.decision)
+        try:
+            result = auto_director.from_host(candidates, mode, decision)
+        except ValueError as exc:
+            raise AutoError(f"宿主导演结果校验失败：{exc}") from exc
+    else:
+        key = None if args.no_llm else api_key_from_env()
+        result = auto_director.direct(
+            candidates, mode, transcript_text=transcript_text,
+            api_key=key, model=args.llm_model)
     print(f"  导演决策：{result.source} / {len(result.shots)} 镜头"
           + (f" / 高亮 {len(result.highlights)}" if result.highlights else "")
           + (f" / 旁白 {len(result.narration)}" if result.narration else ""))

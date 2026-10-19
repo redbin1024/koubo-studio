@@ -37,6 +37,17 @@ koubo auto PROJECT --clips a.mov b.mov c.mov
 失败回退本地结果**。决策与回退见 `work/auto-decisions.json` / `work/auto-report.json`。
 完整说明见 [docs/auto.md](docs/auto.md)。
 
+**没有 `DEEPSEEK_API_KEY`、但你就在 DeepSeek / Agent 窗口里**：你自己当导演，不需要 Key：
+
+```bash
+koubo auto PROJECT --video talk.mp4 --prepare
+# 读 work/host-director-request.json、work/host-director-prompt.md
+# （Vlog 还看 work/host-frames/），把决策写到 work/host-director-decision.json
+koubo auto PROJECT --video talk.mp4 --resume
+```
+
+`--prepare` 不做云端调用；`--resume` 用你自己的推理结果继续，decision 仍走同一套校验。
+
 用户要求逐项控制、改镜头表、改包装或只要某一阶段时，用下面的分步流程。
 
 ## 开工硬闸：先看有没有外录（单轨/双轨）

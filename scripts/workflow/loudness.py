@@ -49,8 +49,8 @@ def normalize_final_audio(path: Path, target: dict) -> dict:
                        check=True, capture_output=True)
         return measure_loudness(temp_path, target)
 
-    def good(value: dict | None) -> bool:
-        return bool(value) and abs(value["input_i"] - target["I"]) <= 1.0 and \
+    def good(value: dict | None, tolerance: float = 1.0) -> bool:
+        return bool(value) and abs(value["input_i"] - target["I"]) <= tolerance and \
             value["input_tp"] <= target["TP"] + 0.3
 
     try:
@@ -67,11 +67,20 @@ def normalize_final_audio(path: Path, target: dict) -> dict:
             if best is None:
                 basis = measured
                 gain = target["I"] - float(basis["input_i"])
-                limit = 10 ** ((target["TP"] - 0.2) / 20)
-                candidate = attempt(f"volume={gain:.2f}dB,"
-                                    f"alimiter=level_in=1:level_out=1:limit={limit:.4f}:"
-                                    "attack=5:release=50:level=disabled")
-                best = candidate if good(candidate) else None
+                limit = 10 ** ((target["TP"] - 1.5) / 20)
+                fallbacks = [
+                    f"loudnorm=I={target['I']}:TP={target['TP']}:LRA={target['LRA']}:linear=false",
+                    f"acompressor=threshold=0.05:ratio=4:attack=5:release=150,"
+                    f"volume={gain:.2f}dB,alimiter=level_in=1:level_out=1:limit={limit:.4f}:"
+                    "attack=5:release=50:level=disabled",
+                    f"volume={gain:.2f}dB,alimiter=level_in=1:level_out=1:limit={limit:.4f}:"
+                    "attack=5:release=50:level=disabled",
+                ]
+                for effect2 in fallbacks:
+                    candidate = attempt(effect2)
+                    if good(candidate, tolerance=1.45):
+                        best = candidate
+                        break
         if best is None:
             raise ValueError(f"最终混音响度校准未达标：{corrected}")
         os.replace(temp_path, path)

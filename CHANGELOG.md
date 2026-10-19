@@ -1,5 +1,24 @@
 # Changelog
 
+## 1.2.0 — 2026-10-19
+
+**在 DeepSeek / Agent 窗口里直接用，不填 API Key**：新增宿主导演模式。
+
+### 新增
+
+- `koubo auto --prepare`：生成候选镜头、ASR 转录、Vlog 代表帧与 `work/host-director-request.json` / `host-director-prompt.md`。
+- `koubo auto --resume`：读取 `work/host-director-decision.json` 继续出片；决策仍走与云端模型相同的校验。
+- 当前窗口的 DeepSeek / Agent 可以直接读请求、写 decision，用会话自身的推理完成选段/排序/旁白，不需要 `DEEPSEEK_API_KEY`。
+- `--decision PATH` 可指定宿主 decision 文件位置。
+- 响度二次校准增加动态 loudnorm / 压缩 / volume+limiter 回退，旁白 + BGM 的短素材不再因真峰限制卡死。
+- 新增宿主导演校验测试；测试总数 147。
+
+### 边界
+
+- 宿主模式需要 Agent 能读本地文件；Vlog 需要能看图（`work/host-frames/`）。
+- 宿主写出的 decision 仍受覆盖率、关键词、旁白长度、镜头锚点等校验；不合格会拒绝继续。
+- 这不是“脚本借用聊天窗口登录”：脚本本身不会调用 DeepSeek；推理由当前窗口的模型完成。
+
 ## 1.1.0 — 2026-10-17
 
 **全自动成片**：新增 `koubo auto`，一条命令从原始素材出 mp4 + 剪映草稿。

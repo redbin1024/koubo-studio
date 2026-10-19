@@ -132,3 +132,46 @@ class VlogDirectorTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class HostDirectorTests(unittest.TestCase):
+    def test_host_talking_head_uses_same_validation(self):
+        result = auto_director.from_host_talking_head(candidates(), {
+            "shots": ["shot_2", "shot_1"],
+            "highlights": ["方法"],
+            "music_mood": "calm",
+            "beats": [{"shot_id": "shot_2", "cue": "cut"}],
+        })
+        self.assertEqual(result.source, "host")
+        self.assertEqual([s["id"] for s in result.shots], ["shot_2", "shot_1"])
+        self.assertEqual(result.highlights, ["方法"])
+        with self.assertRaises(ValueError):
+            auto_director.from_host_talking_head(candidates(), {"shots": ["shot_9"]})
+        with self.assertRaises(ValueError):
+            auto_director.from_host_talking_head(candidates(), {"shots": ["shot_1"]})
+
+    def test_host_vlog_builds_story_and_validates_narration(self):
+        vlog = [
+            {"id": "shot_1", "source": "/tmp/a.mp4", "in": 0.0, "duration": 2.0,
+             "transcript": "一"},
+            {"id": "shot_2", "source": "/tmp/b.mp4", "in": 0.0, "duration": 3.0,
+             "transcript": "二"},
+        ]
+        result = auto_director.from_host_vlog(vlog, {
+            "order": ["shot_2", "shot_1"],
+            "narration": [{"shot_id": "shot_2", "text": "先看第二段",
+                           "evidence": ["shot_2"]}],
+            "music_mood": "warm",
+        })
+        self.assertEqual(result.source, "host")
+        self.assertEqual([s["id"] for s in result.shots], ["shot_2", "shot_1"])
+        self.assertEqual(result.story["order"], ["shot_2", "shot_1"])
+        self.assertEqual(result.story["narration"][0]["start"], 0.0)
+        with self.assertRaises(ValueError):
+            auto_director.from_host_vlog(vlog, {"order": ["shot_1"]})
+        with self.assertRaises(ValueError):
+            auto_director.from_host_vlog(vlog, {
+                "order": ["shot_1", "shot_2"],
+                "narration": [{"shot_id": "shot_1", "text": "太" * 31,
+                               "evidence": ["shot_1"]}],
+            })

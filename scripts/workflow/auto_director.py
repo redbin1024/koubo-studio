@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Callable
 
 from _common import strip_punct
@@ -262,4 +263,114 @@ def direct(candidates: list[dict], mode: str, *, transcript_text: str = "",
     if mode == "vlog":
         return direct_vlog(candidates, transcript_text=transcript_text,
                            api_key=api_key, transport=transport, model=model)
+    raise ValueError(f"未知模式：{mode!r}")
+
+
+# ---------------------------------------------------------------- 宿主 Agent 导演
+#
+# 没有 DEEPSEEK_API_KEY 时，可以由当前窗口里的 DeepSeek / Agent 自己读候选、
+# 写一份 decision JSON，再由 auto_film --resume 继续。模型推理用的是宿主会话，
+# 不需要脚本再拿一个 API Key。下面的函数只做同一套校验，绝不降低标准。
+
+def from_host_talking_head(candidates: list[dict], decision: dict) -> DirectorResult:
+    """校验宿主写下的口播选段结果；不合法直接抛 ValueError 让人改。"""
+    if not isinstance(decision, dict):
+        raise ValueError("decision 必须是 JSON 对象")
+    selected = _validate_selection(candidates, decision)
+    highlights = _validate_highlights(decision.get("highlights"), candidates)
+    mood = decision.get("music_mood", DEFAULT_MOOD)
+    if mood not in MOODS:
+        mood = DEFAULT_MOOD
+    beats = _validate_beats(decision.get("beats"), selected)
+    notes = decision.get("notes")
+    note = notes.strip()[:300] if isinstance(notes, str) and notes.strip() else ""
+    return DirectorResult(
+        shots=[dict(s) for s in selected], mode="talking-head", source="host",
+        music_mood=mood, highlights=highlights, beats=beats,
+        notes=[note] if note else ["宿主 Agent 导演；无 API Key"],
+    )
+
+
+def _host_story(candidates: list[dict], decision: dict) -> dict:
+    """把宿主的 order/narration 变成和 suggest_story 同形的 story，并走同一套校验。"""
+    ids = [str(s["id"]) for s in candidates]
+    order = decision.get("order")
+    if not isinstance(order, list) or len(order) != len(ids) or set(order) != set(ids):
+        raise ValueError("Vlog 的 order 必须覆盖全部候选镜头且不能重复；"
+                         "自动模式不删场景")
+    by_id = {str(s["id"]): s for s in candidates}
+    ordered = [by_id[item] for item in order]
+    starts, cursor = {}, 0.0
+    for shot in ordered:
+        starts[str(shot["id"])] = cursor
+        cursor += float(shot["duration"])
+    narration = []
+    raw_lines = decision.get("narration", [])
+    if not isinstance(raw_lines, list):
+        raise ValueError("narration 必须是数组")
+    for index, line in enumerate(raw_lines, 1):
+        if not isinstance(line, dict):
+            raise ValueError(f"narration 第 {index} 句不是对象")
+        ident = line.get("shot_id")
+        text = str(line.get("text") or "").strip()
+        evidence = line.get("evidence") or [ident]
+        if ident not in starts:
+            raise ValueError(f"narration 第 {index} 句指向未知镜头 {ident!r}")
+        if not 1 <= len(text) <= 30:
+            raise ValueError(f"narration 第 {index} 句须为 1–30 字")
+        if not isinstance(evidence, list) or ident not in evidence:
+            raise ValueError(f"narration 第 {index} 句必须把 shot_id 放进 evidence")
+        narration.append({"shot_id": ident, "text": text,
+                          "evidence": [str(item) for item in evidence],
+                          "start": round(starts[ident], 3)})
+    mood = decision.get("music_mood", DEFAULT_MOOD)
+    if mood not in MOODS:
+        mood = DEFAULT_MOOD
+    story = {
+        "status": "proposal",
+        "review_required": True,
+        "order": [str(item) for item in order],
+        "duration": round(cursor, 3),
+        "shot_refs": {
+            str(shot["id"]): {"source": str(Path(shot["source"]).resolve()),
+                              "in": float(shot["in"]),
+                              "duration": float(shot["duration"])}
+            for shot in ordered
+        },
+        "music_mood": mood,
+        "narration": narration,
+    }
+    # 用和 story_audio 完全相同的校验，避免宿主写出一份“看起来对”的旁白。
+    from story_audio import validate_audio_story
+    plan = {
+        "version": 1, "mode": "vlog",
+        "shots": [{"source": str(Path(s["source"]).resolve()), "in": float(s["in"]),
+                   "duration": float(s["duration"])} for s in ordered],
+    }
+    validate_audio_story(story, plan)
+    return story
+
+
+def from_host_vlog(candidates: list[dict], decision: dict) -> DirectorResult:
+    """校验宿主写下的 Vlog 顺序/旁白；返回可直接执行的 DirectorResult。"""
+    if not isinstance(decision, dict):
+        raise ValueError("decision 必须是 JSON 对象")
+    story = _host_story(candidates, decision)
+    by_id = {str(s["id"]): s for s in candidates}
+    ordered = [by_id[item] for item in story["order"]]
+    beats = _validate_beats(decision.get("beats"), ordered)
+    return DirectorResult(
+        shots=[dict(s) for s in ordered], mode="vlog", source="host",
+        music_mood=story["music_mood"], beats=beats,
+        narration=[dict(line) for line in story["narration"]],
+        story=story,
+        notes=["宿主 Agent 导演；无 API Key"],
+    )
+
+
+def from_host(candidates: list[dict], mode: str, decision: dict) -> DirectorResult:
+    if mode == "talking-head":
+        return from_host_talking_head(candidates, decision)
+    if mode == "vlog":
+        return from_host_vlog(candidates, decision)
     raise ValueError(f"未知模式：{mode!r}")

@@ -123,8 +123,28 @@ koubo auto my-video --video talk.mp4 --no-llm
 koubo auto my-video --video talk.mp4 --asr-model large-v3
 ```
 
-全自动的边界：**口播选段与字幕依赖 ASR，Vlog 的旁白/故事线依赖 DeepSeek**；
-没有 Key 时口播仍能本地全选成片，Vlog 回退保序 + BGM，不猜旁白。
+### 在 DeepSeek 窗口里用，不填 Key
+
+如果就在 DeepSeek / Agent 窗口里，可以让**当前模型自己当导演**，不配置 API Key：
+
+```bash
+# 1. 生成候选、转录、Vlog 代表帧和宿主导演请求
+koubo auto my-video --video ~/Movies/口播.mp4 --prepare
+
+# 2. 让当前窗口的模型读 work/host-director-request.json
+#    （Vlog 还看 work/host-frames/），把决策写到：
+#    my-video/work/host-director-decision.json
+
+# 3. 继续出片
+koubo auto my-video --video ~/Movies/口播.mp4 --resume
+```
+
+`--prepare` 不做任何云端调用；`--resume` 读宿主写的 JSON，仍走和 DeepSeek
+相同的覆盖率 / 关键词 / 旁白长度 / 镜头锚点校验。宿主决策不合格会拒绝继续。
+完整格式见 [全自动成片文档](docs/auto.md#在-deepseek-窗口里用不填-key)。
+
+全自动的边界：**口播选段与字幕依赖 ASR，Vlog 的旁白/故事线依赖 DeepSeek 或宿主模型**；
+两者都没有时口播仍能本地全选成片，Vlog 回退保序 + BGM，不猜旁白。
 详细说明、回退规则与自动修复范围见 [全自动成片文档](docs/auto.md)。
 
 ---
@@ -274,7 +294,7 @@ koubo-studio/
 │   ├── auto_film.py        # koubo auto 全自动编排
 │   ├── koubo.py            # CLI 分发
 │   └── doctor.py           # 环境自检
-├── tests/                  # 145 项回归测试
+├── tests/                  # 147 项回归测试
 ├── references/             # 拆解说明 / 字段表 / 风格语汇 / 踩坑记录
 ├── examples/               # 脱敏示例
 ├── assets/sfx/             # 9 个真实采样（Pixabay Content License）

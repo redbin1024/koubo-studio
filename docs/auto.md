@@ -43,7 +43,7 @@ my-video/work/auto-report.json          本轮自动报告（耗时/修复/质�
 | `faster-whisper` | 默认由 `install.sh` 安装；口播路径必需。首次运行下载模型，默认 `small` |
 | `edge-tts` | 默认安装；无声素材自动旁白用 |
 | `capcut-cli` + 剪映 | 出草稿必需；`koubo auto` 会提前检查 |
-| `DEEPSEEK_API_KEY` | 可选。没有 Key 时口播仍可本地全选成片，Vlog 不自动写旁白 |
+| `DEEPSEEK_API_KEY` | 可选。没有 Key 时可用宿主模式（见下），或让口播本地全选成片 |
 
 ```bash
 export DEEPSEEK_API_KEY="..."     # 只放当前环境，不写进工程文件
@@ -94,13 +94,64 @@ koubo auto my-video --video talk.mp4 --force
 | `--no-llm` | 不调用云端模型，只用本地规则 |
 | `--no-narration` | 无声素材不生成 TTS 旁白 |
 | `--max-repairs` | 质检红项最多修复轮数，默认 2 |
+| `--prepare` | 只生成候选与宿主导演请求；不做云端调用 |
+| `--resume` | 读取宿主 decision 继续；不需要 API Key |
+| `--decision PATH` | 宿主 decision 路径（默认 `work/host-director-decision.json`） |
 | `--force` | 重建 config，清理可再生的 work/captions/assets |
+
+## 在 DeepSeek 窗口里用，不填 Key
+
+如果你就在 DeepSeek / Agent 窗口里，可以让**当前窗口的模型自己当导演**。
+脚本不会借用聊天窗口的登录，也不需要 `DEEPSEEK_API_KEY`；推理由宿主会话完成：
+
+```bash
+# 1. 准备：候选镜头 + ASR 转录 + Vlog 代表帧 + 请求文件
+koubo auto my-video --video ~/Movies/口播.mp4 --prepare
+
+# 2. 让当前窗口的模型读：
+#    my-video/work/host-director-request.json
+#    my-video/work/host-director-prompt.md
+#    （Vlog 还看 my-video/work/host-frames/*.jpg）
+#    把决策写到：
+#    my-video/work/host-director-decision.json
+
+# 3. 继续出片
+koubo auto my-video --video ~/Movies/口播.mp4 --resume
+```
+
+decision 的两种格式：
+
+```jsonc
+// 口播
+{
+  "shots": ["shot_2", "shot_1"],
+  "highlights": ["方法", "清单"],
+  "music_mood": "calm",
+  "beats": [{"shot_id": "shot_2", "cue": "cut"}],
+  "notes": "删掉重复开头，把结论前置"
+}
+
+// Vlog（order 必须覆盖全部候选，不删场景）
+{
+  "order": ["shot_1", "shot_2", "shot_3"],
+  "narration": [
+    {"shot_id": "shot_2", "text": "清晨的光落在窗台上", "evidence": ["shot_2"]}
+  ],
+  "music_mood": "warm",
+  "beats": []
+}
+```
+
+宿主决策和云端模型走**同一套校验**：未知/重复 id、覆盖率不足、关键词不在转录、
+旁白超过 30 字、缺镜头锚点都会拒绝继续，而不是把坏数据写进镜头表。
+`--prepare` 会抽 Vlog 代表帧到 `work/host-frames/`，方便当前窗口的多模态模型看图。
 
 ## 导演决策怎么回退
 
 全自动的底线是：**模型不可用也要能出片**。
 
-- 没有 `DEEPSEEK_API_KEY`：口播本地保序全选；Vlog 本地保序 + BGM，不写旁白。
+- 没有 `DEEPSEEK_API_KEY` 且不跑宿主模式：口播本地保序全选；Vlog 本地保序 + BGM，不写旁白。
+- 宿主写了 decision 但校验不过：直接报错并指出哪一项不合格；不会悄悄降级成另一条片子。
 - 模型返回未知镜头 / 重复镜头 / 删掉超过 65% 内容 / 关键词不在转录里 / 非法情绪或节拍：
   校验失败，回退本地结果；回退原因写进 `auto-report.json` 的 `notes`。
 - 视觉分析或故事方案失败：Vlog 回退本地保序，不猜旁白。
