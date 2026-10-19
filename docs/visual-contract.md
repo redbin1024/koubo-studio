@@ -56,8 +56,8 @@
 
 ## 当前 4105 全功能版
 
-- 13 个包装 beat：2 个可看 mp4 证据（卡/品牌字），
-  3 个贴纸 + 6 个原生资源 + 2 个镜头级高级操作需剪映导出后审查。
+- 17 个包装 beat：3 个可看 mp4 证据（卡/品牌字/预约 CTA），
+  3 个贴纸 + 7 个原生资源 + 4 个镜头级高级操作需剪映导出后审查。
 - 联系表：`work/packaging-review/contact-sheet.jpg`
 - 逐 beat 片段：`work/packaging-review/clips/`
 - 审查文件：`work/packaging-review.json`（pending）

@@ -2,10 +2,10 @@
   "schema_version": 1,
   "id": "KB-TH-01",
   "name": "暖食玻璃卡",
-  "version": "1.0.1",
+  "version": "1.1.1",
   "readiness": {
     "status": "visual_review_pending",
-    "scope": "4105 全功能版：删除 3 张复述字幕的插图后，caption-role 通过；draft-audit 19/0/0；QC 31/0/9（9 项为未启用插图 4 + 无旁白 4 + visual-review 1）；视觉审查 13 beat 中 11 个原生/高级操作待剪映导出确认。"
+    "scope": "4105 全功能版：新增末尾“预约参观”CTA、卡片扫描光条、推近/擦除转场与 4 组镜头关键帧；视觉审查 17 beat 中 14 个原生/高级操作待剪映导出确认。"
   },
   "provenance": {
     "source_project": "4105-全功能版",
@@ -113,6 +113,10 @@
         {
           "name": "光晕",
           "intensity": 0.25
+        },
+        {
+          "name": "扫描光条",
+          "intensity": 0.18
         }
       ],
       "filters": [
@@ -123,7 +127,7 @@
       ],
       "transitions": [
         {
-          "name": "叠化",
+          "name": "推近",
           "dur": 0.36
         },
         {
@@ -135,7 +139,7 @@
           "dur": 0.36
         },
         {
-          "name": "叠化",
+          "name": "向上擦除",
           "dur": 0.36
         }
       ]
