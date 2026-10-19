@@ -15,8 +15,13 @@ audio  人声      粗剪原声，独立音量轨
 audio  音效      work/sfx-track.wav
 audio  旁白      work/voice.wav（存在才上轨）
 audio  BGM       work/bgm.wav，带淡入淡出
-text   字幕      真字幕对象，关键词上色 + 逐条入场动画
+text   字幕      真字幕对象，关键词上色 + 逐条入场动画；行距由 jianying.line_spacing 控制
+video  贴纸      全画布透明 PNG 贴纸，独立轨，只在草稿里
+effect 特效      剪映原生特效（如光晕），只在草稿里
+filter 滤镜      剪映原生滤镜（如暖食），只在草稿里
 ```
+
+剪映原生转场挂在主轨切点 segment 上，不单独占一条轨。
 
 主轨**不再是一整条压平视频**：每个镜头是独立 segment。你可以在剪映里：
 
@@ -55,6 +60,10 @@ koubo auto my-video --video ~/Movies/口播.mp4
 ```
 
 自动模式仍然会跑三态质检；mp4 预览用于快速看节奏和听感，**最终交付以剪映导出为准**。
+
+字幕在剪映里容易“两行叠在一起”，原因是 `import-srt` 默认 `line_spacing=0.02`；
+现在装配完会写 `0.22`（项目内和草稿箱两份都写）。插图卡标题/正文的间距也从
+`1.28×` 提到 `1.58×`，不再挤在一起。
 
 ## 边界
 

@@ -322,12 +322,15 @@ def _insert_card_editorial(W, H, box_px, spec, theme, font_path, med_path, radiu
     body_size = bh * 0.185
     title_font = _fit_text(d, spec["title"], font_path, title_size, tb)
     body = _fit_text(d, spec["text"], med_path, body_size, tb) if spec["text"] else None
-    block = title_size * 1.02 + (body_size * 1.45 if body else 0)
+    # 标题和正文之间至少留 0.5 个标题字高。原来 1.28×title_size 只够放基线，
+    # 中文字身的下伸会把两行压在一起；1.58 是实拍卡在 260px 高时的安全值。
+    body_gap = title_size * 1.58
+    block = title_size * 1.24 + (body_size * 1.58 if body else 0)
     top = y0 + (bh - block) / 2
     _stroked(d, (tx, top), spec["title"], title_font, fg, None, 0,
              anchor="la", tracking=bh * 0.014)
     if body:
-        _stroked(d, (tx, top + title_size * 1.28), spec["text"], body,
+        _stroked(d, (tx, top + body_gap), spec["text"], body,
                  mix(fg, 0.72), None, 0, anchor="la", tracking=bh * 0.005)
     return layer
 
@@ -399,6 +402,21 @@ def insert_card(W, H, box_px, spec, theme, font_path, med_path, radius):
         body = _fit_text(d, spec["text"] or spec["title"], font_path, bh * 0.34, budget)
         d.text((inner_x, y0 + bh * 0.30), spec["text"] or spec["title"],
                font=body, fill=fg)
+    return layer
+
+
+def _sticker_layer(W: int, H: int, spec: dict) -> Image.Image:
+    """一张全画布透明贴纸：坐标/大小都按画布归一化，加到剪映里就是独立贴纸层。"""
+    layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    d = ImageDraw.Draw(layer)
+    try:
+        cx = float(spec.get("x", 0.5)) * W
+        cy = float(spec.get("y", 0.5)) * H
+        size = float(spec.get("size", 0.09)) * W
+    except (TypeError, ValueError):
+        return layer
+    color = hex_to_rgba(spec.get("color") or "#D8B36A")
+    _insert_icon(d, cx, cy, max(8.0, size), str(spec.get("icon") or "star"), color, None)
     return layer
 
 
@@ -598,9 +616,19 @@ def build(cfg: dict, project: Path) -> dict:
                           float(ins_cfg["radius"]))
         written.append(save(art, item["asset"]))
 
+    stickers = []
+    sticker_cfg = cfg.get("stickers") or {}
+    if sticker_cfg.get("enabled"):
+        for i, spec in enumerate(sticker_cfg.get("items") or [], 1):
+            art = _sticker_layer(W, H, spec)
+            name = f"sticker-{i}.png"
+            written.append(save(art, name))
+            stickers.append({**spec, "asset": name})
+
     write_json(p["work"] / "assets.json", {"canvas": [W, H], "files": written,
                                            "card_box_px": box, "scale": round(k, 4),
-                                           "inserts": inserts["items"]})
+                                           "inserts": inserts["items"],
+                                           "stickers": stickers})
     print(f"  assets/  {len(written)} 张（画布 {W}x{H}，卡盒 {box}）")
     return {"files": written}
 

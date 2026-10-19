@@ -93,6 +93,15 @@
                                           // 剪映「音效效果」（处理器），不是音效素材
   },
 
+  "stickers": {                           // 只进草稿的贴纸/图形层（全画布透明 PNG）
+    "enabled": true,
+    "items": [
+      { "icon": "heart", "at": 19.6, "dur": 2.2,
+        "x": 0.82, "y": 0.22, "size": 0.085, "color": "#B9824A" }
+                                          // icon: check/clock/bowl/leaf/heart/home/star/shield
+    ]
+  },
+
   "inserts": {
     "enabled": true,
     "layout": "band",                     // band 字幕带上方的横条卡 / panel 整屏图形段（压暗底画）
@@ -153,6 +162,7 @@
     "name": "示例_风格包装_v1",           // 草稿名；同名会被覆盖，要留手改版就换名
     "install": true,                      // 复制 + 登记进剪映草稿箱；false = 只留在 draft-store/
     "ratio": "9:16",                      // 缺省按 canvas 推（高 ≥ 宽 → 9:16）
+    "line_spacing": 0.22,                 // import-srt 默认 0.02，双行字幕会叠；0.22 是安全值
     "force_install": false                // true = 连剪映改过的同名草稿也覆盖（默认保护手改版）
   },
 

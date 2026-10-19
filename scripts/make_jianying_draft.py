@@ -527,6 +527,23 @@ def build(cfg: dict, project: Path, name: str | None, install: bool,
     else:
         print("  jianying_fx 未启用，跳过剪映原生特效")
 
+    # 7.6 贴纸层（草稿专属；全画布透明 PNG，进剪映是独立图片轨）
+    sticker_count = 0
+    sticker_cfg = cfg.get("stickers") or {}
+    if sticker_cfg.get("enabled"):
+        for i, item in enumerate(sticker_cfg.get("items") or [], 1):
+            asset = p["assets"] / f"sticker-{i}.png"
+            if not asset.is_file():
+                continue
+            at, dur = float(item.get("at", 0) or 0), float(item.get("dur", 0) or 0)
+            if at < 0 or dur <= 0 or at + dur > total + 0.05:
+                continue
+            cap.run("add-video", str(proj), str(asset), f"{at:.3f}s",
+                    f"{dur:.3f}s", "--track-name", "贴纸", "-q")
+            sticker_count += 1
+    if sticker_count:
+        print(f"  贴纸 {sticker_count} 条（草稿专属，独立贴纸轨）")
+
     # 8. duration 回正 + 校验
     fix_duration(proj)
     stamp_jianying_platform(proj)
@@ -551,6 +568,14 @@ def build(cfg: dict, project: Path, name: str | None, install: bool,
               "installed_to": None}
     if install:
         report["installed_to"] = install_draft(cap, proj, name, store, force_install)
+    # import-srt 默认行距 0.02，双行字幕会叠在一起；在最后一步直接修草稿 JSON，
+    # 不再触发 capcut 的 changed-on-disk 检查。项目内和草稿箱那份都要修。
+    spacing = float((cfg.get("jianying") or {}).get("line_spacing", 0.22))
+    set_text_line_spacing(proj, spacing)
+    if report.get("installed_to"):
+        set_text_line_spacing(Path(report["installed_to"]), spacing)
+    report["text_line_spacing"] = spacing
+    report["tracks"]["stickers"] = sticker_count
     write_json(p["work"] / "jianying-draft.json", report)
     return report
 
@@ -578,6 +603,27 @@ def verify_timeline(cap: Capcut, proj: Path, total: float, want_texts: int) -> d
     if texts != want_texts:
         raise SystemExit(f"字幕条数对不上：草稿 {texts} / SRT {want_texts}")
     return {"end": end, "texts": texts}
+
+
+def set_text_line_spacing(proj: Path, spacing: float) -> None:
+    """给草稿里的每条字幕写行距。
+
+    capcut import-srt 默认 line_spacing=0.02，双行字幕在剪映里两行几乎贴在一起；
+    0.22 是 22% 字高的安全行距。改的是草稿 JSON 的 text material，不影响 SRT。
+    """
+    path = Path(proj) / "draft_content.json"
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return
+    texts = (data.get("materials") or {}).get("texts") or []
+    changed = False
+    for material in texts:
+        if "line_spacing" in material:
+            material["line_spacing"] = round(float(spacing), 3)
+            changed = True
+    if changed:
+        write_json(path, data)
 
 
 def fix_duration(proj: Path) -> None:

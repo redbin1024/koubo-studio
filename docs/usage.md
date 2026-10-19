@@ -351,14 +351,20 @@ koubo draft my-video --no-install
 "jianying_fx": {
   "enabled": true,
   "namespace": "jianying",
-  "effects":     [{ "name": "漏光噪点", "at": 0.0, "dur": 2.2, "intensity": 0.45 }],
-  "filters":     [{ "name": "日系奶油", "intensity": 0.32 }],
-  "transitions": [{ "at": 21.80, "name": "叠化", "dur": 0.36 }],
+  "effects":     [{ "name": "光晕", "at": 0.0, "dur": 2.2, "intensity": 0.25 }],
+  "filters":     [{ "name": "暖食", "intensity": 0.16 }],
+  "transitions": [{ "at": 6.5, "name": "叠化", "dur": 0.36 }],
   "sfx":         [{ "name": "回音", "at": 8.0, "dur": 0.8, "volume": 0.5 }]
+},
+"stickers": {
+  "enabled": true,
+  "items": [{"icon": "heart", "at": 19.6, "dur": 2.2,
+             "x": 0.82, "y": 0.22, "size": 0.085, "color": "#B9824A"}]
 }
 ```
 
-**这一块只进草稿。** 成片 mp4 是 ffmpeg 渲的，看不到剪映原生滤镜/特效/转场；选它就意味着「成片以剪映导出为准」。资源名可用 `capcut enums --filters --jianying` 等命令查；写错会在写草稿前报出来。
+**这一块只进草稿。** 成片 mp4 是 ffmpeg 渲的，看不到剪映原生滤镜/特效/转场/贴纸；选它就意味着「成片以剪映导出为准」。资源名可用 `capcut enums --filters --jianying` 等命令查；写错会在写草稿前报出来。
+字幕行距由 `jianying.line_spacing` 控制（默认 0.22）；`import-srt` 的 0.02 会让双行字幕叠在一起。
 
 ### 混合后端（可选）
 

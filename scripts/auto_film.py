@@ -536,22 +536,21 @@ def _build_sfx(cfg: dict, result: auto_director.DirectorResult, plan: dict,
             starts[str(shot["id"])] = round(cursor, 3)
         cursor += duration
     events: list[dict] = []
-    if total >= 1.0:
-        events.append({"t": 0.0, "cue": "hook"})
+    # 口播/品牌片不要低频 impact：auto 默认只用轻 whoosh / ping / chime。
+    # hook 也留给画面和 BGM，第一秒突然一记低鼓最容易显得“模板味”。
     for i, shot in enumerate(plan["shots"][1:], 1):
         t = round(starts.get(str(shot.get("id")), 0.0), 3)
         if t <= 0.05:
             continue
-        prev = plan["shots"][i - 1]
-        cue = "cut" if prev.get("source") == shot.get("source") else "wipe"
-        events.append({"t": t, "cue": cue})
+        events.append({"t": t, "cue": "wipe"})
         if len(events) >= 6:
             break
     for beat in result.beats:
         t = starts.get(str(beat.get("shot_id")))
         if t is None:
             continue
-        events.append({"t": round(t, 3), "cue": beat["cue"]})
+        cue = "wipe" if beat.get("cue") == "cut" else beat["cue"]
+        events.append({"t": round(t, 3), "cue": cue})
     events.sort(key=lambda item: float(item["t"]))
     dedup = []
     for event in events:
@@ -560,6 +559,7 @@ def _build_sfx(cfg: dict, result: auto_director.DirectorResult, plan: dict,
         if 0 <= float(event["t"]) < total:
             dedup.append(event)
     cfg["sfx"]["events"] = dedup[:MAX_SFX]
+    cfg["audio"]["sfx_volume"] = min(float(cfg["audio"].get("sfx_volume", 0.75)), 0.55)
 
 
 def _plan_from_result(result: auto_director.DirectorResult, mode: str) -> dict:
