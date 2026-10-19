@@ -56,7 +56,8 @@ def _read_window(start: float, end: float, enter: float = 0.30) -> dict:
 
 
 def build(cfg: dict, project: Path, total: float,
-          native_plans: list[dict] | None = None) -> dict:
+          native_plans: list[dict] | None = None,
+          advanced_plans: list[dict] | None = None) -> dict:
     beats: list[dict] = []
     p = project_paths(project)
 
@@ -153,6 +154,36 @@ def build(cfg: dict, project: Path, total: float,
                 "claim_status": "none", "evidence_refs": [], "native": False,
                 "draft_only": True,
             })
+
+    for i, plan in enumerate(advanced_plans or [], 1):
+        start, end = float(plan["start"]), float(plan["end"])
+        mechanisms = []
+        if plan.get("keyframes"):
+            mechanisms.append("keyframe")
+        if plan.get("mask_slug"):
+            mechanisms.append("mask")
+        if plan.get("mix_mode"):
+            mechanisms.append("mix-mode")
+        if plan.get("bg_blur"):
+            mechanisms.append("bg-blur")
+        if plan.get("filters"):
+            mechanisms.append("filter")
+        beats.append({
+            "id": f"advanced-{i}", "kind": "advanced", "structure": "style-layer",
+            "start": round(start, 3), "end": round(end, 3),
+            "style_id": "advanced-shot-fx",
+            "visible_feature": {"description": "镜头级关键帧/蒙版/混合模式/滤镜",
+                                "region": [0.0, 0.0, 1.0, 1.0]},
+            "reading": {"start": round(start, 3), "end": round(end, 3),
+                        "stable_text": False, "description": "镜头运动/合成，不承载阅读"},
+            "motion": {"mechanism": "+".join(mechanisms) or "advanced",
+                       "phase": "sustained",
+                       "windows": [[round(start, 3), round(end, 3)]],
+                       "description": "由剪映渲染，mp4 预览不包含"},
+            "assets": [], "claim_status": "none", "evidence_refs": [],
+            "native": False, "draft_only": True,
+            "visual_status": "requires-capcut-export",
+        })
 
     for i, plan in enumerate(native_plans or [], 1):
         kind = str(plan.get("kind"))

@@ -34,7 +34,7 @@ from _common import (  # noqa: E402
     project_paths, repo_root, resolve_video, write_json,
 )
 from workflow import caption_plan  # noqa: E402
-from workflow import draft_audit, draft_spec, visual_contract  # noqa: E402
+from workflow import advanced_fx, draft_audit, draft_spec, visual_contract  # noqa: E402
 
 # 剪映字号 15 时一行塞不下太多字：16 是 lint 的上限，实际 9 字以内最稳
 JY_MAX_CHARS = 9
@@ -459,6 +459,14 @@ def build(cfg: dict, project: Path, name: str | None, install: bool,
         pos += dur
     print(f"  主轨 {i} 段 / {pos:.3f}s")
 
+    # 4.2 高级片段操作：关键帧 / 蒙版 / 混合模式 / 背景模糊 / 透明度 / 逐段滤镜
+    adv_plans, adv_errors = advanced_fx.resolve(cfg, main_segments)
+    if adv_errors:
+        raise SystemExit("高级片段配置有误：\n  " + "\n  ".join(adv_errors))
+    adv_done = advanced_fx.apply(cap, proj, adv_plans) if adv_plans else []
+    if adv_done:
+        print(f"  高级片段 {len(adv_done)} 条（关键帧/蒙版/混合模式/滤镜）")
+
     # 剪映资源先解一遍：配置写错的话在写草稿之前就报全，不留半成品
     fx_plans, fx_errors = resolve_fx(cfg, main_segments, total)
     if fx_errors:
@@ -473,12 +481,13 @@ def build(cfg: dict, project: Path, name: str | None, install: bool,
         cfg, project, name=name, total=total, main_durations=main_durs,
         captions=cap_meta, fx_plans=fx_plans,
         voice=(voice, voice_span), sfx=sfx_item, bgm=bgm_item,
-        narration=narration_item)
+        narration=narration_item, advanced_plans=adv_plans)
     spec["qa"]["require_installed"] = bool(install)
     write_json(p["work"] / "draft-spec.json", spec)
 
     # 4.6 包装层视觉合同：先声明结构/可见区/阅读窗/证据边界，再做画面。
-    vc = visual_contract.build(cfg, project, total, native_plans=fx_plans)
+    vc = visual_contract.build(cfg, project, total, native_plans=fx_plans,
+                               advanced_plans=adv_plans)
     vc_issues = visual_contract.validate(vc) if vc.get("beats") else []
     if vc.get("beats"):
         write_json(p["work"] / "visual-contract.json", vc)
@@ -616,6 +625,7 @@ def build(cfg: dict, project: Path, name: str | None, install: bool,
     write_json(p["work"] / "draft-qc.json", draft_qc)
     report["visual_contract"] = {"beats": len(vc.get("beats") or []),
                                  "issues": vc_issues}
+    report["advanced_fx"] = adv_done
     report["draft_qc"] = draft_qc["summary"]
     if not draft_qc["ok"]:
         bad = [c for c in draft_qc["checks"] if c["status"] == "fail"]

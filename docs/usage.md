@@ -353,6 +353,25 @@ koubo visual-review my-video --force
 
 默认同名覆盖，但**剪映自己动过的同名草稿不覆盖**（加密 / 出现 `Timelines/` 目录）。要保留手改版本就换 `--name`；确认丢弃时加 `--force-install`。
 
+### 高级片段操作（只进草稿）
+
+```jsonc
+"shot_fx": {
+  "enabled": true,
+  "items": [
+    { "shot": 1,
+      "keyframes": [
+        { "property": "scale", "time": 0.0, "value": "1.0" },
+        { "property": "scale", "time": 1.5, "value": "1.04", "easing": "ease-out" }
+      ] }
+  ]
+}
+```
+
+支持关键帧（位置/缩放/旋转/透明度/音量）、蒙版（linear/mirror/circle/rectangle/heart/star）、
+混合模式、背景模糊、透明度、逐段滤镜。`shot` 是主轨 1-based 序号，`keyframe.time` 相对镜头起点。
+`duplicate=true` 会复制上层并把蒙版/混合模式作用在副本上，原主轨保留。
+
 ### 剪映原生资源（只进草稿）
 
 ```jsonc

@@ -289,7 +289,7 @@ def run_checks(cfg: dict, project: Path) -> dict:
                      "caption-band-clearance", "insert-rendered",
                      "style-plan-consistent", "bgm-present", "jianying-fx",
                      "jianying-draft", "jianying-installed", "draft-audit",
-                     "visual-contract", "visual-review"):
+                     "visual-contract", "visual-review", "advanced-fx"):
             add(name, None, "没有成片，本项没查")
         return _write(p, out, {}, {}, checks)
 
@@ -539,6 +539,24 @@ def run_checks(cfg: dict, project: Path) -> dict:
             f"{summary.get('unchecked', 0)} 没查"
             + ("；" + "；".join(f"{c['name']} {c['detail']}" for c in bad[:3])
                if bad else ""))
+
+    # ---- 高级片段操作（关键帧/蒙版/混合模式/逐段滤镜）
+    adv_cfg = cfg.get("shot_fx") or {}
+    if not adv_cfg.get("enabled"):
+        add("advanced-fx", None, "shot_fx 未启用，本项没查")
+    else:
+        try:
+            jr = json.loads((p["work"] / "jianying-draft.json").read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            jr = {}
+        items = jr.get("advanced_fx") or []
+        if not items:
+            add("advanced-fx", False, "shot_fx 已启用，但草稿报告里没有高级片段结果")
+        else:
+            bad = [x for x in items if not x.get("applied")]
+            add("advanced-fx", not bad,
+                f"{len(items)} 条高级片段"
+                + (f"；{bad[0].get('shot')} 没有实际写入" if bad else ""))
 
     # ---- 包装层视觉合同 / 视觉审查包
     vc_path = p["work"] / "visual-contract.json"

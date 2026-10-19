@@ -95,6 +95,24 @@
                                           // 剪映「音效效果」（处理器），不是音效素材
   },
 
+  "shot_fx": {                            // 只进草稿的高级片段操作
+    "enabled": true,
+    "items": [
+      { "shot": 1,                        // 主轨 1-based 序号
+        "duplicate": false,               // true 时复制上层，把 mask/mix 作用在副本
+        "opacity": 1.0, "bg_blur": null,  // bg_blur: 1-4
+        "mask": { "type": "circle", "center_x": 0, "center_y": 0,
+                  "size": 0.6, "rotation": 0, "feather": 0.1, "invert": false },
+        "mix_mode": "normal",             // normal/multiply/screen/...
+        "keyframes": [                    // time 相对镜头起点
+          { "property": "scale", "time": 0.0, "value": "1.0" },
+          { "property": "scale", "time": 1.5, "value": "1.04", "easing": "ease-out" }
+        ],
+        "filters": [{ "name": "暖食", "intensity": 0.15 }]
+      }
+    ]
+  },
+
   "stickers": {                           // 只进草稿的贴纸/图形层（全画布透明 PNG）
     "enabled": true,
     "items": [

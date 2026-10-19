@@ -50,7 +50,8 @@ def build(cfg: dict, project: Path, *,
           voice: tuple[Path, float] | None,
           sfx: tuple[Path, float] | None,
           bgm: tuple[Path, float] | None,
-          narration: tuple[Path, float] | None) -> dict:
+          narration: tuple[Path, float] | None,
+          advanced_plans: list[dict] | None = None) -> dict:
     """生成一份可直接审计的草稿规格。
 
     main_durations 已经是对齐到帧的时长；main 轨引用 work/graded.mp4，
@@ -162,6 +163,12 @@ def build(cfg: dict, project: Path, *,
         "clips": clips,
         "texts": texts,
         "native": native,
+        "advanced": [{"shot": p.get("shot"), "duplicate": p.get("duplicate"),
+                      "mask": p.get("mask_slug"), "mix_mode": p.get("mix_mode"),
+                      "bg_blur": p.get("bg_blur"), "opacity": p.get("opacity"),
+                      "keyframes": len(p.get("keyframes") or []),
+                      "filters": [f.get("name") for f in (p.get("filters") or [])]}
+                     for p in (advanced_plans or [])],
         "stickers": stickers,
         "audio": audio,
         "qa": {
@@ -171,6 +178,7 @@ def build(cfg: dict, project: Path, *,
             "max_text_overlaps": 0,
             "require_stickers": len(stickers),
             "require_native": len(native),
+            "require_advanced": len(advanced_plans or []),
             "planned_main_segments": len(plan_shots),
         },
     }

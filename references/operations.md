@@ -29,9 +29,11 @@
 | 特效 | 特效轨 | `jianying_fx.effects` + 资源名 | 📝 只进草稿 | `native-effect` + 资源报告 |
 | 滤镜 | 滤镜轨 | `jianying_fx.filters` + 强度 | 📝 只进草稿 | `native-filter` |
 | 转场 | 片段转场 | `jianying_fx.transitions` 挂在主轨切点 | 📝 只进草稿 | `native-transitions` |
-| 关键帧 | 参数关键帧 | 未写入草稿 | 👤 人工 | — |
-| 蒙版 | 蒙版 | 未写入草稿 | 👤 人工 | — |
-| 混合模式 | 混合模式 | 未写入草稿 | 👤 人工 | — |
+| 关键帧 | 参数关键帧 | `shot_fx.keyframes`，相对镜头起点 | 📝 只进草稿 | `advanced-fx` + visual-review |
+| 蒙版 | 蒙版 | `shot_fx.mask`（可配合 duplicate） | 📝 只进草稿 | `advanced-fx` + visual-review |
+| 混合模式 | 混合模式 | `shot_fx.mix_mode` | 📝 只进草稿 | `advanced-fx` |
+| 背景模糊 | 背景模糊 | `shot_fx.bg_blur` 1–4 | 📝 只进草稿 | `advanced-fx` |
+| 逐段滤镜 | 滤镜 | `shot_fx.filters` 时间窗 | 📝 只进草稿 | `advanced-fx` |
 | 常规变速 / 曲线变速 | 变速 | 未写入草稿 | 👤 人工 | — |
 | 在线贴纸库 | 贴纸 | 需要剪映 resource-id，未接 | 👤 人工 | 资源 id 不在公开 API |
 | 抠像 / 跟踪 | 智能抠像 / 运动跟踪 | 未接 | 👤 人工 | — |

@@ -58,5 +58,5 @@
 | 执行层 | pyJianYingDraft | capcut-cli + 草稿 JSON 补丁 |
 | 主轨来源 | 原始素材 source_in | 当前为压平 `graded.mp4` 切段 |
 | 贴纸 | 剪映 resource-id / sticker 轨 | 本地全画布 PNG，独立贴纸轨 |
-| 关键帧/蒙版 | EDL 已部分表达 | 尚未接入 |
+| 关键帧/蒙版/混合模式 | EDL 已部分表达 | 已接入 `shot_fx`（只进草稿） |
 | 导出 | 人工 | 人工 |
