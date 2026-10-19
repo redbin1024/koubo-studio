@@ -474,6 +474,10 @@ def build(cfg: dict, project: Path, name: str | None, install: bool,
         raise SystemExit("剪映资源配置有误：\n  " + "\n  ".join(fx_errors))
 
     # 4.5 决策规格：先于音频/字幕/贴纸落盘，执行后由 draft_audit 对账。
+    cap_plan = caption_plan.load(cfg, project)
+    broll_plans, broll_errors = broll.resolve(cfg, project, cap_plan.get("cues") or [])
+    if broll_errors:
+        raise SystemExit("B-roll 配置有误：\n  " + "\n  ".join(broll_errors))
     voice_span = _audio_span(voice, total)
     sfx_item = (sfx, _audio_span(sfx, total)) if sfx.is_file() else None
     bgm_item = (bgm, _audio_span(bgm, total)) if bgm.is_file() else None
@@ -501,12 +505,7 @@ def build(cfg: dict, project: Path, name: str | None, install: bool,
         (p["work"] / "visual-contract.json").unlink(missing_ok=True)
         print("  没有启用包装层，跳过视觉合同")
 
-    cap_plan = caption_plan.load(cfg, project)
-
     # 5. B-roll：真实细节镜头，只进草稿；放在主轨之上、包装层之下。
-    broll_plans, broll_errors = broll.resolve(cfg, project, cap_plan.get("cues") or [])
-    if broll_errors:
-        raise SystemExit("B-roll 配置有误：\n  " + "\n  ".join(broll_errors))
     broll_done = []
     for item in broll_plans:
         sid = cap.run("add-video", str(proj), item["source"], f"{item['start']:.3f}s",

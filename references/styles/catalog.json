@@ -15,6 +15,18 @@
         "status": "visual_review_pending",
         "scope": "4105 全功能版：无片头标题；末尾预约 CTA；卡片扫描光条 + 落位关键帧；字幕描边减到 8/阴影 4；转场与 4 组镜头关键帧；视觉审查 16 beat 中 14 个原生/高级操作待剪映导出确认。"
       }
+    },
+    {
+      "id": "KB-TH-02",
+      "name": "接送纪实",
+      "version": "1.0.0",
+      "aliases": [],
+      "recipe": "recipes/KB-TH-02.json",
+      "recipe_sha256": "ee93a356af3d5bdb7ab6afc241af9d5090986c2346f369a703dda08c66cb34be",
+      "readiness": {
+        "status": "draft_polish_pending",
+        "scope": "接送 30s 推广版：23 镜头 / 120BPM；字幕描边 8、金色口号、2 条信息条、扫描光条；尚无独立 style-lock 视觉验收。"
+      }
     }
   ]
 }

@@ -1,0 +1,139 @@
+{
+  "schema_version": 1,
+  "id": "KB-TH-02",
+  "name": "接送纪实",
+  "version": "1.0.0",
+  "readiness": {
+    "status": "draft_polish_pending",
+    "scope": "接送 30s 推广版：23 镜头 / 120BPM；字幕描边 8、金色口号、2 条信息条、扫描光条；尚无独立 style-lock 视觉验收。"
+  },
+  "provenance": {
+    "source_project": "接送-品牌版",
+    "source_note": "素材来自用户自有“接送”素材包；不是第三方参考复刻。",
+    "config_sha256": "a5f3dd60b4c4bc56876a21ddc8201097ec20ff12333644966b918ac5414969fa"
+  },
+  "editorial": {
+    "presenter_led": false,
+    "single_bottom_caption": true,
+    "reading_min_s": 0.6,
+    "semantic_use": [
+      "接送服务推广",
+      "事件纪实",
+      "真实照护动作",
+      "节奏蒙太奇"
+    ]
+  },
+  "style": {
+    "canvas": {
+      "width": 1080,
+      "height": 1920,
+      "fps": 30
+    },
+    "captions": {
+      "font": "Noto Sans CJK SC Black",
+      "size": 76,
+      "outline": 8,
+      "shadow": 4,
+      "spacing": 1.2,
+      "margin_lr": 60,
+      "margin_v": 240,
+      "max_width": 960,
+      "fade_in_ms": 90,
+      "fade_out_ms": 110,
+      "anim_ms": 280,
+      "layout": "bottom",
+      "burn": "layer",
+      "big": {
+        "size": 132,
+        "outline": 14,
+        "shadow": 8,
+        "tracking": 2.0
+      },
+      "hook": {
+        "enabled": false,
+        "scale": 180,
+        "accel": 2.4,
+        "ms": 420
+      },
+      "palette": {
+        "white": "#FFFFFF",
+        "accent": "#FFD24A",
+        "contrast": "#FF5E86",
+        "gold": "#F2D26A",
+        "outline": "#000000"
+      }
+    },
+    "card": {
+      "fill": "#A2A0A1",
+      "edge": "#FAFAFA",
+      "radius": 36,
+      "edge_width": 15,
+      "wipe": 0.22,
+      "box": [
+        0.114,
+        0.15,
+        0.878,
+        0.855
+      ]
+    },
+    "inserts": {
+      "layout": "band",
+      "box": [
+        0.13,
+        0.515,
+        0.87,
+        0.665
+      ],
+      "radius": 26,
+      "theme": {
+        "bg": "#FFF8EC",
+        "fg": "#241F1A",
+        "accent": "#E8A33C"
+      }
+    },
+    "gold": {
+      "size": 120
+    },
+    "grade": {
+      "eq": "eq=contrast=1.08:saturation=1.12:brightness=0.008",
+      "blur": "gblur=sigma=26",
+      "darken": 0.28
+    },
+    "jianying_fx": {
+      "effects": [
+        {
+          "name": "扫描光条",
+          "intensity": 0.16
+        }
+      ],
+      "filters": [
+        {
+          "name": "暖食",
+          "intensity": 0.1
+        }
+      ],
+      "transitions": []
+    },
+    "overlay_fx": {
+      "enabled": true,
+      "items": [
+        {
+          "label": "发光字",
+          "keyframes": [
+            {
+              "property": "scale",
+              "time": 0.0,
+              "value": "0.96"
+            },
+            {
+              "property": "scale",
+              "time": 0.35,
+              "value": "1.0",
+              "easing": "ease-out"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

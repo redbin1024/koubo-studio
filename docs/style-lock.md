@@ -15,6 +15,7 @@ koubo style resolve KB-TH-01
 | ID | 名称 | 版本 | 范围 |
 | --- | --- | --- | --- |
 | `KB-TH-01` | 暖食玻璃卡 | 1.2.0 | 4105 全功能版；无片头标题；字幕描边 8/阴影 4；卡片落位关键帧；行级音效；视觉审查 16 beat 中 14 个原生/高级操作待剪映导出确认 |
+| `KB-TH-02` | 接送纪实 | 1.0.0 | 接送 30s 推广版；23 镜头 / 120BPM；字幕 8/4、金色口号、2 条信息条、扫描光条；视觉审查 5 beat 待剪映导出确认 |
 
 目录：`references/styles/catalog.json`
 配方：`references/styles/recipes/KB-TH-01.json`
