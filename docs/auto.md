@@ -93,6 +93,7 @@ koubo auto my-video --video talk.mp4 --force
 | `--llm-model` | 默认 `deepseek-flash` |
 | `--no-llm` | 不调用云端模型，只用本地规则 |
 | `--no-narration` | 无声素材不生成 TTS 旁白 |
+| `--captions` | `generated`（默认）/ `burned-in`（源片已有字幕，不再生成）/ `none`（不生成画面字幕） |
 | `--max-repairs` | 质检红项最多修复轮数，默认 2 |
 | `--prepare` | 只生成候选与宿主导演请求；不做云端调用 |
 | `--resume` | 读取宿主 decision 继续；不需要 API Key |
@@ -166,6 +167,8 @@ decision 的两种格式：
 | 无可信人声 + Vlog + 有故事旁白 | `speech_mode=narration`，edge-tts 旁白 + 旁白字幕 |
 | 无可信人声 + 口播 | `speech_mode=none`，BGM 填充；没有硬造旁白 |
 | 加 `--no-narration` | `speech_mode=none` |
+| `captions.mode=burned-in` | 原声保留，但不重复生成画面字幕（旁白字幕仍按旁白需要生成） |
+| `captions.mode=none` | 同上，明确不要画面字幕 |
 
 旁白每句的窗口会从该镜头起点延到下一句之前，给 TTS 留时间；**装不下就跳过该句**，
 不会截断半句话。具体写在 `work/voice-cues.json` 的 `skipped` 里。

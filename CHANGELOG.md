@@ -1,5 +1,29 @@
 # Changelog
 
+## 1.5.0 — 2026-10-19
+
+吸收 auto-edit-pro 的包装层方法：视觉合同、72% 静帧/完整 beat 审查、字幕模式与证据边界。
+
+### 新增
+
+- **`work/visual-contract.json`**：每个卡片/插图/贴纸/原生资源写语义结构、
+  可见区域、稳定阅读窗口、动效机制、`claim_status` 和证据边界；`sourced` 必须有依据。
+- **`work/packaging-review.json` + 视觉审查包**：每个可看 beat 抽 72% 静帧、截完整 beat 片段、
+  生成联系表；原生特效/滤镜/转场和草稿专属贴纸标 `requires-capcut-export`，
+  不拿 mp4 底层画面冒充证据。
+- **`verify.py` 新增 `visual-contract` / `visual-review`**：合同违规红项；审查包 pending 记 unchecked，
+  只有人工逐 beat 观看并改 pass 才通过。
+- **`captions.mode`**：`generated` / `burned-in` / `none`；`koubo auto --captions` 可指定。
+  `burned-in/none` 时不重复生成画面字幕，草稿也不建字幕轨。
+- `koubo visual-review PROJECT` 生成视觉审查包。
+- 草稿规格/审计、视觉合同、能力矩阵、证据登记、经验日志形成闭环。
+- 新增视觉合同正例/反例、burned-in 字幕测试；测试总数 158。
+
+### 变更
+
+- 质检从 35 项扩到 37 项。
+- `4105-全功能版-定稿`：草稿审计 19/0/0；QC 32/0/5（visual-review 待人工观看）。
+
 ## 1.4.0 — 2026-10-19
 
 ### 新增

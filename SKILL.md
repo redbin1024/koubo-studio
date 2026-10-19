@@ -48,6 +48,9 @@ koubo auto PROJECT --video talk.mp4 --resume
 
 `--prepare` 不做云端调用；`--resume` 用你自己的推理结果继续，decision 仍走同一套校验。
 
+字幕模式：`captions.mode` / `--captions generated|burned-in|none`。源片已有烧录字幕时用
+`burned-in`，不要重复叠加一层；`none` 表示明确不要画面字幕。
+
 用户要求逐项控制、改镜头表、改包装或只要某一阶段时，用下面的分步流程。
 
 ## 开工硬闸：先看有没有外录（单轨/双轨）
@@ -178,6 +181,9 @@ python scripts/recalibrate.py ~/Downloads/demo_02.mp4   # 拿参考片重量一�
    写草稿前先生成 `work/draft-spec.json`，写完后 `workflow/draft_audit.py` 生成
    `work/draft-qc.json`，`verify.py` 的 `draft-audit` 会逐项对账主轨/人声/字幕/贴纸/原生资源。
    草稿默认同名覆盖（要留手改版本就换 `--name`），并自动装进剪映草稿箱。
+   随后 `make_visual_review.py` 生成 72% 静帧 + 完整 beat 片段 + 联系表；
+   原生/草稿专属资源标 `requires-capcut-export`，不能拿 mp4 底层画面冒充。
+   视觉审查保持 pending，实际看过后再改 `work/packaging-review.json`。
    **这条不靠自觉**：`verify.py` 有 `jianying-draft` / `jianying-installed` 两项检查，
    `--skip draft` 或没装进草稿箱都会在 `work/qc-report.json` 里报红。
 
@@ -203,7 +209,8 @@ python scripts/recalibrate.py ~/Downloads/demo_02.mp4   # 拿参考片重量一�
 | `render.py` | 烧字幕 + 混音 + 响度归一 → `output/final-*.mp4` |
 | `verify.py` | 质检：规格 + 房规 + 风格是否真的落地 → `work/qc-report.json` |
 | `jy_hybrid.py` | **可选**混合后端：jy1 写内容 + 本模块补关键词变色 + capcut-cli 补交付层 |
-| `make_jianying_draft.py` | 装配剪映草稿：主轨 / 包装层 / 贴纸 / 人声 / 音效 /（旁白 / BGM）/ 字幕；写 draft-spec + draft-audit |
+| `make_jianying_draft.py` | 装配剪映草稿：主轨 / 包装层 / 贴纸 / 人声 / 音效 /（旁白 / BGM）/ 字幕；写 draft-spec + visual-contract + draft-audit |
+| `make_visual_review.py` | 包装层视觉审查包：72% 静帧 / 完整 beat 片段 / 联系表；pending 等人工 |
 | `run_all.py` | 串起全流程（align 最先跑），`--only` / `--skip` 控制步骤 |
 | `rebuild_sample.py` | 把旧镜头表 / 已审核音轨的样片导入标准工程，再调用完整流水线 |
 | `export_voice_review.py` | 从本轮成片导出逐句带声画的旁白听审短片和镜头来源清单 |

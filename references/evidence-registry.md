@@ -23,6 +23,9 @@
 | 自动 SFX 只用 whoosh/ping/chime | L4 | `_build_sfx` 默认策略；事件表已无 impact | 听感 A/B 后再定默认音量 |
 | 剪映草稿人声时长按源文件钳制 | L1 | 42.900 vs 42.869 实测，`audio-voice` 通过 | 保持 |
 | `pip.enabled=false` 不绘制 | L1 | 代码路径 + 目视帧 | 保持 |
+| 视觉合同：阅读窗 ≥0.5s | L4 | 本项目策略；卡/插图现有 1.1–1.9s | 需要真实观众/客户确认 |
+| 视觉审查包 72% 静帧 + 完整 beat | L4 | 借 auto-edit-pro 的 Gate C 方法；已生成 pending 包 | 人工逐 beat 观看后升级 L1 |
+| `captions.mode=burned-in/none` | L1 | 单测：非空 SRT 也生成空 ASS；auto source 分支 | 保持 |
 
 ## 使用规则
 

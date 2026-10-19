@@ -71,6 +71,33 @@ class AutoFilmHelperTests(unittest.TestCase):
             self.assertFalse(cfg["card"]["enabled"])
             self.assertEqual(len(notes), 2)
 
+    def test_burned_in_captions_do_not_generate_duplicate_subtitles(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            ensure_dirs(project)
+            cfg = apply_defaults({"name": "burned", "duration": 3.0,
+                                  "audio": {"speech_mode": "source"},
+                                  "captions": {"mode": "burned-in"}})
+            plan = {"version": 1, "mode": "talking-head",
+                    "shots": [{"source": "/tmp/a.mp4", "in": 0, "duration": 3}]}
+            result = DirectorResult(
+                shots=[{"id": "shot_1", "source": "/tmp/a.mp4", "in": 0,
+                        "duration": 3, "transcript": "现场"}],
+                mode="talking-head")
+            clean = project / "input" / "clean-cut.mp4"
+            clean.write_bytes(b"x")
+            with mock.patch("auto_film._transcribe_cut",
+                            return_value={"words": [], "duration": 3.0}), \
+                    mock.patch("auto_film._source_evidence",
+                               return_value=({"signature": "s"}, True, "3 秒语音")):
+                mode, notes, voice = _prepare_voice(
+                    project, cfg, "talking-head", result, plan, clean, 3.0,
+                    "small", False)
+            self.assertEqual(mode, "source")
+            self.assertIsNone(voice)
+            self.assertEqual((project / "input" / "captions.srt").read_text(), "")
+            self.assertTrue(any("不重复生成" in note for note in notes))
+
     def test_prepare_voice_narration_and_fallback(self):
         with tempfile.TemporaryDirectory() as tmp:
             project = Path(tmp)

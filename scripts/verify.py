@@ -288,7 +288,8 @@ def run_checks(cfg: dict, project: Path) -> dict:
                      "insert-slot", "insert-grounded",
                      "caption-band-clearance", "insert-rendered",
                      "style-plan-consistent", "bgm-present", "jianying-fx",
-                     "jianying-draft", "jianying-installed", "draft-audit"):
+                     "jianying-draft", "jianying-installed", "draft-audit",
+                     "visual-contract", "visual-review"):
             add(name, None, "没有成片，本项没查")
         return _write(p, out, {}, {}, checks)
 
@@ -538,6 +539,42 @@ def run_checks(cfg: dict, project: Path) -> dict:
             f"{summary.get('unchecked', 0)} 没查"
             + ("；" + "；".join(f"{c['name']} {c['detail']}" for c in bad[:3])
                if bad else ""))
+
+    # ---- 包装层视觉合同 / 视觉审查包
+    vc_path = p["work"] / "visual-contract.json"
+    try:
+        vc = json.loads(vc_path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        vc = None
+    if vc is None:
+        add("visual-contract", None, "没有 work/visual-contract.json，本项没查")
+    else:
+        from workflow.visual_contract import validate as validate_vc
+        vc_issues = validate_vc(vc)
+        add("visual-contract", not vc_issues,
+            f"{len(vc.get('beats') or [])} 个包装 beat"
+            + ("；" + "；".join(vc_issues[:3]) if vc_issues else ""))
+
+    vr_path = p["work"] / "packaging-review.json"
+    try:
+        vr = json.loads(vr_path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        vr = None
+    if vr is None:
+        add("visual-review", None, "没有 work/packaging-review.json，本项没查")
+    else:
+        beats = vr.get("beats") or []
+        failed = [b for b in beats if b.get("status") == "fail"]
+        pending = [b for b in beats if b.get("status") in ("pending", "requires-capcut-export")]
+        if failed:
+            add("visual-review", False,
+                f"{len(failed)} 个 beat 失败；{failed[0].get('id')} 需重做")
+        elif pending or vr.get("status") != "pass":
+            add("visual-review", None,
+                f"待人工观看：{len(pending)} 个 beat pending/需剪映导出；"
+                f"contact sheet: {vr.get('contact_sheet')}")
+        else:
+            add("visual-review", True, f"{len(beats)} 个 beat 已通过人工视觉审查")
 
     # ---- 草稿有没有被剪映改过（漂移）。**不要信任 capcut diagnose 的 diverged 字段** ——
     # 剪映保存时把 draft_info.json / draft_meta_info.json 加密，而读不了的镜像被它排除在

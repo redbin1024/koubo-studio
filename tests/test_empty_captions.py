@@ -23,6 +23,19 @@ class EmptyCaptionTests(unittest.TestCase):
             self.assertIn("[Events]", ass)
             self.assertNotIn("Dialogue:", ass)
 
+    def test_burned_in_mode_does_not_add_duplicate_captions(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            p = ensure_dirs(project)
+            p["input"].joinpath("captions.srt").write_text(
+                "1\n00:00:00,100 --> 00:00:01,000\n现场字幕\n", encoding="utf-8")
+            cfg = apply_defaults({"name": "burned", "duration": 2.0,
+                                  "captions": {"mode": "burned-in"}})
+            result = make_captions.build(cfg, project)
+            self.assertEqual(result["count"], 0)
+            ass = (p["captions"] / "final.ass").read_text(encoding="utf-8")
+            self.assertNotIn("Dialogue:", ass)
+
 
 if __name__ == "__main__":
     unittest.main()

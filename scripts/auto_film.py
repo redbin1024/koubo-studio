@@ -445,6 +445,13 @@ def _prepare_voice(project: Path, cfg: dict, mode: str,
     if ready:
         write_json(project_paths(project)["work"] / EVIDENCE_NAME, bound)
         _clean_voice(project, cfg)
+        caption_mode = str((cfg.get("captions") or {}).get("mode") or "generated")
+        if caption_mode in ("burned-in", "none"):
+            _write_empty_captions(project, cfg)
+            cfg["audio"]["speech_mode"] = "source"
+            notes.append(f"保留原声：{detail}")
+            notes.append("源片字幕模式 " + caption_mode + "：不重复生成画面字幕")
+            return "source", notes, None
         srt = project_paths(project)["input"] / (cfg["input"]["subtitle"] or "captions.srt")
         result_srt = write_srt(record, srt, force=True)
         if result_srt.get("status") != "ok":
@@ -602,7 +609,8 @@ def _render_cut(project: Path, cfg: dict, plan: dict) -> float:
 def _run_pipeline(project: Path) -> int:
     print("\n  跑流水线（--auto，跳过人工听审）")
     work = project_paths(project)["work"]
-    for name in ("qc-report.json", "pipeline.json", "jianying-draft.json", "draft-qc.json"):
+    for name in ("qc-report.json", "pipeline.json", "jianying-draft.json",
+                 "draft-qc.json", "packaging-review.json"):
         (work / name).unlink(missing_ok=True)
     cmd = [sys.executable, str(Path(__file__).parent / "run_all.py"),
            str(project), "--auto"]
@@ -912,6 +920,8 @@ def main() -> None:
     ap.add_argument("--llm-model", default=LLM_DEFAULT)
     ap.add_argument("--no-llm", action="store_true", help="不调用云端模型，只用本地规则")
     ap.add_argument("--no-narration", action="store_true", help="无声素材也不生成旁白")
+    ap.add_argument("--captions", choices=("generated", "burned-in", "none"), default=None,
+                    help="画面字幕模式：生成 / 源片已烧录 / 不要字幕（默认 generated）")
     ap.add_argument("--max-repairs", type=int, default=2,
                     help="质检红项的最多自动修复轮数（默认 2）")
     ap.add_argument("--force", action="store_true", help="重建配置并清掉可再生的中间产物")
@@ -941,6 +951,8 @@ def main() -> None:
     if args.force:
         print("  --force：重建配置并清理中间产物")
     cfg = _load_or_build_config(args, project, clips)
+    if args.captions:
+        cfg.setdefault("captions", {})["mode"] = args.captions
     mode = _resolve_mode(clips, args.mode)
     cfg["mode"] = mode
     print(f"  素材 {len(clips)} 条 / 模式 {mode} / 画布 {cfg['canvas']['width']}x"

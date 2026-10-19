@@ -34,7 +34,7 @@ from _common import (  # noqa: E402
     project_paths, repo_root, resolve_video, write_json,
 )
 from workflow import caption_plan  # noqa: E402
-from workflow import draft_audit, draft_spec  # noqa: E402
+from workflow import draft_audit, draft_spec, visual_contract  # noqa: E402
 
 # 剪映字号 15 时一行塞不下太多字：16 是 lint 的上限，实际 9 字以内最稳
 JY_MAX_CHARS = 9
@@ -194,6 +194,11 @@ def build_captions(cfg: dict, project: Path, total: float | None = None
 
     out_srt = p["work"] / "jy-stage" / "captions-jy.srt"
     out_srt.parent.mkdir(parents=True, exist_ok=True)
+    caption_mode = str((cfg.get("captions") or {}).get("mode") or "generated")
+    if caption_mode in ("burned-in", "none"):
+        out_srt.write_text("", encoding="utf-8")
+        print(f"  画面字幕模式 {caption_mode}：草稿不建字幕轨")
+        return out_srt, [], []
     blocks, meta = [], []
     for cue in plan["cues"]:
         # 计划里的 lines 已经脱掉 `{@...}` 指令，再折行才不会把指令写进草稿。
@@ -472,6 +477,16 @@ def build(cfg: dict, project: Path, name: str | None, install: bool,
     spec["qa"]["require_installed"] = bool(install)
     write_json(p["work"] / "draft-spec.json", spec)
 
+    # 4.6 包装层视觉合同：先声明结构/可见区/阅读窗/证据边界，再做画面。
+    vc = visual_contract.build(cfg, project, total, native_plans=fx_plans)
+    vc_issues = visual_contract.validate(vc)
+    write_json(p["work"] / "visual-contract.json", vc)
+    if vc_issues:
+        print("  ⚠ 视觉合同有 " + str(len(vc_issues)) + " 个问题："
+              + "；".join(vc_issues[:3]))
+    else:
+        print(f"  视觉合同 {len(vc['beats'])} 个包装 beat")
+
     # 5. 包装层
     wins = overlay_windows(cfg, total)
     for label, a, b in wins:
@@ -595,6 +610,8 @@ def build(cfg: dict, project: Path, name: str | None, install: bool,
     # 这样 run_all 仍然能写出完整 report，而不是半路断掉。
     draft_qc = draft_audit.audit(spec, proj, installed=report.get("installed_to"))
     write_json(p["work"] / "draft-qc.json", draft_qc)
+    report["visual_contract"] = {"beats": len(vc.get("beats") or []),
+                                 "issues": vc_issues}
     report["draft_qc"] = draft_qc["summary"]
     if not draft_qc["ok"]:
         bad = [c for c in draft_qc["checks"] if c["status"] == "fail"]

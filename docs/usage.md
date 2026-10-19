@@ -169,6 +169,7 @@ koubo run my-video
 
 ```jsonc
 "captions": {
+  "mode": "generated",              // generated / burned-in / none
   "font": "Noto Sans CJK SC Black",
   "size": 90,
   "layout": "bottom",
@@ -338,7 +339,14 @@ koubo draft my-video
 
 # 只生成、不装进剪映草稿箱
 koubo draft my-video --no-install
+
+# 生成包装层视觉审查包（72% 静帧 + 完整 beat 片段 + 联系表）
+koubo visual-review my-video --force
 ```
+
+包装视觉审查包在 `work/packaging-review/`，`work/packaging-review.json` 初始 pending；
+原生特效/滤镜/转场和草稿专属贴纸标 `requires-capcut-export`，需在剪映导出后看。
+`verify` 的 `visual-review` 在看完并逐项改成 pass 前保持 `unchecked`。
 
 主轨每个镜头是独立 segment，可在剪映里逐镜头 trim / 排序 / 加转场 / 加滤镜 / 做关键帧 / 蒙版。
 逐镜头可编辑的边界与取舍见 [草稿优先](draft-first.md)。
@@ -363,7 +371,8 @@ koubo draft my-video --no-install
 }
 ```
 
-**这一块只进草稿。** 成片 mp4 是 ffmpeg 渲的，看不到剪映原生滤镜/特效/转场/贴纸；选它就意味着「成片以剪映导出为准」。资源名可用 `capcut enums --filters --jianying` 等命令查；写错会在写草稿前报出来。
+**这一块只进草稿。** 成片 mp4 是 ffmpeg 渲的，看不到剪映原生滤镜/特效/转场/贴纸；选它就意味着「成片以剪映导出为准」。
+`captions.mode` 可选 `generated` / `burned-in` / `none`；源片已有烧录字幕时用 `burned-in`，避免重复一层。资源名可用 `capcut enums --filters --jianying` 等命令查；写错会在写草稿前报出来。
 字幕行距由 `jianying.line_spacing` 控制（默认 0.22）；`import-srt` 的 0.02 会让双行字幕叠在一起。
 
 ### 混合后端（可选）

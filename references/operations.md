@@ -22,7 +22,9 @@
 | 原声 | 人声轨 | `clean-cut.mp4` 抽 WAV，按源时长上轨 | ✅ 自动 | `audio-voice` |
 | 音效 / BGM | 音效轨 / 音乐轨 | `sfx-track.wav` / `bgm.wav` | ✅ 自动 | `audio-sfx` / `audio-bgm` |
 | 旁白 | 旁白轨 | `work/voice.wav` + `voice-cues` | ✅ 自动 | `audio-narration`（有旁白时） |
-| 字幕 | 文本轨 | SRT → 文本对象；行距 `jianying.line_spacing` | ✅ 自动 | `text-*` + `text-line-spacing` |
+| 字幕 | 文本轨 | SRT → 文本对象；行距 `jianying.line_spacing`；源片已有字幕可走 `captions.mode=burned-in` | ✅ 自动 | `text-*` + `text-line-spacing` |
+| 包装视觉合同 | — | `visual-contract.json`：结构/可见区/阅读窗/证据边界 | ✅ 自动生成 | `visual-contract` |
+| 视觉审查 | — | 72% 静帧 + 完整 beat 片段 + 联系表；原生/草稿专属需剪映导出 | 👤 人工 | `visual-review`（pending 记 unchecked） |
 | 贴纸 | 贴纸轨 | 本地全画布透明 PNG，独立“贴纸”轨 | 📝 只进草稿 | `stickers`；不是剪映在线贴纸库 |
 | 特效 | 特效轨 | `jianying_fx.effects` + 资源名 | 📝 只进草稿 | `native-effect` + 资源报告 |
 | 滤镜 | 滤镜轨 | `jianying_fx.filters` + 强度 | 📝 只进草稿 | `native-filter` |

@@ -30,7 +30,7 @@ import build_frames, make_assets, make_captions, make_jianying_draft, make_sfx, 
 # narrate / voice 排在 captions 之前：跨字幕集的重叠预检要用到 input/voice-captions.srt，
 # 而旁白字幕只有配音那一步才写得出来。
 STEPS = ("align", "merge", "narrate", "voice", "captions", "assets", "sfx", "music",
-         "frames", "render", "draft", "verify", "review")
+         "frames", "render", "draft", "visual-review", "verify", "review")
 
 
 def wants_narration(cfg: dict) -> bool:
@@ -242,6 +242,13 @@ def main() -> None:
                 result = make_jianying_draft.build(
                     cfg, project, jy["name"], bool(jy["install"]),
                     p["draft_store"], jy["ratio"], True, bool(jy["force_install"]))
+            elif step == "visual-review":
+                if not (p["work"] / "visual-contract.json").is_file():
+                    print("  没有 visual-contract.json，跳过视觉审查包")
+                    log["steps"].append({"step": step, "status": "skipped"})
+                    continue
+                import make_visual_review
+                result = make_visual_review.build(cfg, project, force=True)
             elif step == "verify":
                 result = verify.run_checks(cfg, project)
             else:

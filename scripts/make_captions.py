@@ -42,9 +42,11 @@ def build(cfg: dict, project: Path) -> dict:
     if not srt.is_file():
         raise SystemExit(f"找不到字幕：{srt}")
 
-    # 全自动 Vlog 可能只有旁白、没有画面字幕。空 SRT 不是错误：生成一个
-    # 没有 Dialogue 的合法 ASS，让 captions/frames/draft 都能继续走。
-    if not parse_srt(srt):
+    # 全自动 Vlog 可能只有旁白、没有画面字幕；captions.mode=burned-in/none
+    # 也表示源片已有字幕或明确不要字幕。空 SRT 不是错误：生成一个没有
+    # Dialogue 的合法 ASS，让 captions/frames/draft 都能继续走。
+    caption_mode = str((cfg.get("captions") or {}).get("mode") or "generated")
+    if not parse_srt(srt) or caption_mode in ("burned-in", "none"):
         cap = cfg["captions"]
         cw, ch = cfg["canvas"]["width"], cfg["canvas"]["height"]
         out_ass = p["captions"] / "final.ass"
@@ -66,7 +68,7 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 """, encoding="utf-8")
         write_json(p["work"] / "captions.json",
                    {"strip_punctuation": bool(cap["strip_punctuation"]), "cues": []})
-        print("  没有画面字幕，生成空 ASS（只有旁白字幕）")
+        print(f"  画面字幕模式 {caption_mode}：生成空 ASS，不叠加字幕")
         return {"count": 0}
 
     from workflow.caption_timing import overlap_status

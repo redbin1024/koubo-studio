@@ -48,6 +48,18 @@ print(audit(spec, Path("PROJECT/draft-store/NAME")))
 PY
 ```
 
+## 包装视觉合同与审查包
+
+`draft-spec` 之外，`make_jianying_draft` 还会写：
+
+- `work/visual-contract.json`：每个卡片/插图/贴纸/原生资源的语义结构、可见区域、
+  稳定阅读窗口、动效机制、claim_status 和证据边界；
+- `work/packaging-review.json`：`make_visual_review.py` 生成的 72% 静帧 + 完整 beat 片段 +
+  联系表，初始 pending；原生/草稿专属资源标 `requires-capcut-export`。
+
+`verify.py` 的 `visual-contract` / `visual-review` 会分别检查合同合规与人工审查状态。
+详见 [包装视觉合同与审查包](visual-contract.md)。
+
 ## 边界
 
 - 规格由当前 planner 生成，不是完全独立的人类 EDL；它主要防“执行层丢东西”，还不能证明风格正确。

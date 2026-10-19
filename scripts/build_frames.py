@@ -80,7 +80,11 @@ class Compositor:
         self.icons = [self.assets[f"card-icon-{i}.png"] for i in range(1, len(self.card["rows"]) + 1)]
 
         # 字幕层：默认自己画（caption_layer），字体会跟工程 fonts/ 走
-        if self.cfg["captions"].get("burn", "layer") == "layer":
+        caption_mode = str((self.cfg.get("captions") or {}).get("mode") or "generated")
+        if caption_mode in ("burned-in", "none"):
+            self.captions = None
+            print(f"  画面字幕模式 {caption_mode}：跳过字幕层", file=sys.stderr)
+        elif self.cfg["captions"].get("burn", "layer") == "layer":
             try:
                 self.captions = CaptionLayer(self.cfg, self.project)
                 print(f"  字幕层：{self.captions.font_path.name} / "
