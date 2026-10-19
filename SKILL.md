@@ -195,6 +195,7 @@ python scripts/recalibrate.py ~/Downloads/demo_02.mp4   # 拿参考片重量一�
 | 脚本 | 作用 |
 | --- | --- |
 | `auto_film.py` | **全自动**：素材 → 候选镜头 → 导演决策 → 粗剪 / 字幕 / 旁白 / 包装 → 逐镜头草稿 + mp4 预览 → 质检修复 |
+| `analyze_pacing.py` | 自适应切点 / 镜长分布 / VFR / LUFS；给风格规则提供锚点 |
 | `analyze_reference.py` | 量参考片：切点 / 强调色 / 卡片几何 / 画中画 / 字幕带 |
 | `check_measured.py` | 校验实测常量还和登记表一致（防漂移，已接进 verify 第 19 项） |
 | `recalibrate.py` | 拿参考片把实测常量重量一遍，报与登记表的差异 |

@@ -21,11 +21,12 @@ from workflow.visual_analysis import analyze_shots, api_key_from_env
 
 
 def scene_cuts(path: Path) -> list[float]:
-    """Return FFmpeg scene-change timestamps; these are not semantic events."""
-    result = run([find_ffmpeg(), "-hide_banner", "-i", str(path), "-an",
-                  "-vf", r"select=gt(scene\,0.35),showinfo", "-f", "null", "-"])
-    return [float(t) for t in re.findall(r"showinfo.*?pts_time:\s*([\d.]+)",
-                                          result.stderr)]
+    """Return adaptive scene-change timestamps; these are not semantic events.
+
+    固定 `scene>0.35` 会漏掉等亮度换色；改为全量 scene score + 中位数/MAD 自适应阈值。
+    """
+    from workflow.pacing import adaptive_cuts, scene_scores
+    return [c["t"] for c in adaptive_cuts(scene_scores(path))]
 
 
 def talking_head_shots(clips: list[Path], info: dict[str, dict],

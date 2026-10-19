@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.7.0 — 2026-10-19
+
+### 新增
+
+- **`scripts/analyze_pacing.py` + `workflow/pacing.py`**：自适应 scene score（中位数 + MAD，
+  非极大抑制）、镜头数/切点密度/平均/中位/最短/最长镜长、VFR 诊断、容器 vs 视频流时长、
+  LUFS/真峰。给 `references/styles/` 的量化锚点提供可复现来源。
+- Vlog 的 `auto_edit.scene_cuts` 改用自适应切点，不再固定 `scene>0.35`。
+- 文档 `docs/pacing.md`；风格模板增加分析命令。
+- 新增 pacing 测试；测试总数 161。
+
+### 已知限制
+
+- 同背景跳切（口播换句、人物不动）scene score 很低，分析器可能识别不到；需要 SRT/ASR 停顿或人工确认。
+
 ## 1.6.0 — 2026-10-19
 
 ### 新增

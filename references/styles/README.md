@@ -9,6 +9,7 @@
 
 ```bash
 python scripts/analyze_reference.py <参考成片> --out work/ref.json
+python scripts/analyze_pacing.py <参考成片> --summary -o work/reference-pacing.json
 python scripts/check_measured.py ...
 ```
 
