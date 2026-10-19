@@ -23,7 +23,7 @@ from _common import project_paths, resolve_video
 from workflow import caption_plan
 
 STRUCTURES = {"detail-list", "icon-label", "list", "stat", "quote",
-              "brand-stamp", "decorative", "style-layer"}
+              "brand-stamp", "decorative", "style-layer", "broll"}
 CLAIM_STATUS = {"speech", "brand", "owner-confirmed", "sourced", "estimate", "none"}
 
 
@@ -57,7 +57,8 @@ def _read_window(start: float, end: float, enter: float = 0.30) -> dict:
 
 def build(cfg: dict, project: Path, total: float,
           native_plans: list[dict] | None = None,
-          advanced_plans: list[dict] | None = None) -> dict:
+          advanced_plans: list[dict] | None = None,
+          broll_plans: list[dict] | None = None) -> dict:
     beats: list[dict] = []
     p = project_paths(project)
 
@@ -162,6 +163,30 @@ def build(cfg: dict, project: Path, total: float,
                 "draft_only": True,
             })
 
+    for i, plan in enumerate(broll_plans or [], 1):
+        asset = {"id": Path(plan["source"]).stem, "kind": "b-roll",
+                 "path": plan["source"], "exists": Path(plan["source"]).is_file(),
+                 "sha256": _sha(Path(plan["source"]))}
+        beats.append({
+            "id": f"broll-{i}", "kind": "broll", "structure": "broll",
+            "start": round(float(plan["start"]), 3),
+            "end": round(float(plan["end"]), 3),
+            "style_id": "real-b-roll",
+            "visible_feature": {"description": "真实细节镜头（B-roll）",
+                                "region": [0.0, 0.0, 1.0, 1.0]},
+            "reading": {"start": round(float(plan["start"]), 3),
+                        "end": round(float(plan["end"]), 3),
+                        "stable_text": False, "description": "画面证据，不承载阅读"},
+            "motion": {"mechanism": "cut", "phase": "sustained",
+                       "windows": [[round(float(plan["start"]), 3),
+                                    round(float(plan["end"]), 3)]],
+                       "description": "真实 B-roll，静帧/片段可审"},
+            "assets": [asset],
+            "claim_status": "speech", "evidence_refs": [],
+            "native": False, "draft_only": True,
+            "visual_status": "requires-capcut-export",
+        })
+
     for i, plan in enumerate(advanced_plans or [], 1):
         start, end = float(plan["start"]), float(plan["end"])
         mechanisms = []
@@ -254,7 +279,7 @@ def validate(contract: dict) -> list[str]:
         rs, re_ = float(reading.get("start", 0)), float(reading.get("end", 0))
         if re_ <= rs:
             issues.append(f"{bid}: reading 窗口无效")
-        if beat.get("structure") not in ("decorative", "style-layer") and re_ - rs < 0.6:
+        if beat.get("structure") not in ("decorative", "style-layer", "broll") and re_ - rs < 0.6:
             issues.append(f"{bid}: 稳定阅读窗口不足 0.6s")
         for asset in beat.get("assets") or []:
             if not asset.get("exists"):

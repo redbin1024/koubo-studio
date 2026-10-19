@@ -23,6 +23,7 @@
 | 音效 / BGM | 音效轨 / 音乐轨 | `sfx-track.wav` / `bgm.wav` | ✅ 自动 | `audio-sfx` / `audio-bgm` |
 | 旁白 | 旁白轨 | `work/voice.wav` + `voice-cues` | ✅ 自动 | `audio-narration`（有旁白时） |
 | 字幕 | 文本轨 | SRT → 文本对象；行距 `jianying.line_spacing`；源片已有字幕可走 `captions.mode=burned-in` | ✅ 自动 | `text-*` + `text-line-spacing` |
+| B-roll | 视频轨 | 真实细节镜头，按 cue/keyword 插入；只进草稿 | 📝 只进草稿 | `visual-contract` broll beat |
 | 包装视觉合同 | — | `visual-contract.json`：结构/可见区/阅读窗/证据边界 | ✅ 自动生成 | `visual-contract` |
 | 视觉审查 | — | 72% 静帧 + 完整 beat 片段 + 联系表；原生/草稿专属需剪映导出 | 👤 人工 | `visual-review`（pending 记 unchecked） |
 | 字幕角色 | — | 卡片/插图/品牌字是否复述底部字幕 | ⚠️ 检查 | `caption-role`（warn 记 unchecked，fail 才红） |

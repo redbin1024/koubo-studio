@@ -51,6 +51,9 @@ koubo auto PROJECT --video talk.mp4 --resume
 
 `--prepare` 不做云端调用；`--resume` 用你自己的推理结果继续，decision 仍走同一套校验。
 
+B-roll：真实细节素材放 `input/broll/`，配置 `broll.items`（cue/keyword/source/in/dur），
+只进剪映草稿；不能拿生成图冒充证据。见 `docs/broll.md`。
+
 固定风格：`koubo style bind PROJECT --style KB-TH-01 --choice-source '用户指定'`，
 写 `work/style-lock.json`；改风格参数不升版本会被 `style-lock` 拦下。
 

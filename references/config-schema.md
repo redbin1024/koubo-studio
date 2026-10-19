@@ -114,6 +114,15 @@
     ]
   },
 
+  "broll": {                              // 真实 B-roll；只进草稿
+    "enabled": true,
+    "items": [
+      { "cue": 7, "keyword": "放心",      // keyword 必须在该条字幕里
+        "source": "broll/tea.mp4",        // 相对 input/
+        "in": 0.5, "dur": 1.8, "volume": 0.0 }
+    ]
+  },
+
   "stickers": {                           // 只进草稿的贴纸/图形层（全画布透明 PNG）
     "enabled": true,
     "items": [

@@ -1,5 +1,22 @@
 # Changelog
 
+## 1.12.0 — 2026-10-19
+
+### 新增
+
+- **B-roll 槽位**：真实细节镜头按 `cue/keyword` 插到剪映 `B-roll` 轨，
+  主轨之上、包装层之下；支持 `source/in/dur/volume`，默认静音。
+- `broll` resolver 校验：cue 存在、keyword 真在字幕里、时窗在字幕范围内、素材存在。
+- B-roll 进入 `visual-contract`（`kind=broll`，`requires-capcut-export`）。
+- 文档：[B-roll](docs/broll.md)、[4105 拍摄清单](docs/broll-shotlist-4105.md)、
+  [参考项目名单](docs/reference-projects.md)。
+- 新增 broll 测试；测试总数 **171**。
+
+### 说明
+
+B-roll 只进剪映草稿，ffmpeg mp4 预览暂不包含；最终以剪映导出为准。
+没有真实素材时不启用、不伪造画面。
+
 ## 1.11.0 — 2026-10-19
 
 ### P0：排版/声音/卡片落位

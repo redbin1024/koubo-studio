@@ -53,6 +53,7 @@ PY
 `draft-spec` 之外，`make_jianying_draft` 还会写：
 
 - `draft-spec.advanced`：镜头级关键帧/蒙版/混合模式/背景模糊/逐段滤镜；
+- 草稿的 B-roll 轨：真实细节镜头，按字幕关键词时窗插入（只进草稿）；
 - `work/visual-contract.json`：每个卡片/插图/贴纸/原生资源的语义结构、可见区域、
   稳定阅读窗口、动效机制、claim_status 和证据边界；
 - `work/packaging-review.json`：`make_visual_review.py` 生成的 72% 静帧 + 完整 beat 片段 +

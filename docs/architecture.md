@@ -14,7 +14,7 @@ scripts/
 
 references/              # 数值正本、字段说明、踩坑记录、跨文件规矩登记
 examples/                # 脱敏示例
-tests/                   # 回归测试（169 项）
+tests/                   # 回归测试（171 项）
 assets/sfx/              # 可商用真实音效采样
 ```
 

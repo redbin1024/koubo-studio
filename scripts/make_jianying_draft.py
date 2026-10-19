@@ -34,8 +34,8 @@ from _common import (  # noqa: E402
     project_paths, repo_root, resolve_video, write_json,
 )
 from workflow import caption_plan  # noqa: E402
-from workflow import (advanced_fx, caption_roles, draft_audit, draft_spec,  # noqa: E402
-                      overlay_fx, visual_contract)
+from workflow import (advanced_fx, broll, caption_roles, draft_audit,  # noqa: E402
+                      draft_spec, overlay_fx, visual_contract)
 
 # 剪映字号 15 时一行塞不下太多字：16 是 lint 的上限，实际 9 字以内最稳
 JY_MAX_CHARS = 9
@@ -488,7 +488,7 @@ def build(cfg: dict, project: Path, name: str | None, install: bool,
 
     # 4.6 包装层视觉合同：先声明结构/可见区/阅读窗/证据边界，再做画面。
     vc = visual_contract.build(cfg, project, total, native_plans=fx_plans,
-                               advanced_plans=adv_plans)
+                               advanced_plans=adv_plans, broll_plans=broll_plans)
     vc_issues = visual_contract.validate(vc) if vc.get("beats") else []
     if vc.get("beats"):
         write_json(p["work"] / "visual-contract.json", vc)
@@ -502,6 +502,24 @@ def build(cfg: dict, project: Path, name: str | None, install: bool,
         print("  没有启用包装层，跳过视觉合同")
 
     cap_plan = caption_plan.load(cfg, project)
+
+    # 5. B-roll：真实细节镜头，只进草稿；放在主轨之上、包装层之下。
+    broll_plans, broll_errors = broll.resolve(cfg, project, cap_plan.get("cues") or [])
+    if broll_errors:
+        raise SystemExit("B-roll 配置有误：\n  " + "\n  ".join(broll_errors))
+    broll_done = []
+    for item in broll_plans:
+        sid = cap.run("add-video", str(proj), item["source"], f"{item['start']:.3f}s",
+                      "--track-name", "B-roll")["segment_id"]
+        cap.run("trim", str(proj), sid, f"{item['start']:.3f}s",
+                f"{item['dur']:.3f}s")
+        cap.run("crop", str(proj), sid, "--ratio", "9:16", check=False)
+        cap.run("volume", str(proj), sid, f"{item['volume']:.2f}", check=False)
+        broll_done.append({k: item[k] for k in ("index", "cue", "start", "end", "source")}
+                          | {"segment_id": sid})
+    if broll_done:
+        print(f"  B-roll {len(broll_done)} 段（只进草稿）")
+
     role_audit = caption_roles.audit(
         vc, cap_plan.get("cues") or [],
         policy=str((cfg.get("captions") or {}).get("duplicate_policy") or "warn"))
@@ -646,6 +664,7 @@ def build(cfg: dict, project: Path, name: str | None, install: bool,
                                  "issues": vc_issues}
     report["advanced_fx"] = adv_done
     report["overlay_fx"] = ov_done
+    report["broll"] = broll_done
     report["caption_role"] = {"findings": len(role_audit.get("findings") or []),
                               "policy": role_audit.get("policy")}
     report["draft_qc"] = draft_qc["summary"]
