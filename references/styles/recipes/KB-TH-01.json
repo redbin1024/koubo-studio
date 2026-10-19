@@ -2,10 +2,10 @@
   "schema_version": 1,
   "id": "KB-TH-01",
   "name": "暖食玻璃卡",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "readiness": {
     "status": "visual_review_pending",
-    "scope": "4105 全功能版：draft-audit 19/0/0；QC 33/0/5；视觉审查 16 beat 中 11 个原生/高级操作待剪映导出确认。"
+    "scope": "4105 全功能版：删除 3 张复述字幕的插图后，caption-role 通过；draft-audit 19/0/0；QC 31/0/9（9 项为未启用插图 4 + 无旁白 4 + visual-review 1）；视觉审查 13 beat 中 11 个原生/高级操作待剪映导出确认。"
   },
   "provenance": {
     "source_project": "4105-全功能版",

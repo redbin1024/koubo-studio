@@ -14,7 +14,7 @@ koubo style resolve KB-TH-01
 
 | ID | 名称 | 版本 | 范围 |
 | --- | --- | --- | --- |
-| `KB-TH-01` | 暖食玻璃卡 | 1.0.0 | 4105 全功能版；视觉审查 16 beat 中 11 个原生/高级操作待剪映导出确认 |
+| `KB-TH-01` | 暖食玻璃卡 | 1.0.1 | 4105 全功能版；删除复述字幕插图；视觉审查 13 beat 中 11 个原生/高级操作待剪映导出确认 |
 
 目录：`references/styles/catalog.json`
 配方：`references/styles/recipes/KB-TH-01.json`
