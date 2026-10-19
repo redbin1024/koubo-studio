@@ -34,6 +34,14 @@ class SampleImportTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "不连续"):
                 import_legacy_plan(sample)
 
+    def test_main_track_frame_alignment_keeps_every_shot(self):
+        from make_jianying_draft import _frame_aligned
+        durs = [6.492, 5.724, 4.619, 2.604, 5.113, 2.11, 6.03, 10.069]
+        aligned = _frame_aligned(durs, 42.9, 30)
+        self.assertEqual(len(aligned), 8)
+        self.assertAlmostEqual(sum(aligned), 42.9, places=2)
+        self.assertTrue(all(d > 0 for d in aligned))
+
     def test_draft_uses_edit_plan_cut_points(self):
         with tempfile.TemporaryDirectory() as tmp:
             project = Path(tmp)

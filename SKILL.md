@@ -1,6 +1,6 @@
 ---
 name: koubo-studio
-description: 口播 / Vlog 的可审核智能剪辑工作流：既支持 `koubo auto` 一条命令全自动成片（量参考片风格、ASR 字幕、自动旁白、BGM/音效、mp4 + 剪映草稿、质检自动修复），也支持逐步手工控制；本地规则打底，DeepSeek 可选。用户给出参考视频说「按这个风格剪一遍」「换一个风格再剪一遍」，或要求口播 / Vlog 自动成片、加字幕、信息卡、画中画、旁白、剪映草稿时使用。
+description: 口播 / Vlog 的可审核智能剪辑工作流，以剪映草稿为主交付：既支持 `koubo auto` 一条命令自动出逐镜头可编辑草稿 + mp4 预览（量参考片风格、ASR 字幕、自动旁白、BGM/音效、质检自动修复），也支持逐步手工控制；本地规则打底，DeepSeek 可选。用户给出参考视频说「按这个风格剪一遍」「换一个风格再剪一遍」，或要求口播 / Vlog 自动成片、加字幕、信息卡、画中画、旁白、剪映草稿时使用。
 metadata:
   short-description: 口播 / Vlog 的量片、粗剪、字幕、包装、剪映草稿与全自动成片
 ---
@@ -32,10 +32,10 @@ koubo auto PROJECT --clips a.mov b.mov c.mov
 ```
 
 全自动会：探测素材 → 候选镜头 →（有 `DEEPSEEK_API_KEY` 时）导演选段/排序/高亮/音乐 →
-粗剪 → ASR 字幕 / 原声证据 → 无声素材自动旁白 → BGM/音效 → 渲染 → 剪映草稿 → 质检 →
+粗剪 → ASR 字幕 / 原声证据 → 无声素材自动旁白 → BGM/音效 → 逐镜头剪映草稿 + mp4 预览 → 质检 →
 按红项自动修复。没有 Key 时本地保序全选，Vlog 不自动写旁白；**模型输出全部过校验，
 失败回退本地结果**。决策与回退见 `work/auto-decisions.json` / `work/auto-report.json`。
-完整说明见 [docs/auto.md](docs/auto.md)。
+完整说明见 [docs/auto.md](docs/auto.md)；草稿优先的取舍见 [docs/draft-first.md](docs/draft-first.md)。
 
 **没有 `DEEPSEEK_API_KEY`、但你就在 DeepSeek / Agent 窗口里**：你自己当导演，不需要 Key：
 
@@ -174,7 +174,7 @@ python scripts/recalibrate.py ~/Downloads/demo_02.mp4   # 拿参考片重量一�
    `awaiting_review`，有问题时记录 `changes_requested`，全部句子通过才记 `complete`。
 7. **出剪映草稿**。`run_all.py` 里质检**之前**那一步，**每轮必出，不是可选项**：
    `python scripts/make_jianying_draft.py DIR`。
-   mp4 是交付件，草稿是能继续改的工程 —— 两条都出了这一轮才算跑完。
+   草稿是主交付，mp4 是压平的预览副本 —— 草稿没出这一轮不算跑完。
    草稿默认同名覆盖（要留手改版本就换 `--name`），并自动装进剪映草稿箱。
    **这条不靠自觉**：`verify.py` 有 `jianying-draft` / `jianying-installed` 两项检查，
    `--skip draft` 或没装进草稿箱都会在 `work/qc-report.json` 里报红。
@@ -183,7 +183,7 @@ python scripts/recalibrate.py ~/Downloads/demo_02.mp4   # 拿参考片重量一�
 
 | 脚本 | 作用 |
 | --- | --- |
-| `auto_film.py` | **全自动**：素材 → 候选镜头 → 导演决策 → 粗剪 / 字幕 / 旁白 / 包装 → mp4 + 草稿 → 质检修复 |
+| `auto_film.py` | **全自动**：素材 → 候选镜头 → 导演决策 → 粗剪 / 字幕 / 旁白 / 包装 → 逐镜头草稿 + mp4 预览 → 质检修复 |
 | `analyze_reference.py` | 量参考片：切点 / 强调色 / 卡片几何 / 画中画 / 字幕带 |
 | `check_measured.py` | 校验实测常量还和登记表一致（防漂移，已接进 verify 第 19 项） |
 | `recalibrate.py` | 拿参考片把实测常量重量一遍，报与登记表的差异 |
@@ -215,11 +215,11 @@ python scripts/make_captions.py DIR && python scripts/render.py DIR
 
 ## 剪映草稿（每轮必出）
 
-成片是压平的 mp4，改一个字要重跑整条流水线；草稿是能继续编辑的工程。所以**两条都出**：
+成片是压平的 mp4，改一个字要重跑整条流水线；草稿是主交付，mp4 只是预览。草稿里主轨逐镜头切段，转场/滤镜/关键帧/蒙版回到剪映做：
 
 | 轨道 | 内容 | 可改 |
 | --- | --- | --- |
-| video `video` | `work/graded.mp4` 按 `edit-plan.json` 或粗剪记录切开的 n 段（无有效镜头表就一整段） | 切点、顺序、速度、调色 |
+| video `video` | `work/graded.mp4` 按 `edit-plan.json` 或粗剪记录切开的 n 段（帧对齐；无有效镜头表才退回一整段） | 逐镜头 trim / 排序 / 转场 / 速度 / 滤镜 / 关键帧 / 蒙版 |
 | video `包装层` | `work/body-anim-silent.mp4` 里包装真正出现的时间窗（卡段 / 结尾发光字 / 收尾淡黑） | 位置、时长 |
 | audio `人声` | 粗剪片的原声（已做响度归一），音量取 `audio.voice_volume` | 音量、裁剪 |
 | audio `音效` | `work/sfx-track.wav`，音量取 `audio.sfx_volume` | 单个音效的落点、音量 |

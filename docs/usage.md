@@ -318,12 +318,12 @@ koubo bgm my-video
 
 ---
 
-## 剪映草稿
+## 剪映草稿（主交付）
 
-每一轮 `koubo run` 都会出草稿，**不是可选项**：
+每一轮 `koubo run` 都会出草稿，**不是可选项**；mp4 是压平的预览副本，草稿才是主交付：
 
 ```text
-video  主轨      work/graded.mp4 按镜头表切段
+video  主轨      work/graded.mp4 按镜头表逐镜头切段（帧对齐）
 video  包装层    卡段 / 结尾发光字 / 收尾淡黑
 audio  人声      粗剪原声（响度归一）
 audio  音效      work/sfx-track.wav
@@ -339,6 +339,9 @@ koubo draft my-video
 # 只生成、不装进剪映草稿箱
 koubo draft my-video --no-install
 ```
+
+主轨每个镜头是独立 segment，可在剪映里逐镜头 trim / 排序 / 加转场 / 加滤镜 / 做关键帧 / 蒙版。
+逐镜头可编辑的边界与取舍见 [草稿优先](draft-first.md)。
 
 默认同名覆盖，但**剪映自己动过的同名草稿不覆盖**（加密 / 出现 `Timelines/` 目录）。要保留手改版本就换 `--name`；确认丢弃时加 `--force-install`。
 

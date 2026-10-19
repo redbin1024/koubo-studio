@@ -224,9 +224,30 @@ def _ts(sec: float) -> str:
 
 # ---------------------------------------------------------------- 轨道
 
+def _frame_aligned(durs: list[float], total: float, fps: int) -> list[float]:
+    """把镜头时长对齐到帧，并让总和回到成片实际时长。
+
+    粗剪的 concat 会按输出帧率取整，plan 里 42.761s 的 8 段渲出来是 42.900s；
+    如果因此退回「整条一个片段」，剪映里就没法逐镜头剪。这里把每段四舍五入到帧，
+    把不足的帧补到最后一段，既保住切点，又让主轨总长和成片一致。
+    """
+    rate = max(int(fps), 1)
+    target = max(1, round(float(total) * rate))
+    frames = [max(1, round(float(d) * rate)) for d in durs]
+    delta = target - sum(frames)
+    if abs(delta) > len(frames) + 2:
+        raise ValueError("镜头时长与成片总长差距过大，无法安全对齐帧")
+    frames[-1] = max(1, frames[-1] + delta)
+    out = [round(f / rate, 3) for f in frames]
+    # 3 位小数会再丢 1ms；最后一段吃掉这点差，主轨结尾才能和成片严格对齐。
+    out[-1] = round(float(total) - sum(out[:-1]), 3)
+    return out
+
+
 def main_video_segments(cfg: dict, project: Path, total: float) -> list[float]:
     """主轨沿粗剪镜头切点分段；没有有效记录时退回整条。"""
     p = project_paths(project)
+    fps = int(cfg.get("canvas", {}).get("fps") or 30)
     # auto_edit 的可编辑镜头表没有 rough-cut.json。把压平视频按同一组切点
     # 分段，至少可在剪映里逐镜头调整时长和包装；原素材入点编辑仍属后续能力。
     plan_path = p["work"] / "edit-plan.json"
@@ -235,16 +256,19 @@ def main_video_segments(cfg: dict, project: Path, total: float) -> list[float]:
         try:
             plan = json.loads(plan_path.read_text(encoding="utf-8"))
             durs = [round(float(shot["duration"]), 3) for shot in plan["shots"]]
-            if durs and all(d > 0 for d in durs) and abs(sum(durs) - total) < 0.05:
-                return durs
+            if durs and all(d > 0 for d in durs) and abs(sum(durs) - total) < 0.5:
+                return _frame_aligned(durs, total, fps)
         except (KeyError, TypeError, ValueError):
             pass
     rough = p["work"] / "rough-cut.json"
     if rough.is_file():
         kept = json.loads(rough.read_text(encoding="utf-8")).get("kept") or []
         durs = [round(k["src_out"] - k["src_in"], 3) for k in kept]
-        if durs and abs(sum(durs) - total) < 0.05:
-            return durs
+        if durs and abs(sum(durs) - total) < 0.5:
+            try:
+                return _frame_aligned(durs, total, fps)
+            except ValueError:
+                pass
     return [round(total, 3)]
 
 
