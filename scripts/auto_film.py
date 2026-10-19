@@ -294,7 +294,8 @@ def _resolve_mode(clips: list[Path], requested: str) -> str:
     if not info[str(clips[0])]["has_audio"]:
         return "vlog"
     try:
-        shots = talking_head_shots(clips, info)
+        shots = talking_head_shots(
+                clips, info, pad=0.12, merge_gap=0.55, lead=0.70, tail=0.15)
         return "talking-head" if shots else "vlog"
     except (ValueError, SystemExit):
         return "vlog"
@@ -954,7 +955,8 @@ def main() -> None:
                 clip, args.asr_model, work, required=(mode == "talking-head"))
     try:
         if mode == "talking-head":
-            shots = talking_head_shots(clips, info)
+            shots = talking_head_shots(
+                clips, info, pad=0.12, merge_gap=0.55, lead=0.70, tail=0.15)
         else:
             shots = vlog_shots(clips, info)
             shots = _merge_scene_candidates(shots)

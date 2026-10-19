@@ -31,7 +31,10 @@ def scene_cuts(path: Path) -> list[float]:
 def talking_head_shots(clips: list[Path], info: dict[str, dict],
                        detect_silences: Callable[[Path], list[tuple[float, float]]] | None = None,
                        narration_slot_count: int = 0,
-                       min_slot: float = 1.10) -> list[dict]:
+                       min_slot: float = 1.10,
+                       pad: float = 0.10, merge_gap: float = 0.45,
+                       min_len: float = 0.40, lead: float = 0.0,
+                       tail: float = 0.0) -> list[dict]:
     """说话段 + （可选）解说槽。
 
     `narration_slot_count > 0` 时，把最长的几段**真实静音**留进片子里当解说槽
@@ -46,8 +49,21 @@ def talking_head_shots(clips: list[Path], info: dict[str, dict],
             raise ValueError(f"{clip.name} 没有音轨，无法检测口播")
         sils = detect_silences(clip)
         slots = narration_slots(meta["duration"], sils, min_slot, narration_slot_count)
-        blocks = speech_blocks(meta["duration"], sils, 0.10, 0.45, 0.40)
+        blocks = speech_blocks(meta["duration"], sils, pad, merge_gap, min_len)
+        # 静音检测会把第一个字的前 0.2–0.7s 判成静音；全自动再往后多留 lead 秒，
+        # 否则粗剪从第一个字中间开始，重新 ASR 出来就是「人问我」而不是「很多人问我」。
+        adjusted = []
+        previous_end = 0.0
         for start, end in blocks:
+            start = max(0.0, start - max(lead, 0.0))
+            if adjusted:
+                start = max(start, previous_end + 0.02)
+            end = min(float(meta["duration"]), end + max(tail, 0.0))
+            if end - start < 0.20:
+                continue
+            adjusted.append((start, end))
+            previous_end = end
+        for start, end in adjusted:
             # 说话段的切点两侧各留了 0.10s，会从**两边**伸进解说槽里；重叠的后果是
             # 成片把同一段声音播两遍，所以槽前那段收到槽口、槽后那段从槽尾起。
             for a, b in slots:

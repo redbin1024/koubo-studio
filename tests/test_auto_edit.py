@@ -36,6 +36,17 @@ class AutoEditTests(unittest.TestCase):
                     [clip], {str(clip): {"duration": 6, "has_audio": False}},
                     lambda _: [])
 
+    def test_talking_head_lead_and_tail_keep_first_word_and_do_not_overlap(self):
+        auto_edit = self.module()
+        with tempfile.TemporaryDirectory() as tmp:
+            clip = (Path(tmp) / "talk.mp4").resolve()
+            shots = auto_edit.talking_head_shots(
+                [clip], {str(clip): {"duration": 4, "has_audio": True}},
+                lambda _: [(0, 1), (2, 3)],
+                pad=0.1, merge_gap=0.45, lead=0.5, tail=0.1)
+            self.assertEqual([(s["in"], s["duration"]) for s in shots],
+                             [(0.4, 1.8), (2.4, 1.6)])
+
     def test_vlog_selects_scene_windows_without_audio(self):
         auto_edit = self.module()
         with tempfile.TemporaryDirectory() as tmp:
