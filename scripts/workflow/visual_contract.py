@@ -84,6 +84,11 @@ def build(cfg: dict, project: Path, total: float,
             "assets": assets,
             "claim_status": "speech",
             "evidence_refs": [],
+            "source_texts": ([card.get("title")] if card.get("title") else [])
+                            + [str(r.get("title") or "") for r in rows]
+                            + [str(r.get("detail") or "") for r in rows]
+                            + ([(card.get("theme") or {}).get("footnote")]
+                               if (card.get("theme") or {}).get("footnote") else []),
             "native": False,
         })
 
@@ -102,6 +107,7 @@ def build(cfg: dict, project: Path, total: float,
             "assets": [_asset(project, "gold-flash.png")],
             "claim_status": "brand",
             "evidence_refs": [],
+            "source_texts": [gold["text"]],
             "native": False,
         })
 
@@ -125,6 +131,7 @@ def build(cfg: dict, project: Path, total: float,
                 "evidence_refs": [],
                 "native": False,
                 "source_text": text,
+                "source_texts": [item.get("title") or "", item.get("text") or ""],
             })
 
     sticker_cfg = cfg.get("stickers") or {}
@@ -247,8 +254,8 @@ def validate(contract: dict) -> list[str]:
         rs, re_ = float(reading.get("start", 0)), float(reading.get("end", 0))
         if re_ <= rs:
             issues.append(f"{bid}: reading 窗口无效")
-        if beat.get("structure") not in ("decorative", "style-layer") and re_ - rs < 0.5:
-            issues.append(f"{bid}: 稳定阅读窗口不足 0.5s")
+        if beat.get("structure") not in ("decorative", "style-layer") and re_ - rs < 0.6:
+            issues.append(f"{bid}: 稳定阅读窗口不足 0.6s")
         for asset in beat.get("assets") or []:
             if not asset.get("exists"):
                 issues.append(f"{bid}: 缺素材 {asset.get('path')}")

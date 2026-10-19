@@ -289,7 +289,8 @@ def run_checks(cfg: dict, project: Path) -> dict:
                      "caption-band-clearance", "insert-rendered",
                      "style-plan-consistent", "bgm-present", "jianying-fx",
                      "jianying-draft", "jianying-installed", "draft-audit",
-                     "visual-contract", "visual-review", "advanced-fx"):
+                     "visual-contract", "visual-review", "advanced-fx",
+                     "style-lock", "caption-role"):
             add(name, None, "没有成片，本项没查")
         return _write(p, out, {}, {}, checks)
 
@@ -539,6 +540,43 @@ def run_checks(cfg: dict, project: Path) -> dict:
             f"{summary.get('unchecked', 0)} 没查"
             + ("；" + "；".join(f"{c['name']} {c['detail']}" for c in bad[:3])
                if bad else ""))
+
+    # ---- 字幕角色：包装文字是否在复述底部字幕
+    try:
+        cr = json.loads((p["work"] / "caption-role.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        cr = None
+    if cr is None:
+        add("caption-role", None, "没有 work/caption-role.json，本项没查")
+    else:
+        findings = cr.get("findings") or []
+        if not findings:
+            add("caption-role", True, "没有发现包装文字复述底部字幕")
+        elif cr.get("policy") == "fail":
+            first = findings[0]
+            add("caption-role", False,
+                f"{len(findings)} 处复述；{first.get('beat')}：{first.get('overlay')} / "
+                f"字幕：{first.get('caption')}")
+        else:
+            first = findings[0]
+            add("caption-role", None,
+                f"{len(findings)} 处待人工判断；{first.get('beat')}："
+                f"{first.get('overlay')} / 字幕：{first.get('caption')}")
+
+    # ---- 固定风格锁：风格参数漂移必须升版本/重新绑定
+    try:
+        from workflow.style_lock import validate as validate_style
+        style = validate_style(project, cfg)
+    except (OSError, ValueError, KeyError) as exc:
+        add("style-lock", False, f"style-lock 读取失败：{exc}")
+    else:
+        if style.get("ok") is None:
+            add("style-lock", None, "没有 work/style-lock.json，本项没查")
+        elif not style.get("ok"):
+            add("style-lock", False, "；".join(style.get("issues") or [])[:240])
+        else:
+            st = style.get("style") or {}
+            add("style-lock", True, f"{st.get('id')} v{st.get('version')} 与配置一致")
 
     # ---- 高级片段操作（关键帧/蒙版/混合模式/逐段滤镜）
     adv_cfg = cfg.get("shot_fx") or {}

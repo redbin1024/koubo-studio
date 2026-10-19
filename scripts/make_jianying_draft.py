@@ -34,7 +34,7 @@ from _common import (  # noqa: E402
     project_paths, repo_root, resolve_video, write_json,
 )
 from workflow import caption_plan  # noqa: E402
-from workflow import advanced_fx, draft_audit, draft_spec, visual_contract  # noqa: E402
+from workflow import advanced_fx, caption_roles, draft_audit, draft_spec, visual_contract  # noqa: E402
 
 # 剪映字号 15 时一行塞不下太多字：16 是 lint 的上限，实际 9 字以内最稳
 JY_MAX_CHARS = 9
@@ -500,6 +500,15 @@ def build(cfg: dict, project: Path, name: str | None, install: bool,
         (p["work"] / "visual-contract.json").unlink(missing_ok=True)
         print("  没有启用包装层，跳过视觉合同")
 
+    cap_plan = caption_plan.load(cfg, project)
+    role_audit = caption_roles.audit(
+        vc, cap_plan.get("cues") or [],
+        policy=str((cfg.get("captions") or {}).get("duplicate_policy") or "warn"))
+    write_json(p["work"] / "caption-role.json", role_audit)
+    if role_audit["findings"]:
+        print(f"  ⚠ 字幕角色：{len(role_audit['findings'])} 处包装文字在复述底部字幕"
+              "（详见 work/caption-role.json）")
+
     # 5. 包装层
     wins = overlay_windows(cfg, total)
     for label, a, b in wins:
@@ -626,6 +635,8 @@ def build(cfg: dict, project: Path, name: str | None, install: bool,
     report["visual_contract"] = {"beats": len(vc.get("beats") or []),
                                  "issues": vc_issues}
     report["advanced_fx"] = adv_done
+    report["caption_role"] = {"findings": len(role_audit.get("findings") or []),
+                              "policy": role_audit.get("policy")}
     report["draft_qc"] = draft_qc["summary"]
     if not draft_qc["ok"]:
         bad = [c for c in draft_qc["checks"] if c["status"] == "fail"]

@@ -1,5 +1,26 @@
 # Changelog
 
+## 1.9.0 — 2026-10-19
+
+吸收 talking-head-motion 的固定风格与“单处底部字幕”约束。
+
+### 新增
+
+- **固定风格 `KB-TH-01` 暖食玻璃卡 v1.0.0**：`references/styles/catalog.json` + recipe；
+  只含风格参数，不含文案/时间/素材；`readiness` 明确写到视觉审查仍 pending。
+- **`style-lock.json`**：`koubo style bind/check`；完整配方快照 + 哈希 + 选择来源；
+  `verify` 新增 `style-lock`，配置风格参数漂移但没升版本会红。
+- **`caption-role` 字幕角色检查**：卡片/插图/品牌字逐条与当前底部字幕比对；
+  完全重复/同义复述记为 warning；`captions.duplicate_policy=warn|fail` 控制是否红项。
+- 4105 实际发现 **5 处插图复述底部字幕**；当前策略 warn，QC 34/0/6；没有静默通过。
+- 新增 style-lock / caption-role 测试；测试总数 167。
+
+### 已知边界
+
+- `caption-role` 是文本相似度 + 人工判断，不是语义理解；品牌名/结构标签是否算独立信息仍需人看。
+- 当前只有一款真实风格；不复制 30 款参考库。
+- style-lock 只保证风格参数不漂移，不保证审美通过。
+
 ## 1.8.0 — 2026-10-19
 
 ### 新增

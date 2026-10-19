@@ -23,6 +23,7 @@
     "mode": "generated",                  // generated / burned-in / none
                                           // burned-in = 源片已有烧录字幕，不再生成一层
     "strip_punctuation": true,            // 房规：去标点
+    "duplicate_policy": "warn",          // warn：复述字幕记 unchecked；fail：直接红项
     "burn": "layer",                      // layer = Pillow 逐帧画（默认）；ass = 交回 libass
     "font": "Noto Sans CJK SC Black",     // 族名，中英文都认（"阿里妈妈数黑体" 同一个字体）。
                                           // 顺序：工程 fonts/ → 安装目录 fonts/ → KOUBO_FONT_DIRS → 系统目录，

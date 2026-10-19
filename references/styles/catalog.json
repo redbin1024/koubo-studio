@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "family": "koubo-talking-head",
+  "selection": "用户在对话指定稳定 ID 或完整名称；不按网页排序改变。",
+  "identity_policy": "稳定 ID 不随展示顺序改变；同版本配方被改动必须发布新版本。",
+  "styles": [
+    {
+      "id": "KB-TH-01",
+      "name": "暖食玻璃卡",
+      "version": "1.0.0",
+      "aliases": [],
+      "recipe": "recipes/KB-TH-01.json",
+      "recipe_sha256": "9576f4b9a3d180a529a3cab2b0bfce4e8ee2904e7d168809e6bf2cadc4699e05",
+      "readiness": {
+        "status": "visual_review_pending",
+        "scope": "4105 全功能版：draft-audit 19/0/0；QC 33/0/5；视觉审查 16 beat 中 11 个原生/高级操作待剪映导出确认。"
+      }
+    }
+  ]
+}

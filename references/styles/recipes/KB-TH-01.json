@@ -1,0 +1,144 @@
+{
+  "schema_version": 1,
+  "id": "KB-TH-01",
+  "name": "暖食玻璃卡",
+  "version": "1.0.0",
+  "readiness": {
+    "status": "visual_review_pending",
+    "scope": "4105 全功能版：draft-audit 19/0/0；QC 33/0/5；视觉审查 16 beat 中 11 个原生/高级操作待剪映导出确认。"
+  },
+  "provenance": {
+    "source_project": "4105-全功能版",
+    "source_note": "本项目自有品牌口播；不是对第三方参考片的复刻。",
+    "config_sha256": "69137c9a0cfb34c52a89db3f553578ec8b0d88d2fed2db5d124b940a88f19b39"
+  },
+  "editorial": {
+    "presenter_led": true,
+    "single_bottom_caption": true,
+    "caption_duplicate_policy": "独立标签允许；逐句复述/同义复述应删",
+    "reading_min_s": 0.6,
+    "semantic_use": [
+      "品牌口播",
+      "月子中心细节",
+      "真实人物原声",
+      "轻证据/插图"
+    ]
+  },
+  "style": {
+    "canvas": {
+      "width": 1080,
+      "height": 1920,
+      "fps": 30
+    },
+    "captions": {
+      "font": "Noto Sans CJK SC Black",
+      "size": 90,
+      "outline": 10,
+      "shadow": 6,
+      "spacing": 1.5,
+      "margin_lr": 66,
+      "margin_v": 190,
+      "max_width": 948,
+      "fade_in_ms": 110,
+      "fade_out_ms": 130,
+      "anim_ms": 320,
+      "layout": "bottom",
+      "burn": "layer",
+      "big": {
+        "size": 132,
+        "outline": 14,
+        "shadow": 8,
+        "tracking": 2.0
+      },
+      "hook": {
+        "enabled": true,
+        "scale": 170,
+        "accel": 2.6,
+        "ms": 500
+      },
+      "palette": {
+        "white": "#FFFFFF",
+        "accent": "#F5E14A",
+        "contrast": "#FF6284",
+        "gold": "#F2D26A",
+        "outline": "#000000"
+      }
+    },
+    "card": {
+      "fill": "#F7F3EC",
+      "edge": "#E8D8C2",
+      "radius": 38,
+      "edge_width": 3,
+      "wipe": 0.22,
+      "box_dur": 0.3,
+      "row_enter": "wipe",
+      "box": [
+        0.1,
+        0.13,
+        0.9,
+        0.82
+      ],
+      "theme": {
+        "skin": "glass",
+        "accent": "#D8B36A",
+        "sub_color": "#D6CEC2"
+      }
+    },
+    "inserts": {
+      "layout": "band",
+      "box": [
+        0.1,
+        0.54,
+        0.9,
+        0.72
+      ],
+      "radius": 28,
+      "theme": {
+        "skin": "editorial",
+        "bg": "#FFFDF9",
+        "fg": "#2A211A",
+        "accent": "#B9824A"
+      }
+    },
+    "gold": {
+      "size": 100
+    },
+    "grade": {
+      "eq": "eq=contrast=1.06:saturation=1.12:brightness=0.010",
+      "blur": "gblur=sigma=20",
+      "darken": 0.2
+    },
+    "jianying_fx": {
+      "effects": [
+        {
+          "name": "光晕",
+          "intensity": 0.25
+        }
+      ],
+      "filters": [
+        {
+          "name": "暖食",
+          "intensity": 0.16
+        }
+      ],
+      "transitions": [
+        {
+          "name": "叠化",
+          "dur": 0.36
+        },
+        {
+          "name": "叠化",
+          "dur": 0.36
+        },
+        {
+          "name": "叠化",
+          "dur": 0.36
+        },
+        {
+          "name": "叠化",
+          "dur": 0.36
+        }
+      ]
+    }
+  }
+}

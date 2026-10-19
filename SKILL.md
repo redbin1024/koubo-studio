@@ -51,6 +51,9 @@ koubo auto PROJECT --video talk.mp4 --resume
 
 `--prepare` 不做云端调用；`--resume` 用你自己的推理结果继续，decision 仍走同一套校验。
 
+固定风格：`koubo style bind PROJECT --style KB-TH-01 --choice-source '用户指定'`，
+写 `work/style-lock.json`；改风格参数不升版本会被 `style-lock` 拦下。
+
 字幕模式：`captions.mode` / `--captions generated|burned-in|none`。源片已有烧录字幕时用
 `burned-in`，不要重复叠加一层；`none` 表示明确不要画面字幕。
 
@@ -213,7 +216,7 @@ python scripts/recalibrate.py ~/Downloads/demo_02.mp4   # 拿参考片重量一�
 | `render.py` | 烧字幕 + 混音 + 响度归一 → `output/final-*.mp4` |
 | `verify.py` | 质检：规格 + 房规 + 风格是否真的落地 → `work/qc-report.json` |
 | `jy_hybrid.py` | **可选**混合后端：jy1 写内容 + 本模块补关键词变色 + capcut-cli 补交付层 |
-| `make_jianying_draft.py` | 装配剪映草稿：主轨 / 包装层 / 贴纸 / 人声 / 音效 /（旁白 / BGM）/ 字幕；写 draft-spec + visual-contract + draft-audit |
+| `make_jianying_draft.py` | 装配剪映草稿：主轨 / 包装层 / 贴纸 / 人声 / 音效 /（旁白 / BGM）/ 字幕；写 draft-spec + visual-contract + caption-role + draft-audit |
 | `make_visual_review.py` | 包装层视觉审查包：72% 静帧 / 完整 beat 片段 / 联系表；pending 等人工 |
 | `run_all.py` | 串起全流程（align 最先跑），`--only` / `--skip` 控制步骤 |
 | `rebuild_sample.py` | 把旧镜头表 / 已审核音轨的样片导入标准工程，再调用完整流水线 |

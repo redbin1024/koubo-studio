@@ -26,6 +26,8 @@
 | 视觉合同：阅读窗 ≥0.5s | L4 | 本项目策略；卡/插图现有 1.1–1.9s | 需要真实观众/客户确认 |
 | 视觉审查包 72% 静帧 + 完整 beat | L4 | 借 auto-edit-pro 的 Gate C 方法；已生成 pending 包 | 人工逐 beat 观看后升级 L1 |
 | `captions.mode=burned-in/none` | L1 | 单测：非空 SRT 也生成空 ASS；auto source 分支 | 保持 |
+| style-lock 参数漂移检测 | L1 | 单测：改 captions.size 后校验失败 | 保持 |
+| caption-role 复述检测 | L2 | 4105 找到 5 处插图复述；文本相似度非语义理解 | 需人工判断/替换标签 |
 
 ## 使用规则
 

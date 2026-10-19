@@ -30,7 +30,7 @@
 - 原生特效/滤镜/转场标 `native:true, visual_status=requires-capcut-export`；
   **mp4 预览不包含它们**，不能拿底层视频冒充效果证据。
 
-`workflow/visual_contract.py` 会检查：结构合法、region 在画面内、阅读窗口 ≥0.5s
+`workflow/visual_contract.py` 会检查：结构合法、region 在画面内、阅读窗口 ≥0.6s
 （装饰/原生除外）、素材存在、sourced 有依据。
 
 ## packaging-review.json
@@ -61,6 +61,18 @@
 - 联系表：`work/packaging-review/contact-sheet.jpg`
 - 逐 beat 片段：`work/packaging-review/clips/`
 - 审查文件：`work/packaging-review.json`（pending）
+
+## 字幕角色（caption-role）
+
+`work/caption-role.json` 逐条比较卡片/插图/品牌字与当前底部字幕：
+
+- `duplicate`：完全包含；
+- `paraphrase`：相似度 ≥0.55；
+- 默认 `captions.duplicate_policy=warn`，记 `unchecked` 提醒人工判断；
+- 改成 `fail` 才会红项。
+
+当前 4105 发现 **5 处插图复述底部字幕**（`放心 / 我们一直都在 / 恢复状态 / 让宝宝安心成长 / 月子中心`）。
+这不是静默通过，下一步应改成独立信息标签或删掉。
 
 ## 怎么验收
 

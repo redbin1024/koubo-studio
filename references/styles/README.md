@@ -5,6 +5,14 @@
 **规则必须从用户真实成片归纳，不能凭空写。** 当前仓库还没有足够的口播/Vlog 参考成片，
 所以 `talking-head.md` 与 `vlog.md` 先保持空模板。
 
+## 固定风格库
+
+- `catalog.json`：稳定 ID / 版本 / 配方哈希 / readiness。
+- `recipes/KB-TH-01.json`：本项目自有“暖食玻璃卡”风格参数（不含文案/时间/素材）。
+- 项目用 `koubo style bind` 写 `work/style-lock.json`；`verify` 的 `style-lock` 会拦截参数漂移。
+
+注意：`KB-TH-01` 来自我们自己的 4105 项目，不是第三方参考片复刻；30 款参考库不在这里。
+
 ## 分析入口
 
 ```bash
