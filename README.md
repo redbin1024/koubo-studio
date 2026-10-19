@@ -239,6 +239,7 @@ Vlog 会先完成粗剪、画面/文案审核，再生成旁白；缺语音会�
 | 命令 | 作用 |
 | --- | --- |
 | `koubo auto DIR --video in.mp4` | **一条命令全自动**：mp4 + 剪映草稿 + 自动修复 |
+| `koubo package DIR --video in.mp4 --srt in.srt` | 已剪好的成片只做包装，不重剪 |
 | `koubo new DIR --video in.mp4 [--reference ref.mp4]` | 建工程，可选量参考片 |
 | `koubo auto-edit DIR --mode talking-head --clips talk.mp4` | 自动粗剪 / 生成镜头表 |
 | `koubo captions DIR` | SRT → ASS / 字幕层 |
@@ -273,6 +274,7 @@ Vlog 会先完成粗剪、画面/文案审核，再生成旁白；缺语音会�
 | --- | --- |
 | [全自动成片](docs/auto.md) | `koubo auto`、导演决策、旁白策略、自动修复与回退 |
 | [草稿优先](docs/draft-first.md) | 为什么主交付是剪映草稿、草稿里能改什么、哪些已烘焙 |
+| [package-only](docs/package-only.md) | 已剪好的成片 + SRT 只做包装，不重剪 |
 | [草稿规格与审计](docs/draft-spec.md) | `draft-spec.json` / `draft-qc.json`、`draft-audit` 检查什么 |
 | [包装视觉合同](docs/visual-contract.md) | 每个包装 beat 的结构/阅读窗/证据，以及视觉审查包 |
 | [操作能力矩阵](references/operations.md) | 剪映功能：自动 / 只进草稿 / 人工 / 不可读 |
@@ -302,7 +304,7 @@ koubo-studio/
 │   ├── auto_film.py        # koubo auto 全自动编排
 │   ├── koubo.py            # CLI 分发
 │   └── doctor.py           # 环境自检
-├── tests/                  # 158 项回归测试
+├── tests/                  # 159 项回归测试
 ├── references/             # 拆解说明 / 字段表 / 风格语汇 / 踩坑记录
 ├── examples/               # 脱敏示例
 ├── assets/sfx/             # 9 个真实采样（Pixabay Content License）

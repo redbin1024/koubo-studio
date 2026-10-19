@@ -479,13 +479,17 @@ def build(cfg: dict, project: Path, name: str | None, install: bool,
 
     # 4.6 包装层视觉合同：先声明结构/可见区/阅读窗/证据边界，再做画面。
     vc = visual_contract.build(cfg, project, total, native_plans=fx_plans)
-    vc_issues = visual_contract.validate(vc)
-    write_json(p["work"] / "visual-contract.json", vc)
-    if vc_issues:
-        print("  ⚠ 视觉合同有 " + str(len(vc_issues)) + " 个问题："
-              + "；".join(vc_issues[:3]))
+    vc_issues = visual_contract.validate(vc) if vc.get("beats") else []
+    if vc.get("beats"):
+        write_json(p["work"] / "visual-contract.json", vc)
+        if vc_issues:
+            print("  ⚠ 视觉合同有 " + str(len(vc_issues)) + " 个问题："
+                  + "；".join(vc_issues[:3]))
+        else:
+            print(f"  视觉合同 {len(vc['beats'])} 个包装 beat")
     else:
-        print(f"  视觉合同 {len(vc['beats'])} 个包装 beat")
+        (p["work"] / "visual-contract.json").unlink(missing_ok=True)
+        print("  没有启用包装层，跳过视觉合同")
 
     # 5. 包装层
     wins = overlay_windows(cfg, total)

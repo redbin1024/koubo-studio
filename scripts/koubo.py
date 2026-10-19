@@ -23,6 +23,7 @@ VERSION = (ROOT / "VERSION").read_text(encoding="utf-8").strip() if (ROOT / "VER
 
 ALIASES = {
     "auto": "auto_film.py",
+    "package": "package_video.py",
     "new": "new_project.py",
     "init": "new_project.py",
     "run": "run_all.py",
@@ -50,6 +51,7 @@ ALIASES = {
 
 DESCRIPTIONS = {
     "auto": "一条命令全自动：素材 → mp4 + 剪映草稿",
+    "package": "package-only：已剪好的成片 + SRT 只做包装，不重剪",
     "new": "建工程（可顺手量参考片）",
     "init": "new 的别名",
     "run": "跑完整流水线：成片 + 剪映草稿 + 质检",

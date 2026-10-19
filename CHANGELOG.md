@@ -1,5 +1,22 @@
 # Changelog
 
+## 1.6.0 — 2026-10-19
+
+### 新增
+
+- **`koubo package` / `package_video.py`：package-only 模式**。输入已经剪好的成片 + SRT，
+  不调用 `auto_edit` / `merge_cut`，不重排镜头、不改原声；只做字幕/包装/BGM/草稿/质检。
+- `--prepare-only`：只建工程/config 与 SRT，方便先配包装再跑。
+- `--captions generated|burned-in|none`：沿用字幕模式，源片已有字幕不重复叠。
+- 默认开启暖调 BGM（0.30）填原片静音；原声 `speech_mode=source` 保留。
+- 复用了 visual-contract / packaging-review / draft-audit；启用包装后自动生成。
+- 新增 package-only 测试；测试总数 159。
+
+### 说明
+
+- package-only 的主轨是**一条原成片**，不拆镜头；要逐镜头剪走 `auto` 或手动 `merge`。
+- 卡片/插图/贴纸默认关闭，需在 config 里配置；不会自动编造品牌文案。
+
 ## 1.5.0 — 2026-10-19
 
 吸收 auto-edit-pro 的包装层方法：视觉合同、72% 静帧/完整 beat 审查、字幕模式与证据边界。

@@ -29,6 +29,9 @@ koubo auto PROJECT --video talk.mp4
 
 # 多段 Vlog
 koubo auto PROJECT --clips a.mov b.mov c.mov
+
+# 已经剪好的成片 + SRT：只做包装，不重剪
+koubo package PROJECT --video edited.mp4 --srt edited.srt --captions burned-in
 ```
 
 全自动会：探测素材 → 候选镜头 →（有 `DEEPSEEK_API_KEY` 时）导演选段/排序/高亮/音乐 →
