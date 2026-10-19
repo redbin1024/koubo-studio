@@ -2,10 +2,10 @@
   "schema_version": 1,
   "id": "KB-TH-01",
   "name": "暖食玻璃卡",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "readiness": {
     "status": "visual_review_pending",
-    "scope": "4105 全功能版：新增末尾“预约参观”CTA、卡片扫描光条、推近/擦除转场与 4 组镜头关键帧；视觉审查 17 beat 中 14 个原生/高级操作待剪映导出确认。"
+    "scope": "4105 全功能版：去掉开头品牌标题，避免和第一条字幕在剪映里重叠；保留末尾预约 CTA、扫描光条、转场与 4 组关键帧；视觉审查 16 beat 中 14 个原生/高级操作待剪映导出确认。"
   },
   "provenance": {
     "source_project": "4105-全功能版",

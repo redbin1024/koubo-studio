@@ -14,7 +14,7 @@ koubo style resolve KB-TH-01
 
 | ID | 名称 | 版本 | 范围 |
 | --- | --- | --- | --- |
-| `KB-TH-01` | 暖食玻璃卡 | 1.1.1 | 4105 全功能版；CTA + 扫描光条 + 推近/擦除转场 + 4 组关键帧；视觉审查 17 beat 中 14 个原生/高级操作待剪映导出确认 |
+| `KB-TH-01` | 暖食玻璃卡 | 1.1.2 | 4105 全功能版；去掉开头品牌标题，避免和第一条字幕重叠；保留 CTA/扫描光条/转场/关键帧；视觉审查 16 beat 中 14 个原生/高级操作待剪映导出确认 |
 
 目录：`references/styles/catalog.json`
 配方：`references/styles/recipes/KB-TH-01.json`

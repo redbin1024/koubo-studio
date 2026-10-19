@@ -7,13 +7,13 @@
     {
       "id": "KB-TH-01",
       "name": "暖食玻璃卡",
-      "version": "1.1.1",
+      "version": "1.1.2",
       "aliases": [],
       "recipe": "recipes/KB-TH-01.json",
-      "recipe_sha256": "795779889067804e038ceb7e13f8594997db4f6a24f0029914f11470eabb6aad",
+      "recipe_sha256": "35877474bf47433518584d67c452f038969ec050ea89245de4685111d45825a1",
       "readiness": {
         "status": "visual_review_pending",
-        "scope": "4105 全功能版：新增末尾“预约参观”CTA、卡片扫描光条、推近/擦除转场与 4 组镜头关键帧；视觉审查 17 beat 中 14 个原生/高级操作待剪映导出确认。"
+        "scope": "4105 全功能版：去掉开头品牌标题，避免和第一条字幕在剪映里重叠；保留末尾预约 CTA、扫描光条、转场与 4 组关键帧；视觉审查 16 beat 中 14 个原生/高级操作待剪映导出确认。"
       }
     }
   ]
