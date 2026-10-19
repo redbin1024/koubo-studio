@@ -92,6 +92,20 @@ class Capcut:
             return {"raw": p.stdout.strip()}
 
 
+def _audio_span(path: Path, total: float) -> float:
+    """capcut 会拒绝「请求时长 > 源文件时长」的音频。
+
+    AAC 源抽出来的 WAV 常比视频短 20–40ms（编码器 priming），如果直接拿视频总时长
+    去 add-audio，人声轨会静默失败（check=False 时连报错都看不到）。这里按源文件
+    实际时长夹一次，宁可在结尾少几十毫秒，也不能整条人声不上轨。
+    """
+    try:
+        duration = float(probe_media(path)["duration"] or 0)
+    except (OSError, SystemExit, ValueError):
+        duration = float(total)
+    return max(0.05, min(float(total), duration))
+
+
 # ---------------------------------------------------------------- 字幕
 
 def _relayout(raw_lines: list[str], limit: int) -> tuple[str, list[dict]]:
@@ -428,22 +442,26 @@ def build(cfg: dict, project: Path, name: str | None, install: bool,
     print("  包装层 " + " / ".join(f"{w[0]} {w[1]:.2f}-{w[2]:.2f}s" for w in wins))
 
     # 6. 音频
-    cap.run("add-audio", str(proj), str(voice), "0s", f"{total:.3f}s",
-            "--volume", "1.00", "--track-name", "人声", "-q", check=False)
+    voice_span = _audio_span(voice, total)
+    cap.run("add-audio", str(proj), str(voice), "0s", f"{voice_span:.3f}s",
+            "--volume", "1.00", "--track-name", "人声", "-q")
     tracks = ["人声"]
     if sfx.is_file():
-        cap.run("add-audio", str(proj), str(sfx), "0s", f"{total:.3f}s",
+        sfx_span = _audio_span(sfx, total)
+        cap.run("add-audio", str(proj), str(sfx), "0s", f"{sfx_span:.3f}s",
                 "--volume", f"{cfg['audio']['sfx_volume']:.2f}",
-                "--track-name", "音效", "-q", check=False)
+                "--track-name", "音效", "-q")
         tracks.append("音效")
     if narration.is_file():
-        cap.run("add-audio", str(proj), str(narration), "0s", f"{total:.3f}s",
+        narr_span = _audio_span(narration, total)
+        cap.run("add-audio", str(proj), str(narration), "0s", f"{narr_span:.3f}s",
                 "--volume", f"{cfg['audio']['narration_volume']:.2f}",
-                "--track-name", "旁白", "-q", check=False)
+                "--track-name", "旁白", "-q")
         tracks.append("旁白")
     if bgm.is_file():
         # 这次不能带 -q：要拿 segment_id 给 audio-fade 用
-        sid = cap.run("add-audio", str(proj), str(bgm), "0s", f"{total:.3f}s",
+        bgm_span = _audio_span(bgm, total)
+        sid = cap.run("add-audio", str(proj), str(bgm), "0s", f"{bgm_span:.3f}s",
                       "--volume", f"{cfg['audio']['bgm_volume']:.2f}",
                       "--track-name", "BGM")["segment_id"]
         # 淡入 1.6s / 收尾 2.4s 淡出，和 tools/make_bgm.py 里的包络对齐
