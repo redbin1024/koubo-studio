@@ -272,6 +272,11 @@ Vlog 会先完成粗剪、画面/文案审核，再生成旁白；缺语音会�
 | --- | --- |
 | [全自动成片](docs/auto.md) | `koubo auto`、导演决策、旁白策略、自动修复与回退 |
 | [草稿优先](docs/draft-first.md) | 为什么主交付是剪映草稿、草稿里能改什么、哪些已烘焙 |
+| [草稿规格与审计](docs/draft-spec.md) | `draft-spec.json` / `draft-qc.json`、`draft-audit` 检查什么 |
+| [操作能力矩阵](references/operations.md) | 剪映功能：自动 / 只进草稿 / 人工 / 不可读 |
+| [证据登记表](references/evidence-registry.md) | L1–L4 证据等级与当前参数状态 |
+| [风格规则](references/styles/) | 口播 / Vlog 风格模板（待真实成片归纳） |
+| [经验日志](docs/lessons.md) | 每轮踩坑、根因、未覆盖的轴 |
 | [安装文档](docs/install.md) | 一键安装、手动安装、依赖矩阵、卸载、排错 |
 | [使用文档](docs/usage.md) | 完整命令、分步流水线、字幕语法、包装、音频、剪映 |
 | [SKILL.md](SKILL.md) | Agent 入口：完整工作流、脚本表、房规与硬闸 |
@@ -295,7 +300,7 @@ koubo-studio/
 │   ├── auto_film.py        # koubo auto 全自动编排
 │   ├── koubo.py            # CLI 分发
 │   └── doctor.py           # 环境自检
-├── tests/                  # 152 项回归测试
+├── tests/                  # 154 项回归测试
 ├── references/             # 拆解说明 / 字段表 / 风格语汇 / 踩坑记录
 ├── examples/               # 脱敏示例
 ├── assets/sfx/             # 9 个真实采样（Pixabay Content License）

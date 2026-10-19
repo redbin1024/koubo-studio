@@ -65,6 +65,11 @@ koubo auto my-video --video ~/Movies/口播.mp4
 现在装配完会写 `0.22`（项目内和草稿箱两份都写）。插图卡标题/正文的间距也从
 `1.28×` 提到 `1.58×`，不再挤在一起。
 
+写草稿前会先生成 `work/draft-spec.json`（轨道/镜头/文本/原生资源/音频/QA），
+写完后 `workflow/draft_audit.py` 生成 `work/draft-qc.json`，逐项核对主轨段数、
+人声、字幕行距/重叠、贴纸/特效/滤镜/转场和素材路径；`verify.py` 把它作为
+`draft-audit` 红项。详见 [草稿规格与审计](draft-spec.md)。
+
 ## 边界
 
 - 主轨逐镜头是“在压平成片上切段”，不是原始素材时间线。

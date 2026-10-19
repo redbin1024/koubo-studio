@@ -8,13 +8,13 @@
 scripts/
 ├── *.py                 # 命令入口：argparse、读 config、调用 workflow
 ├── auto_film.py         # 全自动编排：候选 → 导演 → 粗剪 → 字幕/声音 → 质检修复
-├── workflow/            # 可复用实现：镜头表、字幕计划、自动导演、自动旁白、语音策略、交付凭据
+├── workflow/            # 可复用实现：镜头表、字幕计划、自动导演、自动旁白、draft-spec、draft-audit、交付凭据
 ├── _common.py           # ffmpeg/字体定位、默认值、房规、时间码、SRT 解析
 └── compat 模块          # edit_plan.py / visual_analysis.py / storyboard.py 只做再导出
 
 references/              # 数值正本、字段说明、踩坑记录、跨文件规矩登记
 examples/                # 脱敏示例
-tests/                   # 回归测试（152 项）
+tests/                   # 回归测试（154 项）
 assets/sfx/              # 可商用真实音效采样
 ```
 

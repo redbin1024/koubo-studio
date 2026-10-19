@@ -288,7 +288,7 @@ def run_checks(cfg: dict, project: Path) -> dict:
                      "insert-slot", "insert-grounded",
                      "caption-band-clearance", "insert-rendered",
                      "style-plan-consistent", "bgm-present", "jianying-fx",
-                     "jianying-draft", "jianying-installed"):
+                     "jianying-draft", "jianying-installed", "draft-audit"):
             add(name, None, "没有成片，本项没查")
         return _write(p, out, {}, {}, checks)
 
@@ -520,6 +520,24 @@ def run_checks(cfg: dict, project: Path) -> dict:
             f"已登记进剪映草稿箱：{installed}" if installed
             else ("按配置只留 draft-store（jianying.install = false）" if not jy["install"]
                   else "草稿没进剪映草稿箱（覆盖保护触发或草稿箱不可写），看 [draft] 的 ⚠"))
+
+    # ---- draft-spec 对账：执行层不能自证，必须和先写下的规格比
+    draft_qc_path = p["work"] / "draft-qc.json"
+    try:
+        draft_qc = json.loads(draft_qc_path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        draft_qc = None
+    if draft_qc is None:
+        add("draft-audit", None,
+            "没有 work/draft-qc.json（旧草稿或未生成 draft-spec），本项没查")
+    else:
+        summary = draft_qc.get("summary") or {}
+        bad = [c for c in draft_qc.get("checks") or [] if c.get("status") == "fail"]
+        add("draft-audit", not bad,
+            f"{summary.get('pass', 0)} 过 / {summary.get('fail', 0)} 红 / "
+            f"{summary.get('unchecked', 0)} 没查"
+            + ("；" + "；".join(f"{c['name']} {c['detail']}" for c in bad[:3])
+               if bad else ""))
 
     # ---- 草稿有没有被剪映改过（漂移）。**不要信任 capcut diagnose 的 diverged 字段** ——
     # 剪映保存时把 draft_info.json / draft_meta_info.json 加密，而读不了的镜像被它排除在

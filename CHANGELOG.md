@@ -1,5 +1,26 @@
 # Changelog
 
+## 1.4.0 — 2026-10-19
+
+### 新增
+
+- **`work/draft-spec.json`**：草稿决策规格，统一记录主轨/包装/贴纸/人声/音效/BGM/字幕/原生资源/QA；
+  每个镜头带 `role / rule_id / reason`，时间统一用秒。
+- **`workflow/draft_audit.py` + `work/draft-qc.json`**：执行后和规格对账；检查主轨段数与计划镜头数、
+  时长/结尾/间隙、人声/音效/BGM、字幕条数/时间重叠/行距、贴纸/特效/滤镜/转场数量、素材路径、安装状态。
+- **`verify.py` 新增 `draft-audit` 红项**：草稿审计失败会进入三态质检，不再只检查 mp4 元数据。
+- **能力矩阵 `references/operations.md`**：自动 / 只进草稿 / 人工 / 不可读四类，明确导出、关键帧、
+  蒙版、跟踪、抠像、降噪、原生贴纸库等必须人工或暂不支持。
+- **证据登记 `references/evidence-registry.md`**：L1–L4；`暖食/光晕/叠化/0.22 行距` 等先标 L3/L4，
+  不再把“API 接受”当成“效果正确”。
+- **风格模板 `references/styles/`、经验日志 `docs/lessons.md`、`docs/draft-spec.md`**。
+- 草稿审计正例 + 反例测试（缺人声、0.02 行距必须报红）；测试总数 154。
+
+### 变更
+
+- 质检从 34 项扩到 35 项。
+- `make_jianying_draft` 在写草稿前生成 spec，写完后自动审计；旧工程没有 spec 时 `draft-audit` 记 `unchecked`，不伪造通过。
+
 ## 1.3.0 — 2026-10-19
 
 这一版按反馈把草稿的「可看性」拆开修：字幕行距、插图字距、音效、贴纸、特效、转场、滤镜。

@@ -34,6 +34,7 @@ from _common import (  # noqa: E402
     project_paths, repo_root, resolve_video, write_json,
 )
 from workflow import caption_plan  # noqa: E402
+from workflow import draft_audit, draft_spec  # noqa: E402
 
 # 剪映字号 15 时一行塞不下太多字：16 是 lint 的上限，实际 9 字以内最稳
 JY_MAX_CHARS = 9
@@ -442,8 +443,9 @@ def build(cfg: dict, project: Path, name: str | None, install: bool,
 
     # 4. 主轨
     pos = 0.0
+    main_durs = main_video_segments(cfg, project, total)
     main_segments: list[tuple[str, float, float]] = []
-    for i, dur in enumerate(main_video_segments(cfg, project, total), 1):
+    for i, dur in enumerate(main_durs, 1):
         # 不加 duration：让 capcut 用 ffprobe 拿真实时长与分辨率写素材，
         # 否则素材会被写成「这一段的时长」，trim 出来的 in-point 越界，剪映会把入点夹回 0。
         sid = cap.run("add-video", str(proj), str(graded), f"{pos:.3f}s")["segment_id"]
@@ -457,6 +459,19 @@ def build(cfg: dict, project: Path, name: str | None, install: bool,
     if fx_errors:
         raise SystemExit("剪映资源配置有误：\n  " + "\n  ".join(fx_errors))
 
+    # 4.5 决策规格：先于音频/字幕/贴纸落盘，执行后由 draft_audit 对账。
+    voice_span = _audio_span(voice, total)
+    sfx_item = (sfx, _audio_span(sfx, total)) if sfx.is_file() else None
+    bgm_item = (bgm, _audio_span(bgm, total)) if bgm.is_file() else None
+    narration_item = (narration, _audio_span(narration, total)) if narration.is_file() else None
+    spec = draft_spec.build(
+        cfg, project, name=name, total=total, main_durations=main_durs,
+        captions=cap_meta, fx_plans=fx_plans,
+        voice=(voice, voice_span), sfx=sfx_item, bgm=bgm_item,
+        narration=narration_item)
+    spec["qa"]["require_installed"] = bool(install)
+    write_json(p["work"] / "draft-spec.json", spec)
+
     # 5. 包装层
     wins = overlay_windows(cfg, total)
     for label, a, b in wins:
@@ -466,7 +481,6 @@ def build(cfg: dict, project: Path, name: str | None, install: bool,
     print("  包装层 " + " / ".join(f"{w[0]} {w[1]:.2f}-{w[2]:.2f}s" for w in wins))
 
     # 6. 音频
-    voice_span = _audio_span(voice, total)
     cap.run("add-audio", str(proj), str(voice), "0s", f"{voice_span:.3f}s",
             "--volume", "1.00", "--track-name", "人声", "-q")
     tracks = ["人声"]
@@ -555,7 +569,7 @@ def build(cfg: dict, project: Path, name: str | None, install: bool,
 
     report = {"draft": str(proj), "name": name, "duration": total,
               "render_receipt_sha256": render_identity,
-              "tracks": {"main_segments": len(main_video_segments(cfg, project, total)),
+              "tracks": {"main_segments": len(main_durs),
                          "overlay": [{"label": w[0], "start": w[1], "end": w[2]} for w in wins],
                          "captions": len(cap_meta)},
               # 逐条入场动画登记在报告里，好让 verify 拿它和样式计划对账 ——
@@ -576,6 +590,20 @@ def build(cfg: dict, project: Path, name: str | None, install: bool,
         set_text_line_spacing(Path(report["installed_to"]), spacing)
     report["text_line_spacing"] = spacing
     report["tracks"]["stickers"] = sticker_count
+
+    # 9. 草稿审计：和 draft-spec 对账。失败不在这里抛，交给 verify 的 draft-audit 红项，
+    # 这样 run_all 仍然能写出完整 report，而不是半路断掉。
+    draft_qc = draft_audit.audit(spec, proj, installed=report.get("installed_to"))
+    write_json(p["work"] / "draft-qc.json", draft_qc)
+    report["draft_qc"] = draft_qc["summary"]
+    if not draft_qc["ok"]:
+        bad = [c for c in draft_qc["checks"] if c["status"] == "fail"]
+        print("  ⚠ 草稿审计未通过：" + "；".join(
+            f"{c['name']} {c['detail']}" for c in bad[:3]))
+    else:
+        print(f"  草稿审计 {draft_qc['summary']['pass']} 过 / "
+              f"{draft_qc['summary']['fail']} 红 / "
+              f"{draft_qc['summary']['unchecked']} 没查")
     write_json(p["work"] / "jianying-draft.json", report)
     return report
 

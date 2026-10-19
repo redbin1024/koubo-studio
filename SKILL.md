@@ -175,6 +175,8 @@ python scripts/recalibrate.py ~/Downloads/demo_02.mp4   # 拿参考片重量一�
 7. **出剪映草稿**。`run_all.py` 里质检**之前**那一步，**每轮必出，不是可选项**：
    `python scripts/make_jianying_draft.py DIR`。
    草稿是主交付，mp4 是压平的预览副本 —— 草稿没出这一轮不算跑完。
+   写草稿前先生成 `work/draft-spec.json`，写完后 `workflow/draft_audit.py` 生成
+   `work/draft-qc.json`，`verify.py` 的 `draft-audit` 会逐项对账主轨/人声/字幕/贴纸/原生资源。
    草稿默认同名覆盖（要留手改版本就换 `--name`），并自动装进剪映草稿箱。
    **这条不靠自觉**：`verify.py` 有 `jianying-draft` / `jianying-installed` 两项检查，
    `--skip draft` 或没装进草稿箱都会在 `work/qc-report.json` 里报红。
@@ -201,7 +203,7 @@ python scripts/recalibrate.py ~/Downloads/demo_02.mp4   # 拿参考片重量一�
 | `render.py` | 烧字幕 + 混音 + 响度归一 → `output/final-*.mp4` |
 | `verify.py` | 质检：规格 + 房规 + 风格是否真的落地 → `work/qc-report.json` |
 | `jy_hybrid.py` | **可选**混合后端：jy1 写内容 + 本模块补关键词变色 + capcut-cli 补交付层 |
-| `make_jianying_draft.py` | 装配剪映草稿：主轨 / 包装层 / 人声 / 音效 /（旁白 / BGM）/ 字幕，装进剪映草稿箱 |
+| `make_jianying_draft.py` | 装配剪映草稿：主轨 / 包装层 / 贴纸 / 人声 / 音效 /（旁白 / BGM）/ 字幕；写 draft-spec + draft-audit |
 | `run_all.py` | 串起全流程（align 最先跑），`--only` / `--skip` 控制步骤 |
 | `rebuild_sample.py` | 把旧镜头表 / 已审核音轨的样片导入标准工程，再调用完整流水线 |
 | `export_voice_review.py` | 从本轮成片导出逐句带声画的旁白听审短片和镜头来源清单 |

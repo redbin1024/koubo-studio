@@ -602,7 +602,7 @@ def _render_cut(project: Path, cfg: dict, plan: dict) -> float:
 def _run_pipeline(project: Path) -> int:
     print("\n  跑流水线（--auto，跳过人工听审）")
     work = project_paths(project)["work"]
-    for name in ("qc-report.json", "pipeline.json", "jianying-draft.json"):
+    for name in ("qc-report.json", "pipeline.json", "jianying-draft.json", "draft-qc.json"):
         (work / name).unlink(missing_ok=True)
     cmd = [sys.executable, str(Path(__file__).parent / "run_all.py"),
            str(project), "--auto"]
@@ -709,9 +709,9 @@ def _repair(cfg: dict, project: Path, qc: dict, total: float) -> tuple[bool, lis
         cfg["constraints"].update({"opening_cover": False, "end_card": False,
                                    "sticky_title": False})
         mark("房规：关闭封面/片尾卡/常驻标题")
-    if fails & {"jianying-draft", "jianying-installed", "output-exists"}:
+    if fails & {"jianying-draft", "jianying-installed", "output-exists", "draft-audit"}:
         # 没有可改的配置，但值得重跑一次草稿/渲染；交给外层循环。
-        notes.append("草稿/成片缺失：重跑一次渲染与草稿")
+        notes.append("草稿/成片/审计失败：重跑一次渲染与草稿")
         changed = True
     return changed, notes
 
