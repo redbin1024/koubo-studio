@@ -211,15 +211,17 @@ class Compositor:
                            dy=(1 - p_box) * 72, scale=0.955 + 0.045 * p_box)
 
         # 画中画先落，条目与图标压在它上面（参考片的第二行图标就是盖在画中画上的）
-        box, mask, (px0, py0) = self.pip_box(person)
-        p_pip = ease_out(clamp01((t - self.pip["at"]) / self.pip["dur"]))
-        if p_pip > 0:
-            dx = int((1 - p_pip) * (box.width + 80))
-            shadow = Image.new("RGBA", box.size, (0, 0, 0, 130))
-            canvas = self._canvas()
-            canvas.paste(shadow, (px0 - 18 + dx, py0 + 20), mask)
-            canvas.paste(box, (px0 + dx, py0), mask)
-            base = Image.alpha_composite(base, canvas)
+        # pip.enabled=false 时必须真的不画；否则卡片里会永远挂着一个关不掉的 PiP。
+        if self.pip.get("enabled") and float(self.pip.get("dur") or 0) > 0:
+            box, mask, (px0, py0) = self.pip_box(person)
+            p_pip = ease_out(clamp01((t - self.pip["at"]) / self.pip["dur"]))
+            if p_pip > 0:
+                dx = int((1 - p_pip) * (box.width + 80))
+                shadow = Image.new("RGBA", box.size, (0, 0, 0, 130))
+                canvas = self._canvas()
+                canvas.paste(shadow, (px0 - 18 + dx, py0 + 20), mask)
+                canvas.paste(box, (px0 + dx, py0), mask)
+                base = Image.alpha_composite(base, canvas)
 
         lay = card_layout(self.cfg)
         if self.card["title"]:
