@@ -307,7 +307,7 @@ koubo-studio/
 │   ├── auto_film.py        # koubo auto 全自动编排
 │   ├── koubo.py            # CLI 分发
 │   └── doctor.py           # 环境自检
-├── tests/                  # 167 项回归测试
+├── tests/                  # 169 项回归测试
 ├── references/             # 拆解说明 / 字段表 / 风格语汇 / 踩坑记录
 ├── examples/               # 脱敏示例
 ├── assets/sfx/             # 9 个真实采样（Pixabay Content License）

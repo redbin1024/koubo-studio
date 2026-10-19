@@ -34,7 +34,8 @@ from _common import (  # noqa: E402
     project_paths, repo_root, resolve_video, write_json,
 )
 from workflow import caption_plan  # noqa: E402
-from workflow import advanced_fx, caption_roles, draft_audit, draft_spec, visual_contract  # noqa: E402
+from workflow import (advanced_fx, caption_roles, draft_audit, draft_spec,  # noqa: E402
+                      overlay_fx, visual_contract)
 
 # 剪映字号 15 时一行塞不下太多字：16 是 lint 的上限，实际 9 字以内最稳
 JY_MAX_CHARS = 9
@@ -511,10 +512,19 @@ def build(cfg: dict, project: Path, name: str | None, install: bool,
 
     # 5. 包装层
     wins = overlay_windows(cfg, total)
+    overlay_segments = []
     for label, a, b in wins:
         sid = cap.run("add-video", str(proj), str(overlay), f"{a:.3f}s",
                       "--track-name", "包装层")["segment_id"]
         cap.run("trim", str(proj), sid, f"{a:.3f}s", f"{b - a:.3f}s", check=False)
+        overlay_segments.append({"label": label, "id": sid,
+                                 "start": float(a), "end": float(b)})
+    ov_plans, ov_errors = overlay_fx.resolve(cfg, overlay_segments)
+    if ov_errors:
+        raise SystemExit("包装层关键帧配置有误：\n  " + "\n  ".join(ov_errors))
+    ov_done = overlay_fx.apply(cap, proj, ov_plans) if ov_plans else []
+    if ov_done:
+        print(f"  包装层关键帧 {len(ov_done)} 条")
     print("  包装层 " + " / ".join(f"{w[0]} {w[1]:.2f}-{w[2]:.2f}s" for w in wins))
 
     # 6. 音频
@@ -635,6 +645,7 @@ def build(cfg: dict, project: Path, name: str | None, install: bool,
     report["visual_contract"] = {"beats": len(vc.get("beats") or []),
                                  "issues": vc_issues}
     report["advanced_fx"] = adv_done
+    report["overlay_fx"] = ov_done
     report["caption_role"] = {"findings": len(role_audit.get("findings") or []),
                               "policy": role_audit.get("policy")}
     report["draft_qc"] = draft_qc["summary"]

@@ -70,6 +70,7 @@ def projection(cfg: dict) -> dict:
         "gold": _pick(cfg.get("gold") or {}, ["size"]),
         "grade": _pick(cfg.get("grade") or {}, ["eq", "blur", "darken"]),
         "jianying_fx": fx_style,
+        "overlay_fx": _pick(cfg.get("overlay_fx") or {}, ["enabled", "items"]),
     }
 
 

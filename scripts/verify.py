@@ -290,7 +290,7 @@ def run_checks(cfg: dict, project: Path) -> dict:
                      "style-plan-consistent", "bgm-present", "jianying-fx",
                      "jianying-draft", "jianying-installed", "draft-audit",
                      "visual-contract", "visual-review", "advanced-fx",
-                     "style-lock", "caption-role"):
+                     "style-lock", "caption-role", "overlay-fx"):
             add(name, None, "没有成片，本项没查")
         return _write(p, out, {}, {}, checks)
 
@@ -540,6 +540,23 @@ def run_checks(cfg: dict, project: Path) -> dict:
             f"{summary.get('unchecked', 0)} 没查"
             + ("；" + "；".join(f"{c['name']} {c['detail']}" for c in bad[:3])
                if bad else ""))
+
+    # ---- 包装层关键帧（卡片/品牌字落位）
+    ov_cfg = cfg.get("overlay_fx") or {}
+    if not ov_cfg.get("enabled"):
+        add("overlay-fx", None, "overlay_fx 未启用，本项没查")
+    else:
+        try:
+            jr = json.loads((p["work"] / "jianying-draft.json").read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            jr = {}
+        items = jr.get("overlay_fx") or []
+        if not items:
+            add("overlay-fx", False, "overlay_fx 已启用，但草稿报告里没有结果")
+        else:
+            bad = [x for x in items if not x.get("applied")]
+            add("overlay-fx", not bad, f"{len(items)} 条包装层关键帧"
+                + (f"；{bad[0].get('label')} 没写入" if bad else ""))
 
     # ---- 字幕角色：包装文字是否在复述底部字幕
     try:
