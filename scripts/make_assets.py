@@ -17,7 +17,7 @@ import math
 import sys
 from pathlib import Path
 
-from PIL import Image, ImageChops, ImageDraw, ImageFilter, ImageFont
+from PIL import Image, ImageChops, ImageDraw, ImageFilter, ImageFont, ImageOps
 
 sys.path.insert(0, str(Path(__file__).parent))
 from _common import (  # noqa: E402
@@ -386,13 +386,31 @@ def _insert_card_editorial(W, H, box_px, spec, theme, font_path, med_path, radiu
                          x0 + pad + int(bw * 0.10), line_y + max(1, int(bh * 0.006))),
                         radius=max(1, int(bh * 0.006)), fill=accent)
 
-    icon_r = bh * 0.165
-    icx, icy = x0 + pad + icon_r, y0 + bh * 0.52
-    d.ellipse((icx - icon_r, icy - icon_r, icx + icon_r, icy + icon_r),
-              outline=mix(accent, 0.55), width=max(2, int(bh * 0.006)))
-    _line_icon(d, icx, icy, icon_r * 1.05, str(spec.get("icon") or "check"), accent)
-
-    tx = int(icx + icon_r + pad * 0.62)
+    illustration = spec.get("illustration_path") or ""
+    if illustration and Path(illustration).is_file():
+        win_h = bh - pad * 2
+        win_w = min(int(bw * 0.30), int(win_h * 1.15))
+        wx, wy = x0 + pad, y0 + pad
+        art = Image.open(illustration).convert("RGBA")
+        art = ImageOps.fit(art, (win_w, win_h), method=Image.LANCZOS,
+                           centering=(0.5, 0.5))
+        mask = Image.new("L", (win_w, win_h), 0)
+        ImageDraw.Draw(mask).rounded_rectangle(
+            (0, 0, win_w - 1, win_h - 1),
+            radius=max(8, int(bh * 0.055)), fill=255)
+        layer.paste(art, (wx, wy), mask)
+        d.rounded_rectangle((wx, wy, wx + win_w, wy + win_h),
+                            radius=max(8, int(bh * 0.055)),
+                            outline=mix(accent, 0.45),
+                            width=max(2, int(bh * 0.006)))
+        tx = int(wx + win_w + pad * 0.60)
+    else:
+        icon_r = bh * 0.165
+        icx, icy = x0 + pad + icon_r, y0 + bh * 0.52
+        d.ellipse((icx - icon_r, icy - icon_r, icx + icon_r, icy + icon_r),
+                  outline=mix(accent, 0.55), width=max(2, int(bh * 0.006)))
+        _line_icon(d, icx, icy, icon_r * 1.05, str(spec.get("icon") or "check"), accent)
+        tx = int(icx + icon_r + pad * 0.62)
     tb = x1 - pad - tx
     index = str(spec.get("index") or "01").zfill(2)
     label = str(theme.get("label") or "NOTE")

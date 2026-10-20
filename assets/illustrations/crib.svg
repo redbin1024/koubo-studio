@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1000" viewBox="0 0 800 1000">
+<defs>
+<filter id="g"><feTurbulence type="fractalNoise" baseFrequency=".8" numOctaves="2" seed="31" result="n"/><feColorMatrix in="n" type="saturate" values="0" result="s"/><feComponentTransfer in="s" result="a"><feFuncA type="linear" slope=".05"/></feComponentTransfer><feComposite in="a" in2="SourceGraphic" operator="in"/></filter>
+<linearGradient id="w" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#F3F7F4"/><stop offset="1" stop-color="#DCE8E1"/></linearGradient>
+<filter id="soft"><feGaussianBlur stdDeviation="16"/></filter>
+</defs>
+<rect width="800" height="1000" fill="#F8F1E4"/>
+<!-- window -->
+<rect x="90" y="80" width="620" height="380" rx="8" fill="url(#w)" stroke="#B78E5C" stroke-width="8"/>
+<path d="M400 84V456 M94 270H706" stroke="#B78E5C" stroke-width="7"/>
+<path d="M110 100H690V440H110Z" fill="#FFF9E8" opacity=".45"/>
+<!-- light -->
+<path d="M130 440 L690 440 L760 760 L70 760Z" fill="#FFF8E8" opacity=".55" filter="url(#soft)"/>
+<!-- floor -->
+<path d="M0 800 Q400 760 800 800 L800 1000 L0 1000Z" fill="#E8D5BA"/>
+<!-- crib -->
+<g stroke="#B9824A" stroke-width="10" stroke-linecap="round">
+<path d="M150 520 L150 820 M650 520 L650 820"/>
+<path d="M140 530 H660 M140 620 H660 M140 710 H660 M140 800 H660"/>
+<path d="M230 530 L230 800 M310 530 L310 800 M390 530 L390 800 M470 530 L470 800 M550 530 L550 800"/>
+</g>
+<!-- mattress -->
+<rect x="180" y="600" width="440" height="140" rx="18" fill="#FBF4E7" stroke="#C79A62" stroke-width="4"/>
+<path d="M190 660 Q400 620 610 660 L610 730 Q400 770 190 730Z" fill="#F1E1C8"/>
+<!-- blanket -->
+<path d="M250 680 Q400 650 550 680 L570 760 Q400 800 230 760Z" fill="#E8D3B6" stroke="#C79A62" stroke-width="3"/>
+<path d="M260 710 Q400 680 540 710 M250 740 Q400 710 550 740" fill="none" stroke="#D6BE9F" stroke-width="3"/>
+<!-- pillow -->
+<ellipse cx="250" cy="650" rx="85" ry="35" fill="#FFF9ED" stroke="#C79A62" stroke-width="3"/>
+<!-- mobile -->
+<path d="M400 80 V260" stroke="#9C774E" stroke-width="5"/>
+<path d="M300 260 H500" stroke="#9C774E" stroke-width="5"/>
+<g fill="none" stroke="#9C774E" stroke-width="3">
+<path d="M330 260 V330 M400 260 V360 M470 260 V320"/>
+<circle cx="330" cy="340" r="18" fill="#D8B36A"/>
+<path d="M400 370 L420 410 L380 410Z" fill="#8FA36B"/>
+<circle cx="470" cy="330" r="15" fill="#C97C5C"/>
+</g>
+<!-- sprig -->
+<g stroke="#6F8451" stroke-width="4" fill="#8FA36B">
+<path d="M690 700 Q720 660 760 645"/>
+<ellipse cx="718" cy="680" rx="16" ry="9" transform="rotate(-35 718 680)"/>
+<ellipse cx="744" cy="662" rx="14" ry="8" transform="rotate(-30 744 662)"/>
+</g>
+<rect width="800" height="1000" filter="url(#g)" opacity=".5"/>
+</svg>

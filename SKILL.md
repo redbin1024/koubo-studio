@@ -51,6 +51,9 @@ koubo auto PROJECT --video talk.mp4 --resume
 
 `--prepare` 不做云端调用；`--resume` 用你自己的推理结果继续，decision 仍走同一套校验。
 
+SVG/Canvas：插图源放 `assets/illustrations/*.svg`，config 引用 `illustrations/name.png`；
+`run_all` 自动渲染。动效用 `scripts/render_motion.py` 输出 ProRes 4444 overlay。
+
 B-roll：真实细节素材放 `input/broll/`，配置 `broll.items`（cue/keyword/source/in/dur），
 只进剪映草稿；不能拿生成图冒充证据。见 `docs/broll.md`。
 

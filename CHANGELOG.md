@@ -1,5 +1,31 @@
 # Changelog
 
+## 1.15.0 — 2026-10-20
+
+### SVG / Canvas 绘图进入工作流
+
+- **SVG 插图源**：`assets/illustrations/*.svg`，800×1000，暖纸/金线/纸纹，无文字。
+- `scripts/render_illustrations.py`：按 config 引用自动把 SVG 渲染到
+  `PROJECT/assets/illustrations/*.png`，按 SVG SHA 缓存，写 `work/illustrations.json`。
+- `run_all` 的 `assets` 步自动执行；`make_assets` 支持插图卡左侧图窗。
+- 项目已接入：
+  - 4105 CTA → `doorway.png`
+  - 接送「有人扶稳」→ `car-seat.png`
+  - 接送「送到床边」→ `crib.png`
+- 资产库还包含 `food-tray`、`quiet-room`、`tea-set`、`care-hands` 源文件。
+- **Canvas/HTML 动效**：`scripts/render_motion.py` 按 `window.renderAt(t)` 逐帧截图，
+  输出 ProRes 4444 + alpha；示例 `assets/motion/steam.html`。
+- `koubo svg / illustrations / motion` 命令；文档 [SVG/Canvas](docs/code-illustration.md)、
+  [动效](docs/motion.md)。
+- 新增 `render_illustrations` 测试；测试总数 **172**。
+- 4105 插画终版：草稿 19/0/0，QC 35/0/6；接送 v2：草稿 18/0/2，QC 33/0/8。
+
+### 边界
+
+- SVG 是代码绘制，不是 AI 位图；照片级/写实人物仍不能用它替代。
+- 动效只适合 1–2 个 overlay hero moment；尚未自动写入 draft 轨，需实测剪映对 ProRes alpha 的导入。
+- 画面里的文字仍由 Pillow/剪映排，SVG 不画文字。
+
 ## 1.14.0 — 2026-10-20
 
 ### 插图重做：editorial 细线体系

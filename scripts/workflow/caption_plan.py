@@ -256,6 +256,10 @@ def resolve_inserts(cfg: dict, cues: list[dict], project: Path | None = None) ->
             "trigger_slot": int(trigger["slot"]) if "slot" in trigger else None,
             "keyword": keyword,
             "title": str(spec.get("title") or ""), "text": str(spec.get("text") or ""),
+            "illustration": str(spec.get("illustration") or ""),
+            "illustration_path": (
+                str((Path(project) / "assets" / str(spec["illustration"])).resolve())
+                if spec.get("illustration") else ""),
             "rows": [str(r) for r in (spec.get("rows") or [])],
             "icon": str(spec.get("icon") or "check"),
             "start": round(start, 3), "end": round(end, 3),

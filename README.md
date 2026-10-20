@@ -277,6 +277,8 @@ Vlog 会先完成粗剪、画面/文案审核，再生成旁白；缺语音会�
 | [草稿优先](docs/draft-first.md) | 为什么主交付是剪映草稿、草稿里能改什么、哪些已烘焙 |
 | [package-only](docs/package-only.md) | 已剪好的成片 + SRT 只做包装，不重剪 |
 | [B-roll](docs/broll.md) | 真实细节镜头插入草稿；4105 拍摄清单 |
+| [SVG/Canvas 插图](docs/code-illustration.md) | 代码绘制插图、渲染进卡片、Canvas 动效 overlay |
+| [Canvas 动效](docs/motion.md) | `renderAt(t)` → ProRes 4444 overlay 的约定 |
 | [参考项目名单](docs/reference-projects.md) | 吸收过哪些项目、commit、许可证和边界 |
 | [草稿规格与审计](docs/draft-spec.md) | `draft-spec.json` / `draft-qc.json`、`draft-audit` 检查什么 |
 | [包装视觉合同](docs/visual-contract.md) | 每个包装 beat 的结构/阅读窗/证据，以及视觉审查包 |
@@ -309,7 +311,7 @@ koubo-studio/
 │   ├── auto_film.py        # koubo auto 全自动编排
 │   ├── koubo.py            # CLI 分发
 │   └── doctor.py           # 环境自检
-├── tests/                  # 171 项回归测试
+├── tests/                  # 172 项回归测试
 ├── references/             # 拆解说明 / 字段表 / 风格语汇 / 踩坑记录
 ├── examples/               # 脱敏示例
 ├── assets/sfx/             # 9 个真实采样（Pixabay Content License）

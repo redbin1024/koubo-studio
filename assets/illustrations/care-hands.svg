@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1000" viewBox="0 0 800 1000">
+<defs>
+<filter id="g"><feTurbulence type="fractalNoise" baseFrequency=".8" numOctaves="2" seed="21" result="n"/><feColorMatrix in="n" type="saturate" values="0" result="s"/><feComponentTransfer in="s" result="a"><feFuncA type="linear" slope=".05"/></feComponentTransfer><feComposite in="a" in2="SourceGraphic" operator="in"/></filter>
+<linearGradient id="bed" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#F3E7D4"/><stop offset="1" stop-color="#D9C3A2"/></linearGradient>
+<filter id="soft"><feGaussianBlur stdDeviation="16"/></filter>
+</defs>
+<rect width="800" height="1000" fill="#F8F0E2"/>
+<!-- window light -->
+<path d="M40 30 L330 0 L430 650 L0 700Z" fill="#FFF8E8" opacity=".65" filter="url(#soft)"/>
+<!-- bed -->
+<path d="M0 690 Q400 650 800 690 L800 1000 L0 1000Z" fill="url(#bed)"/>
+<path d="M0 690 Q400 650 800 690" fill="none" stroke="#D6BE9F" stroke-width="3"/>
+<!-- headboard / wall panel -->
+<rect x="80" y="250" width="640" height="430" rx="26" fill="#EFE0C9" stroke="#D6BE9F" stroke-width="3"/>
+<path d="M80 360H720 M80 470H720 M80 580H720" stroke="#E4CFB4" stroke-width="2" opacity=".7"/>
+<!-- blanket -->
+<path d="M180 620 Q400 570 620 620 L660 790 Q400 840 140 790Z" fill="#F7EBD8" stroke="#C79A62" stroke-width="4"/>
+<path d="M190 660 Q400 615 610 660 M180 710 Q400 665 620 710 M170 760 Q400 715 630 760" fill="none" stroke="#E4CFB4" stroke-width="3"/>
+<!-- folded edge -->
+<path d="M140 790 Q400 840 660 790 L640 850 Q400 900 160 850Z" fill="#E8D3B6" stroke="#C79A62" stroke-width="3"/>
+<!-- arms / sleeves -->
+<path d="M10 470 Q150 430 260 520 Q300 560 270 610 Q220 660 150 640 Q40 610 0 560Z" fill="#FBF4E7" stroke="#C79A62" stroke-width="4"/>
+<path d="M790 450 Q650 430 545 535 Q510 580 545 625 Q600 665 665 635 Q760 595 800 545Z" fill="#FBF4E7" stroke="#C79A62" stroke-width="4"/>
+<!-- hands -->
+<path d="M210 610 Q250 600 280 625 Q300 645 285 670 Q265 690 235 680 Q205 668 195 642Z" fill="#D8A276" stroke="#9C6B45" stroke-width="4"/>
+<path d="M590 610 Q550 600 520 625 Q500 645 515 670 Q535 690 565 680 Q595 668 605 642Z" fill="#D8A276" stroke="#9C6B45" stroke-width="4"/>
+<path d="M235 680 Q250 700 270 700 M565 680 Q550 700 530 700" fill="none" stroke="#9C6B45" stroke-width="4" stroke-linecap="round"/>
+<!-- blanket top fold between hands -->
+<path d="M280 625 Q400 590 520 625 Q520 660 500 680 Q400 700 300 680 Q280 660 280 625Z" fill="#FFF8EA" stroke="#C79A62" stroke-width="3"/>
+<!-- small sprig -->
+<g stroke="#6F8451" stroke-width="4" fill="#8FA36B">
+<path d="M690 560 Q720 520 760 505"/>
+<ellipse cx="718" cy="540" rx="16" ry="9" transform="rotate(-35 718 540)"/>
+<ellipse cx="744" cy="522" rx="14" ry="8" transform="rotate(-30 744 522)"/>
+</g>
+<rect width="800" height="1000" filter="url(#g)" opacity=".5"/>
+</svg>

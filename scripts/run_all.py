@@ -202,6 +202,10 @@ def main() -> None:
             elif step == "captions":
                 result = make_captions.build(cfg, project)
             elif step == "assets":
+                import render_illustrations
+                rendered = render_illustrations.render_all(project)
+                if rendered.get("rendered"):
+                    print(f"  SVG 插图 {rendered['rendered']} 张 → assets/illustrations")
                 result = make_assets.build(cfg, project)
             elif step == "sfx":
                 total = resolve_duration(cfg, project)

@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1000" viewBox="0 0 800 1000">
+<defs>
+<filter id="g"><feTurbulence type="fractalNoise" baseFrequency=".8" numOctaves="2" seed="51" result="n"/><feColorMatrix in="n" type="saturate" values="0" result="s"/><feComponentTransfer in="s" result="a"><feFuncA type="linear" slope=".05"/></feComponentTransfer><feComposite in="a" in2="SourceGraphic" operator="in"/></filter>
+<linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#EAF1EC"/><stop offset="1" stop-color="#D7E2D9"/></linearGradient>
+<linearGradient id="seat" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#FBF4E7"/><stop offset="1" stop-color="#E2CEB2"/></linearGradient>
+<filter id="soft"><feGaussianBlur stdDeviation="18"/></filter>
+</defs>
+<rect width="800" height="1000" fill="#F7EEDF"/>
+<!-- outdoors -->
+<rect x="60" y="60" width="680" height="440" rx="8" fill="url(#sky)"/>
+<path d="M60 360 Q260 300 460 350 Q620 390 740 330 L740 500 L60 500Z" fill="#CFE0D3"/>
+<circle cx="630" cy="170" r="70" fill="#FFF4D6" opacity=".8"/>
+<!-- car body / door frame -->
+<path d="M0 260 L250 240 L330 500 L0 500Z" fill="#D8B68A" stroke="#9C774E" stroke-width="8"/>
+<path d="M40 300 L230 285 L290 470 L40 470Z" fill="#F8F1E4" opacity=".7"/>
+<path d="M250 240 Q520 210 760 260 L760 500 L330 500Z" fill="#B9824A" opacity=".25"/>
+<!-- open door right -->
+<path d="M620 200 Q760 260 780 520 L700 520 Q680 300 600 260Z" fill="#D8B68A" stroke="#9C774E" stroke-width="6"/>
+<!-- seat -->
+<path d="M210 520 Q400 480 590 520 L620 760 Q400 800 180 760Z" fill="url(#seat)" stroke="#9C774E" stroke-width="5"/>
+<path d="M240 540 Q400 510 560 540 L550 650 Q400 680 250 650Z" fill="#F1E1C8" stroke="#C79A62" stroke-width="3"/>
+<path d="M260 600 Q400 575 540 600" fill="none" stroke="#E4CFB4" stroke-width="3"/>
+<!-- headrest -->
+<ellipse cx="400" cy="500" rx="150" ry="52" fill="#FBF4E7" stroke="#9C774E" stroke-width="5"/>
+<path d="M280 500 Q400 465 520 500" fill="none" stroke="#E4CFB4" stroke-width="4"/>
+<!-- blanket -->
+<path d="M250 640 Q400 600 550 640 L580 760 Q400 800 220 760Z" fill="#F8EAD1" stroke="#C79A62" stroke-width="4"/>
+<path d="M260 675 Q400 640 540 675 M250 715 Q400 680 550 715" fill="none" stroke="#E4CFB4" stroke-width="3"/>
+<!-- floor -->
+<path d="M0 800 Q400 760 800 800 L800 1000 L0 1000Z" fill="#E8D5BA"/>
+<path d="M0 800 Q400 760 800 800" fill="none" stroke="#D6BE9F" stroke-width="3"/>
+<!-- light -->
+<path d="M80 520 L320 500 L400 820 L0 850Z" fill="#FFF8E8" opacity=".55" filter="url(#soft)"/>
+<!-- small bag / basket -->
+<path d="M610 700 L710 700 L700 800 L620 800Z" fill="#C79A62" stroke="#8A5A3B" stroke-width="4"/>
+<path d="M640 700 Q650 660 680 660 Q710 660 680 700" fill="none" stroke="#8A5A3B" stroke-width="5"/>
+<rect width="800" height="1000" filter="url(#g)" opacity=".5"/>
+</svg>

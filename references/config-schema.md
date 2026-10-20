@@ -139,11 +139,14 @@
     "radius": 28, "hold": 2.6,            // hold = 单条默认停留秒数
     "theme": {                            // skin 不写 = flat（实心图标块 + 粗边，参考片量出来的样子）
       "skin": "editorial",                // editorial = 发丝描边 + 淡色圆底图标 + 字距标题（压在真人口播上更像设计过的图形，不像系统通知）
-      "bg": "#FFFDF9", "fg": "#2A211A", "accent": "#C08A4E" },
+      "bg": "#FFFDF9", "fg": "#2A211A", "accent": "#C08A4E",
+      "title_font": "Songti SC", "body_font": "Noto Sans CJK SC Medium",
+      "label": "CARE NOTE" },
     "items": [
       { "kind": "icon-label",             // icon-label / list / stat / quote（全部由脚本现画）
         "trigger": { "cue": 6, "keyword": "准时" },   // 或 { "slot": 1 } 挂在解说槽上
         "icon": "clock",                  // check/clock/bowl/leaf/heart/home/star/shield
+        "illustration": "illustrations/food-tray.png", // 可选：左侧圆角图窗，SVG 自动渲染
         "title": "准时送达", "text": "精致的营养餐", "hold": 2.4 }
     ]
   },

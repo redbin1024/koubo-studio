@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1000" viewBox="0 0 800 1000">
+<defs>
+<filter id="g"><feTurbulence type="fractalNoise" baseFrequency=".8" numOctaves="2" seed="11" result="n"/><feColorMatrix in="n" type="saturate" values="0" result="s"/><feComponentTransfer in="s" result="a"><feFuncA type="linear" slope=".05"/></feComponentTransfer><feComposite in="a" in2="SourceGraphic" operator="in"/></filter>
+<linearGradient id="wall" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#F8F0E2"/><stop offset="1" stop-color="#EADCC8"/></linearGradient>
+<linearGradient id="light" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#FFF6DF" stop-opacity=".9"/><stop offset="1" stop-color="#FFF6DF" stop-opacity="0"/></linearGradient>
+<filter id="soft"><feGaussianBlur stdDeviation="18"/></filter>
+</defs>
+<rect width="800" height="1000" fill="url(#wall)"/>
+<path d="M0 760 Q400 720 800 760 L800 1000 L0 1000Z" fill="#E7D4BA"/>
+<path d="M0 760 Q400 720 800 760" fill="none" stroke="#D6BE9F" stroke-width="3"/>
+<!-- window -->
+<rect x="120" y="120" width="390" height="470" rx="6" fill="#DDE7E2" stroke="#B78E5C" stroke-width="8"/>
+<path d="M315 124V586 M124 355H506" stroke="#B78E5C" stroke-width="7"/>
+<path d="M138 138H490V572H138Z" fill="url(#light)"/>
+<!-- curtains -->
+<path d="M70 80 Q130 250 95 640 L150 650 Q165 340 130 80Z" fill="#F1E2CC" stroke="#D6BE9F" stroke-width="3"/>
+<path d="M560 80 Q500 250 535 640 L480 650 Q465 340 500 80Z" fill="#F1E2CC" stroke="#D6BE9F" stroke-width="3"/>
+<path d="M110 100 Q125 300 110 620 M520 100 Q505 300 520 620" fill="none" stroke="#E4CFB4" stroke-width="3"/>
+<!-- light pool -->
+<path d="M170 620 L520 620 L650 860 L90 860Z" fill="#FFF7E5" opacity=".65" filter="url(#soft)"/>
+<!-- chair -->
+<path d="M210 600 Q205 720 220 840 L255 840 Q245 730 250 610Z" fill="#C79D6A"/>
+<path d="M250 610 Q330 590 400 610 L395 660 Q325 640 255 660Z" fill="#D8B68A"/>
+<path d="M245 700 L400 700 L400 742 L245 742Z" fill="#C79D6A"/>
+<path d="M250 740 L265 860 M385 740 L375 860" stroke="#9C774E" stroke-width="10" stroke-linecap="round"/>
+<!-- side table -->
+<ellipse cx="590" cy="720" rx="120" ry="32" fill="#B98A56"/>
+<ellipse cx="590" cy="710" rx="120" ry="32" fill="#D8B68A"/>
+<path d="M510 720 L520 880 M670 720 L660 880" stroke="#8A5A3B" stroke-width="9"/>
+<path d="M520 810 Q590 790 660 810" fill="none" stroke="#8A5A3B" stroke-width="6"/>
+<!-- plant -->
+<g stroke="#6F8451" stroke-width="6" fill="#8FA36B">
+<path d="M690 700 Q700 590 690 520"/><path d="M690 620 Q635 580 610 530"/><path d="M690 585 Q740 545 760 505"/><path d="M690 660 Q640 650 620 620"/><path d="M690 660 Q745 650 765 620"/>
+<ellipse cx="620" cy="540" rx="30" ry="16" transform="rotate(-35 620 540)"/><ellipse cx="750" cy="515" rx="32" ry="16" transform="rotate(28 750 515)"/><ellipse cx="622" cy="620" rx="26" ry="14" transform="rotate(-20 622 620)"/><ellipse cx="758" cy="620" rx="26" ry="14" transform="rotate(18 758 620)"/>
+</g>
+<path d="M650 690 L735 690 L720 745 L665 745Z" fill="#B9824A" stroke="#8A5A3B" stroke-width="3"/>
+<!-- rug -->
+<ellipse cx="360" cy="900" rx="270" ry="55" fill="#D8B68A" opacity=".55"/>
+<ellipse cx="360" cy="900" rx="230" ry="42" fill="none" stroke="#C79D6A" stroke-width="3"/>
+<rect width="800" height="1000" filter="url(#g)" opacity=".5"/>
+</svg>
