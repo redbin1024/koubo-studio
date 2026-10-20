@@ -27,6 +27,13 @@ python scripts/render_svg.py assets/illustrations/car-seat.svg /tmp/car-seat.png
 3. 写 `work/illustrations.json`（源/产物 SHA）；
 4. `make_assets` 把图放进卡片左侧圆角图窗，右侧仍排 Songti 标题 + 正文。
 
+已接入 6 张：
+
+- 4105 卡片行：`food-tray` / `quiet-room` / `tea-set`
+- 4105 末尾 CTA：`doorway`
+- 接送「有人扶稳」：`car-seat`
+- 接送「送到床边」：`crib`
+
 当前库里：
 
 | 文件 | 用途 |

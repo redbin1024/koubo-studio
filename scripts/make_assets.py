@@ -625,8 +625,26 @@ def build(cfg: dict, project: Path) -> dict:
                          (226, 226, 226, 255), INK, max(1, round(4 * k)))
         written.append(save(im, f"card-row-{i + 1}.png"))
 
-        # 图标：emoji 优先，没有 emoji 字体就退回「序号色块」
+        # 图标：如果这一行配了 illustration，就用小图窗；否则线稿/emoji。
         gl = row.get("icon") or str(row["num"])
+        if glass and row.get("illustration"):
+            art_path = Path(project) / "assets" / str(row["illustration"])
+            if art_path.is_file():
+                tile = max(24, round(theme["icon_tile_size"] * k))
+                art = ImageOps.fit(Image.open(art_path).convert("RGBA"),
+                                   (tile, tile), method=Image.LANCZOS)
+                mask = Image.new("L", (tile, tile), 0)
+                ImageDraw.Draw(mask).rounded_rectangle(
+                    (0, 0, tile - 1, tile - 1),
+                    radius=max(6, round(tile * 0.22)), fill=255)
+                spr = Image.new("RGBA", (tile, tile), (0, 0, 0, 0))
+                spr.paste(art, (0, 0), mask)
+                ImageDraw.Draw(spr).rounded_rectangle(
+                    (0, 0, tile - 1, tile - 1),
+                    radius=max(6, round(tile * 0.22)),
+                    outline=accent[:3] + (int(255 * 0.45),), width=max(1, round(1.4 * k)))
+                written.append(save(spr, f"card-icon-{i + 1}.png"))
+                continue
         if glass:
             written.append(save(glass_icon(gl, bold, emoji_path, k, theme, accent),
                                 f"card-icon-{i + 1}.png"))

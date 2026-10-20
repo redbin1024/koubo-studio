@@ -14,8 +14,10 @@ class IllustrationTests(unittest.TestCase):
             {"illustration": "illustrations/car-seat.png"},
             {"illustration": "illustrations/crib.png"},
             {"title": "no art"},
+        ]}, "card": {"rows": [
+            {"illustration": "illustrations/food-tray.png"},
         ]}}
-        self.assertEqual(referenced(cfg), {"car-seat", "crib"})
+        self.assertEqual(referenced(cfg), {"car-seat", "crib", "food-tray"})
 
 
 if __name__ == "__main__":

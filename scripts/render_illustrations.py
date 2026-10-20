@@ -35,6 +35,10 @@ def referenced(cfg: dict) -> set[str]:
         value = str(item.get("illustration") or "")
         if value.endswith(".png"):
             out.add(Path(value).stem)
+    for row in (cfg.get("card") or {}).get("rows") or []:
+        value = str(row.get("illustration") or "")
+        if value.endswith(".png"):
+            out.add(Path(value).stem)
     return out
 
 
