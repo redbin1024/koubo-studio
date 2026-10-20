@@ -160,12 +160,22 @@ def cfg_footnote(th: dict) -> str:
 
 
 def glass_icon(glyph, bold_path, emoji_path, k, th, accent):
-    """磨砂圆角方块托住 emoji。
+    """玻璃卡图标位：细线图标 + 发丝圆环；不再用 emoji 色块。
 
-    flat 时期图标是「emoji + 40% 黑阴影」，压在深色磨砂卡上会脏成一团；玻璃风格里
-    给它一个白色 7% 的圆角托底 + 发丝描边，它才是浮在卡面上的一个「图标位」。
-    emoji 也顺手收小一圈：160px 的 emoji 在条目里比正文还重，比例是歪的。
+    配置里的 icon 写 bowl/leaf/home/shield/heart/star/check/clock 时走矢量线稿；
+    保留 emoji 兼容，但默认卡片不再依赖彩色 emoji。
     """
+    line_names = {"bowl", "leaf", "home", "shield", "heart", "star", "check", "clock"}
+    tile = max(24, round(th["icon_tile_size"] * k))
+    if str(glyph).lower() in line_names:
+        spr = Image.new("RGBA", (tile, tile), (0, 0, 0, 0))
+        d = ImageDraw.Draw(spr)
+        d.ellipse((1, 1, tile - 2, tile - 2),
+                  fill=(255, 255, 255, int(255 * 0.075)),
+                  outline=accent[:3] + (int(255 * 0.55),),
+                  width=max(1, round(1.6 * k)))
+        _line_icon(d, tile / 2, tile / 2, tile * 0.56, str(glyph).lower(), accent)
+        return spr
     px = EMOJI_PX
     box_px = int(px * 1.5)
     ic = Image.new("RGBA", (box_px, box_px), (0, 0, 0, 0))
@@ -182,8 +192,6 @@ def glass_icon(glyph, bold_path, emoji_path, k, th, accent):
     if not ok:
         di.text((box_px // 2, box_px // 2), glyph, font=_font(bold_path, px - 30),
                 anchor="mm", fill=accent)
-
-    tile = max(24, round(th["icon_tile_size"] * k))
     glyph_px = max(16, round(th["icon_size"] * k))
     spr = Image.new("RGBA", (tile, tile), (0, 0, 0, 0))
     ImageDraw.Draw(spr).rounded_rectangle(
@@ -194,8 +202,9 @@ def glass_icon(glyph, bold_path, emoji_path, k, th, accent):
     bbox = ic.getbbox()
     if bbox:
         g = ic.crop(bbox)
-        s = glyph_px / max(1, max(g.width, g.height))
-        g = g.resize((max(1, round(g.width * s)), max(1, round(g.height * s))), Image.LANCZOS)
+        g = g.resize((max(1, round(g.width * glyph_px / max(1, max(g.width, g.height)))),
+                      max(1, round(g.height * glyph_px / max(1, max(g.width, g.height))))),
+                     Image.LANCZOS)
         spr.alpha_composite(g, ((tile - g.width) // 2, (tile - g.height) // 2))
     return spr
 
@@ -277,61 +286,129 @@ def _insert_icon(d: ImageDraw.ImageDraw, cx, cy, size, name, color, bg=None):
 
 
 
-def _insert_card_editorial(W, H, box_px, spec, theme, font_path, med_path, radius):
-    """inserts.theme.skin = "editorial"：细描边卡片 + 淡色圆底图标 + 字距标题。
+def _line_icon(d: ImageDraw.ImageDraw, cx, cy, size, name, color):
+    """细线图标：和实心图标分开，给 editorial 插图用。"""
+    import math
+    r = size / 2
+    lw = max(2, int(size * 0.065))
+    if name == "heart":
+        pts = []
+        for i in range(48):
+            t = 2 * math.pi * i / 48
+            x = 16 * math.sin(t) ** 3
+            y = -(13 * math.cos(t) - 5 * math.cos(2 * t)
+                  - 2 * math.cos(3 * t) - math.cos(4 * t))
+            pts.append((cx + x * r / 16, cy + y * r / 16))
+        d.line(pts + [pts[0]], fill=color, width=lw, joint="curve")
+    elif name == "leaf":
+        angle = math.radians(45)
+        ax, ay = math.cos(angle), math.sin(angle)
+        px, py = -math.sin(angle), math.cos(angle)
+        edge = []
+        for i in range(25):
+            t = (i / 24) * 2 - 1
+            half = r * 0.50 * (1 - t * t)
+            edge.append((cx + ax * r * t + px * half, cy + ay * r * t + py * half))
+        d.line(edge, fill=color, width=lw, joint="curve")
+        d.line((cx - ax * r * 0.82, cy - ay * r * 0.82,
+                cx + ax * r * 0.82, cy + ay * r * 0.82), fill=color, width=lw)
+    elif name == "home":
+        d.line([(cx - r * 0.82, cy - r * 0.10), (cx, cy - r * 0.95),
+                (cx + r * 0.82, cy - r * 0.10)], fill=color, width=lw, joint="curve")
+        d.line([(cx - r * 0.62, cy - r * 0.05), (cx - r * 0.62, cy + r * 0.86),
+                (cx + r * 0.62, cy + r * 0.86), (cx + r * 0.62, cy - r * 0.05)],
+               fill=color, width=lw, joint="curve")
+        d.rectangle((cx - r * 0.18, cy + r * 0.28, cx + r * 0.18, cy + r * 0.86),
+                    outline=color, width=lw)
+    elif name == "shield":
+        d.line([(cx - r * 0.76, cy - r * 0.82), (cx + r * 0.76, cy - r * 0.82),
+                (cx + r * 0.76, cy + r * 0.06), (cx, cy + r * 0.92),
+                (cx - r * 0.76, cy + r * 0.06), (cx - r * 0.76, cy - r * 0.82)],
+               fill=color, width=lw, joint="curve")
+    elif name == "star":
+        pts = []
+        for i in range(10):
+            a = -math.pi / 2 + i * math.pi / 5
+            rr = r if i % 2 == 0 else r * 0.44
+            pts.append((cx + rr * math.cos(a), cy + rr * math.sin(a)))
+        d.line(pts + [pts[0]], fill=color, width=lw, joint="curve")
+    elif name == "clock":
+        d.ellipse((cx - r, cy - r, cx + r, cy + r), outline=color, width=lw)
+        d.line((cx, cy, cx, cy - r * 0.55), fill=color, width=lw)
+        d.line((cx, cy, cx + r * 0.45, cy + r * 0.25), fill=color, width=lw)
+    elif name == "bowl":
+        d.arc((cx - r * 0.86, cy - r * 0.30, cx + r * 0.86, cy + r * 1.05),
+              0, 180, fill=color, width=lw)
+        d.line((cx - r * 0.95, cy - r * 0.28, cx + r * 0.95, cy - r * 0.28),
+               fill=color, width=lw)
+        for dx in (-r * 0.16, r * 0.16):
+            d.line((cx + dx - r * 0.20, cy - r * 0.86,
+                    cx + dx + r * 0.10, cy - r * 0.43), fill=color, width=lw)
+    else:  # check
+        d.line([(cx - r * 0.72, cy + r * 0.02), (cx - r * 0.16, cy + r * 0.62),
+                (cx + r * 0.78, cy - r * 0.62)], fill=color, width=lw, joint="curve")
 
-    和 flat 的区别只在「脸」：不动框位、不动触发规则、不动版式语义。
-    flat 是参考片量出来的样式（实心色块 + 粗边），留作默认；当插图要压在真人口播
-    画面上时，实心块会像一条系统通知 —— editorial 用发丝边和 13% 的淡色圆底把
-    它压回「设计过的图形」那一档。
+
+def _insert_card_editorial(W, H, box_px, spec, theme, font_path, med_path, radius):
+    """editorial 插图：暖纸底、发丝边、细线图标、衬线标题、编号/标签。
+
+    不引图标库、不复制参考素材；信息层级固定为 LABEL / TITLE / BODY。
     """
     layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     x0, y0, x1, y1 = box_px
     bw, bh = x1 - x0, y1 - y0
-    bg = hex_to_rgba(theme["bg"])
-    fg = hex_to_rgba(theme["fg"])
-    accent = hex_to_rgba(theme["accent"])
-    r = min(int(radius * bh / 260), int(bh * 0.20))
+    bg = hex_to_rgba(theme.get("bg") or "#FFF9F0")
+    fg = hex_to_rgba(theme.get("fg") or "#241F1A")
+    accent = hex_to_rgba(theme.get("accent") or "#B9824A")
+    r = min(int(radius * bh / 260), int(bh * 0.18))
+    pad = int(bh * 0.18)
 
     shadow = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     ImageDraw.Draw(shadow).rounded_rectangle(
-        (x0, y0 + int(bh * 0.035), x1, y1 + int(bh * 0.035)), radius=r, fill=(0, 0, 0, 46))
+        (x0, y0 + int(bh * 0.035), x1, y1 + int(bh * 0.035)),
+        radius=r, fill=(0, 0, 0, 38))
     shadow = shadow.filter(ImageFilter.GaussianBlur(max(2, int(bh * 0.045))))
     layer = Image.alpha_composite(layer, shadow)
 
-    # ImageDraw 在 RGBA 上是**替换像素**不是混合：半透明填色会在卡面上挖出透光洞。
-    # 所以这里先把「淡色」按卡底实算出来再画，画上去的每个像素都是不透明的。
     def mix(over, t):
         return tuple(int(bg[i] + (over[i] - bg[i]) * t) for i in range(3)) + (255,)
 
     d = ImageDraw.Draw(layer)
     d.rounded_rectangle((x0, y0, x1, y1), radius=r, fill=bg)
     d.rounded_rectangle((x0, y0, x1, y1), radius=r,
-                        outline=mix(fg, 0.10), width=max(1, int(bh * 0.007)))
+                        outline=mix(fg, 0.10), width=max(1, int(bh * 0.006)))
 
-    pad = int(bh * 0.17)
-    disc = bh - pad * 2
-    cx, cy = x0 + pad + disc / 2, y0 + bh / 2
-    d.ellipse((cx - disc / 2, cy - disc / 2, cx + disc / 2, cy + disc / 2),
-              fill=mix(accent, 0.14))
-    _insert_icon(d, cx, cy, disc * 0.46, spec["icon"], accent, bg)
+    # 顶部发丝线 + 一小段金色，作为「活动项」的标记。
+    line_y = y0 + int(bh * 0.10)
+    d.line((x0 + pad, line_y, x1 - pad, line_y), fill=mix(fg, 0.10),
+           width=max(1, int(bh * 0.004)))
+    d.rounded_rectangle((x0 + pad, line_y - max(1, int(bh * 0.006)),
+                         x0 + pad + int(bw * 0.10), line_y + max(1, int(bh * 0.006))),
+                        radius=max(1, int(bh * 0.006)), fill=accent)
 
-    tx = x0 + pad + disc + int(pad * 0.85)
+    icon_r = bh * 0.165
+    icx, icy = x0 + pad + icon_r, y0 + bh * 0.52
+    d.ellipse((icx - icon_r, icy - icon_r, icx + icon_r, icy + icon_r),
+              outline=mix(accent, 0.55), width=max(2, int(bh * 0.006)))
+    _line_icon(d, icx, icy, icon_r * 1.05, str(spec.get("icon") or "check"), accent)
+
+    tx = int(icx + icon_r + pad * 0.62)
     tb = x1 - pad - tx
-    title_size = bh * 0.27
-    body_size = bh * 0.185
+    index = str(spec.get("index") or "01").zfill(2)
+    label = str(theme.get("label") or "NOTE")
+    label_font = _fit_text(d, f"{label} · {index}", med_path, bh * 0.075, tb)
+    _stroked(d, (tx, y0 + bh * 0.15), f"{label} · {index}", label_font,
+             mix(accent, 0.95), None, 0, anchor="la", tracking=bh * 0.008)
+
+    title_size = bh * 0.235
     title_font = _fit_text(d, spec["title"], font_path, title_size, tb)
-    body = _fit_text(d, spec["text"], med_path, body_size, tb) if spec["text"] else None
-    # 标题和正文之间至少留 0.5 个标题字高。原来 1.28×title_size 只够放基线，
-    # 中文字身的下伸会把两行压在一起；1.58 是实拍卡在 260px 高时的安全值。
-    body_gap = title_size * 1.58
-    block = title_size * 1.24 + (body_size * 1.58 if body else 0)
-    top = y0 + (bh - block) / 2
-    _stroked(d, (tx, top), spec["title"], title_font, fg, None, 0,
-             anchor="la", tracking=bh * 0.014)
-    if body:
-        _stroked(d, (tx, top + body_gap), spec["text"], body,
-                 mix(fg, 0.72), None, 0, anchor="la", tracking=bh * 0.005)
+    _stroked(d, (tx, y0 + bh * 0.32), spec["title"], title_font, fg, None, 0,
+             anchor="la", tracking=bh * 0.006)
+    if spec.get("text"):
+        body_size = bh * 0.115
+        body = _fit_text(d, spec["text"], med_path, body_size, tb)
+        _stroked(d, (tx, y0 + bh * 0.64), spec["text"], body,
+                 mix(fg, 0.68), None, 0, anchor="la", tracking=bh * 0.004)
     return layer
 
 
@@ -436,6 +513,10 @@ def build(cfg: dict, project: Path) -> dict:
     bold = match_font(family, "Bold", project) or black
     med = match_font(family, "Medium", project) or black
     emoji_path = find_emoji_font()
+    ins_theme = cfg.get("inserts", {}).get("theme") or {}
+    ins_title = find_font(ins_theme.get("title_font") or family, project)
+    ins_body = (match_font(ins_theme.get("body_font") or family, "Medium", project)
+                or find_font(ins_theme.get("body_font") or family, project))
 
     box = [round(v * s) for v, s in zip(card["box"], (W, H, W, H))]
     x0, y0, x1, y1 = box
@@ -456,6 +537,7 @@ def build(cfg: dict, project: Path) -> dict:
 
     theme = card_theme(card)
     glass = theme.get("skin") == "glass"
+    card_title_font = find_font(theme.get("title_font") or family, project)
     accent = hex_to_rgba(theme.get("accent") or pal["gold"])
     hair = (255, 255, 255, int(255 * theme.get("divider_alpha", 0.10)))
     hair_w = max(1, round(theme.get("divider_width", 2) * k))
@@ -475,8 +557,8 @@ def build(cfg: dict, project: Path) -> dict:
         if glass:
             ty, tx = round(lay["title_y"] * H), round(lay["title_x"] * W)
             _stroked(d, (tx, ty), card["title"],
-                     _font(black, round(theme["title_size"] * k)), accent, None, 0,
-                     anchor="lm", tracking=4 * k)
+                     _font(card_title_font, round(theme["title_size"] * k)),
+                     accent, None, 0, anchor="lm", tracking=4 * k)
             # 标题下面一条发丝线，左端压一段金色短线。用竖条容易和「I」混淆，
             # 横线做「活动项」才是这一类版式里更稳的做法。
             ly = ty + round(theme["title_rule_gap"] * k)
@@ -502,11 +584,11 @@ def build(cfg: dict, project: Path) -> dict:
             num_c = hex_to_rgba(theme["num_color"]) if theme["num_color"] else accent
             _stroked(d, (num_r, cy), str(row["num"]),
                      _font(black, round(theme["num_size"] * k)), num_c, None, 0, anchor="rm")
-            _stroked(d, (txt_x, cy - 30 * k), row["main"],
+            _stroked(d, (txt_x, cy - 54 * k), row["main"],
                      _font(black, round(theme["main_size"] * k)), (255, 255, 255, 255),
                      None, 0)
             if row.get("sub"):
-                _stroked(d, (txt_x + 2, cy + 26 * k), row["sub"],
+                _stroked(d, (txt_x + 2, cy + 34 * k), row["sub"],
                          _font(med, round(theme["sub_size"] * k)),
                          hex_to_rgba(theme["sub_color"]), None, 0)
             if i < len(card["rows"]) - 1:      # 最后一行下面不再画线，收在卡里更干净
@@ -518,10 +600,10 @@ def build(cfg: dict, project: Path) -> dict:
         else:
             _stroked(d, (num_r, cy), str(row["num"]), _font(black, round(74 * k)),
                      (255, 255, 255, 255), INK, max(1, round(6 * k)), anchor="rm")
-            _stroked(d, (txt_x, cy - 30 * k), row["main"], _font(black, round(56 * k)),
+            _stroked(d, (txt_x, cy - 54 * k), row["main"], _font(black, round(56 * k)),
                      (255, 255, 255, 255), INK, max(1, round(6 * k)))
             if row.get("sub"):
-                _stroked(d, (txt_x + 2, cy + 24 * k), row["sub"], _font(med, round(34 * k)),
+                _stroked(d, (txt_x + 2, cy + 34 * k), row["sub"], _font(med, round(34 * k)),
                          (226, 226, 226, 255), INK, max(1, round(4 * k)))
         written.append(save(im, f"card-row-{i + 1}.png"))
 
@@ -612,7 +694,7 @@ def build(cfg: dict, project: Path) -> dict:
     ins_cfg = cfg["inserts"]
     for item in inserts["items"]:
         box_px = [round(v * s) for v, s in zip(item["box"], (W, H, W, H))]
-        art = insert_card(W, H, box_px, item, ins_cfg["theme"], black, med,
+        art = insert_card(W, H, box_px, item, ins_cfg["theme"], ins_title, ins_body,
                           float(ins_cfg["radius"]))
         written.append(save(art, item["asset"]))
 

@@ -2,10 +2,10 @@
   "schema_version": 1,
   "id": "KB-TH-01",
   "name": "暖食玻璃卡",
-  "version": "1.2.0",
+  "version": "1.2.2",
   "readiness": {
     "status": "visual_review_pending",
-    "scope": "4105 全功能版：无片头标题；末尾预约 CTA；卡片扫描光条 + 落位关键帧；字幕描边减到 8/阴影 4；转场与 4 组镜头关键帧；视觉审查 16 beat 中 14 个原生/高级操作待剪映导出确认。"
+    "scope": "4105 全功能版：无片头标题；卡片换成细线图标 + Songti 标题；CTA 改为 editorial；字幕 8/4；卡片落位/行级音效；视觉审查 16 beat 中 14 个待剪映导出确认。"
   },
   "provenance": {
     "source_project": "4105-全功能版",
@@ -81,7 +81,8 @@
       "theme": {
         "skin": "glass",
         "accent": "#D8B36A",
-        "sub_color": "#D6CEC2"
+        "sub_color": "#D6CEC2",
+        "title_font": "Songti SC"
       }
     },
     "inserts": {
@@ -97,7 +98,10 @@
         "skin": "editorial",
         "bg": "#FFFDF9",
         "fg": "#2A211A",
-        "accent": "#B9824A"
+        "accent": "#B9824A",
+        "title_font": "Songti SC",
+        "body_font": "Noto Sans CJK SC Medium",
+        "label": "VISIT"
       }
     },
     "gold": {

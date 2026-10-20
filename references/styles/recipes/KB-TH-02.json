@@ -2,10 +2,10 @@
   "schema_version": 1,
   "id": "KB-TH-02",
   "name": "接送纪实",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "readiness": {
     "status": "draft_polish_pending",
-    "scope": "接送 30s 推广版：23 镜头 / 120BPM；字幕描边 8、金色口号、2 条信息条、扫描光条；尚无独立 style-lock 视觉验收。"
+    "scope": "接送 30s 品牌版：23 镜头 / 120BPM；插入卡改为 editorial（Songti 标题/细线图标/CARE NOTE 标签）；扫描光条/暖食滤镜/发光字落位；视觉审查 5 beat 待剪映导出确认。"
   },
   "provenance": {
     "source_project": "接送-品牌版",
@@ -88,7 +88,11 @@
       "theme": {
         "bg": "#FFF8EC",
         "fg": "#241F1A",
-        "accent": "#E8A33C"
+        "accent": "#E8A33C",
+        "title_font": "Songti SC",
+        "body_font": "Noto Sans CJK SC Medium",
+        "label": "CARE NOTE",
+        "skin": "editorial"
       }
     },
     "gold": {

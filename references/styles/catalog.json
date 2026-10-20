@@ -7,25 +7,25 @@
     {
       "id": "KB-TH-01",
       "name": "暖食玻璃卡",
-      "version": "1.2.0",
+      "version": "1.2.2",
       "aliases": [],
       "recipe": "recipes/KB-TH-01.json",
-      "recipe_sha256": "0c3905a157c33bc59712a1e6be715415505ada1c6e8d87aff7bc8be32e4cdbbc",
+      "recipe_sha256": "9c5aa74522f1d9dbba9f59b6581bf3d0c5786357dc6bb37115b6e56e5fe310fa",
       "readiness": {
         "status": "visual_review_pending",
-        "scope": "4105 全功能版：无片头标题；末尾预约 CTA；卡片扫描光条 + 落位关键帧；字幕描边减到 8/阴影 4；转场与 4 组镜头关键帧；视觉审查 16 beat 中 14 个原生/高级操作待剪映导出确认。"
+        "scope": "4105 全功能版：无片头标题；卡片换成细线图标 + Songti 标题；CTA 改为 editorial；字幕 8/4；卡片落位/行级音效；视觉审查 16 beat 中 14 个待剪映导出确认。"
       }
     },
     {
       "id": "KB-TH-02",
       "name": "接送纪实",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "aliases": [],
       "recipe": "recipes/KB-TH-02.json",
-      "recipe_sha256": "ee93a356af3d5bdb7ab6afc241af9d5090986c2346f369a703dda08c66cb34be",
+      "recipe_sha256": "e5441aefd408dd08d565b44de152ae64bf9ea4ee81a6c61fbb0f06ce69568c53",
       "readiness": {
         "status": "draft_polish_pending",
-        "scope": "接送 30s 推广版：23 镜头 / 120BPM；字幕描边 8、金色口号、2 条信息条、扫描光条；尚无独立 style-lock 视觉验收。"
+        "scope": "接送 30s 品牌版：23 镜头 / 120BPM；插入卡改为 editorial（Songti 标题/细线图标/CARE NOTE 标签）；扫描光条/暖食滤镜/发光字落位；视觉审查 5 beat 待剪映导出确认。"
       }
     }
   ]
