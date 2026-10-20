@@ -7,13 +7,13 @@
     {
       "id": "KB-TH-01",
       "name": "暖食玻璃卡",
-      "version": "1.2.2",
+      "version": "1.2.3",
       "aliases": [],
       "recipe": "recipes/KB-TH-01.json",
-      "recipe_sha256": "9c5aa74522f1d9dbba9f59b6581bf3d0c5786357dc6bb37115b6e56e5fe310fa",
+      "recipe_sha256": "04a73d37f47345a456a7004d3a321997e12b6cf16b62d238d875a8b2a5286d69",
       "readiness": {
         "status": "visual_review_pending",
-        "scope": "4105 全功能版：无片头标题；卡片换成细线图标 + Songti 标题；CTA 改为 editorial；字幕 8/4；卡片落位/行级音效；视觉审查 16 beat 中 14 个待剪映导出确认。"
+        "scope": "4105 全功能版：d08 参考版，玻璃卡加两层错位叠卡；云端配乐；无片头标题；editorial 插图；QC 待复验。"
       }
     },
     {

@@ -44,7 +44,7 @@ def projection(cfg: dict) -> dict:
                             "big", "hook", "palette"])
     card = cfg.get("card") or {}
     card_style = _pick(card, ["fill", "edge", "radius", "edge_width", "wipe",
-                              "box_dur", "row_enter", "box"])
+                              "box_dur", "row_enter", "box", "stack", "stack_offset"])
     theme = dict(card.get("theme") or {})
     theme.pop("footnote", None)
     if theme:

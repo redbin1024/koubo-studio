@@ -210,6 +210,17 @@ class Compositor:
         # 突然在那儿」。给框自己的时长 + 上浮 + 从 0.955 放大到位，它才是「落」下来的。
         box_dur = float(self.card.get("box_dur", self.card["wipe"]))
         p_box = ease_out(clamp01((t - self.card["start"]) / box_dur))
+        # d08 参考：卡面下方再压两层错位玻璃，形成“叠卡”深度；不新增素材。
+        if self.card.get("stack"):
+            for i, (dx, dy) in enumerate(((-16, 26), (18, 48))):
+                panel = Image.new("RGBA", (self.W, self.H), (0, 0, 0, 0))
+                ImageDraw.Draw(panel).rounded_rectangle(
+                    (box_px[0] + dx, box_px[1] + dy + 26,
+                     box_px[2] + dx, box_px[3] + dy),
+                    radius=max(8, int(38 * self.W / 1080)),
+                    fill=(20, 19, 18, 150 if i == 0 else 110),
+                    outline=(255, 255, 255, 28), width=2)
+                base = Image.alpha_composite(base, panel)
         base = self.reveal(base, self.assets["card-base.png"], p_box,
                            box_px[0], box_px[2] + 40,
                            dy=(1 - p_box) * 72, scale=0.955 + 0.045 * p_box)

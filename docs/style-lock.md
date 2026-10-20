@@ -14,7 +14,7 @@ koubo style resolve KB-TH-01
 
 | ID | 名称 | 版本 | 范围 |
 | --- | --- | --- | --- |
-| `KB-TH-01` | 暖食玻璃卡 | 1.2.2 | 4105 全功能版；无片头标题；细线图标 + Songti 标题；CTA 改 editorial；字幕 8/4；视觉审查 16 beat 中 14 个待剪映导出确认 |
+| `KB-TH-01` | 暖食玻璃卡 | 1.2.3 | 4105 全功能版；d08 参考版叠卡；云端配乐；editorial 插图；字幕 8/4；视觉审查 16 beat 中 14 个待剪映导出确认 |
 | `KB-TH-02` | 接送纪实 | 1.0.1 | 接送 30s 品牌版；23 镜头 / 120BPM；editorial 插图（Songti/细线图标/CARE NOTE）；扫描光条/暖食；视觉审查 5 beat 待剪映导出确认 |
 
 目录：`references/styles/catalog.json`
