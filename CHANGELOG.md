@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.17.0 — 2026-10-20
+
+### 按内容匹配参考风格
+
+- `style_match.py`：读字幕/镜头表/已有版式，给 talking-head-motion 的 30 款风格打分。
+- 输出 top 5：`id/name/readiness/grammar/engine/score/fit/risk/action`。
+- 内容信号：步骤/清单、细节、数字、对比、情绪、钩子、品牌词；
+- 画面信号：镜头密度、已有 card skin、已有插图数；
+- readiness 与引擎能力参与排序；已有玻璃卡时 d08 加权。
+- 结果只是 **adaptation brief**，不是自动 1:1 复刻；外部 catalog/recipes 只读，不复制素材。
+- 4105 实测 top：d08 / d14 / d06 / d19 / d02；接送 top：d02 / d19 / d01 / d11 / d22。
+- 新增 style_match 测试；测试总数 **176**。
+
 ## 1.16.1 — 2026-10-20
 
 ### 云端音乐实测 + URL 刷新
