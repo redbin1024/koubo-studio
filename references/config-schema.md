@@ -176,14 +176,16 @@
                                           // 新生成的每句还写 shot_index/shot_ref，核对当前镜头表
     "voice_subtitle": "voice-captions.srt",  // 旁白逐字稿写到 input/ 下的哪个文件；
                                           // 不写 = 沿用 input.subtitle（老工程行为不变）
+    "narration_voice": "zh-CN-XiaoxiaoNeural",  // edge-tts 音色；换音色会换缓存键
     "voice_volume": 1.0, "sfx_volume": 0.80,
     "narration_volume": 1.0,              // work/voice.wav 的音量（文件不存在就整条忽略）
     "bgm_volume": 0.55,                   // work/bgm.wav 的音量；0.25 很含蓄，0.55 清楚听得见
     "bgm": { "enabled": true, "mood": "warm", "bpm": 88 },
-                                          // 本地合成 BGM（scripts/make_bgm.py，零素材零版权）。
-                                          // 剪映音乐库没有命令行接口，这是唯一可自动化的音乐来源；
-                                          // 想换曲子就把选好的音频放到 work/bgm.wav 的位置，
-                                          // 或者替换那个文件。enabled=false 时整步跳过。
+                                          // 默认本地合成 BGM（make_bgm.py，零素材）。
+                                          // 云端曲库用 `koubo music pick` 写：
+                                          // { "source":"jianying-cloud", "music_id":"...",
+                                          //   "title":"..." }；run_all 会下载/循环成 work/bgm.wav。
+                                          // 没有 CDN URL 时明确报错，不伪造。enabled=false 时整步跳过。
     "duck": { "threshold": 0.08, "ratio": 3, "attack": 25, "release": 500 },
                                           // 旁白对现场声/BGM 的侧链闪避；不铺旁白就无效果
     "loudness": { "I": -14, "TP": -2.6, "LRA": 11 }

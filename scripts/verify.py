@@ -290,7 +290,7 @@ def run_checks(cfg: dict, project: Path) -> dict:
                      "style-plan-consistent", "bgm-present", "jianying-fx",
                      "jianying-draft", "jianying-installed", "draft-audit",
                      "visual-contract", "visual-review", "advanced-fx",
-                     "style-lock", "caption-role", "overlay-fx"):
+                     "style-lock", "caption-role", "overlay-fx", "bgm-cloud"):
             add(name, None, "没有成片，本项没查")
         return _write(p, out, {}, {}, checks)
 
@@ -540,6 +540,21 @@ def run_checks(cfg: dict, project: Path) -> dict:
             f"{summary.get('unchecked', 0)} 没查"
             + ("；" + "；".join(f"{c['name']} {c['detail']}" for c in bad[:3])
                if bad else ""))
+
+    # ---- 云端 BGM：选择记录、文件、ID 必须对得上
+    bgm_cfg = (cfg.get("audio") or {}).get("bgm") or {}
+    if not bgm_cfg.get("music_id"):
+        pass
+    else:
+        try:
+            sel = json.loads((p["work"] / "music-selection.json").read_text(encoding="utf-8"))
+            bgm_file = p["work"] / "bgm.wav"
+            ok = (str(sel.get("music_id")) == str(bgm_cfg["music_id"])
+                  and bgm_file.is_file() and bgm_file.stat().st_size > 0)
+            add("bgm-cloud", ok, f"{sel.get('music_id')} / {sel.get('title', '')}"
+                + ("" if ok else "；音乐文件或 ID 不匹配"))
+        except (OSError, ValueError):
+            add("bgm-cloud", False, "配置了云端音乐，但没有 work/music-selection.json")
 
     # ---- 包装层关键帧（卡片/品牌字落位）
     ov_cfg = cfg.get("overlay_fx") or {}

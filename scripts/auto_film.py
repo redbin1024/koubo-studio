@@ -610,7 +610,7 @@ def _run_pipeline(project: Path) -> int:
     print("\n  跑流水线（--auto，跳过人工听审）")
     work = project_paths(project)["work"]
     for name in ("qc-report.json", "pipeline.json", "jianying-draft.json",
-                 "draft-qc.json", "packaging-review.json"):
+                 "draft-qc.json", "packaging-review.json", "music-selection.json"):
         (work / name).unlink(missing_ok=True)
     cmd = [sys.executable, str(Path(__file__).parent / "run_all.py"),
            str(project), "--auto"]

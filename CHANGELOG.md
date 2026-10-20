@@ -1,5 +1,27 @@
 # Changelog
 
+## 1.16.0 — 2026-10-20
+
+### 剪映云端音乐库
+
+- `music_library.py`：扫描剪映草稿/历史快照里的 `type=music` + 数字 `music_id`，
+  缓存 `~/.cache/koubo/music-library.json`。
+- 支持导入外部 `music_id,title,duration_s,categories,url` CSV；本次导入 616 行，
+  去重 615 首（缓存，不进仓库）。
+- `koubo music scan / import / search / pick`。
+- `pick` 下载到 `work/cloud-music/`，循环/裁成 `work/bgm.wav`，写
+  `work/music-selection.json`，更新 `audio.bgm.source=jianying-cloud/music_id/title`。
+- `run_all` 的 `music` 步优先使用云端曲库；`verify` 新增 `bgm-cloud`。
+- 没有 CDN URL 时明确报错，不伪造“云端音乐已加载”。
+- **配音音色**：`audio.narration_voice` 可指定 edge-tts 音色，缓存键包含音色。
+- 新增 music_library / 音色缓存测试；测试总数 **175**。
+
+### 实测
+
+- 本机扫描 1746 个草稿/快照文件，云端音乐 ID **0 条**（现有 BGM 都是本地 `bgm.wav`）。
+- 从参考 skill CSV 导入 615 首后，`search 温暖` / `search 企业` 能返回曲目。
+- 未改动 4105/接送的现有 BGM；选曲需要用户确认。
+
 ## 1.15.1 — 2026-10-20
 
 ### 6 张插图全部接入

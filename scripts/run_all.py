@@ -218,6 +218,13 @@ def main() -> None:
                     log["steps"].append({"step": step, "status": "skipped"})
                     continue
                 want = resolve_duration(cfg, project)
+                if bgm_cfg.get("music_id"):
+                    import music_library
+                    cloud = music_library.prepare(cfg, project, want)
+                    print(f"  云端音乐 {cloud.get('music_id')} {cloud.get('title', '')}"
+                          f"（{cloud.get('status')}）")
+                    log["steps"].append({"step": step, "status": "ok", "cloud": cloud})
+                    continue
                 have = 0.0
                 if out.is_file():
                     import wave

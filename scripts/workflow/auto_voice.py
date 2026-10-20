@@ -66,6 +66,7 @@ def build_narration(project: str | Path, cfg: dict, windows: list[dict],
     if total <= 0:
         raise AutoVoiceError("片长无效，无法生成旁白")
     prepared = _prepare_windows(windows, total)
+    voice = str((cfg.get("audio") or {}).get("narration_voice") or "zh-CN-XiaoxiaoNeural")
     if not prepared:
         raise AutoVoiceError("没有可用的旁白窗口")
 
@@ -77,7 +78,10 @@ def build_narration(project: str | Path, cfg: dict, windows: list[dict],
     for index, line in enumerate(prepared, 1):
         budget = round(line["end"] - line["start"], 3)
         try:
-            path, rate, length = fit_line(line["text"], budget, cache, index)
+            path, rate, length = (
+                fit_line(line["text"], budget, cache, index)
+                if voice == "zh-CN-XiaoxiaoNeural"
+                else fit_line(line["text"], budget, cache, index, voice))
         except Exception as exc:                                # noqa: BLE001
             # edge-tts 的网络错误/429 不能把整条自动流程炸掉：跳过这句，
             # 全句都失败时由下面统一抛 AutoVoiceError，让调用方回退无旁白。

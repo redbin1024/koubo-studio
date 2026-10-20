@@ -55,12 +55,13 @@ def narration_spans(shots: list[dict], fps: int = 30) -> list[tuple[float, float
     return spans(shots, fps)
 
 
-def _line_path(cache: Path, index: int, text: str, rate: str) -> Path:
-    identity = hashlib.sha256(f"{VOICE}|{rate}|{text}".encode()).hexdigest()[:12]
+def _line_path(cache: Path, index: int, text: str, rate: str,
+               voice: str = VOICE) -> Path:
+    identity = hashlib.sha256(f"{voice}|{rate}|{text}".encode()).hexdigest()[:12]
     return cache / f"line-{index:02d}-{identity}.wav"
 
 
-def synth_line(text: str, rate: str, target: Path) -> Path:
+def synth_line(text: str, rate: str, target: Path, voice: str = VOICE) -> Path:
     """合成一句：edge-tts → 裁掉首尾静音 → 响度对齐 −18 LUFS → 48k/16bit/立体声。"""
     try:
         import edge_tts
@@ -71,7 +72,7 @@ def synth_line(text: str, rate: str, target: Path) -> Path:
         return target
     mp3 = target.with_suffix(".mp3")
     try:
-        asyncio.run(edge_tts.Communicate(text, VOICE, rate=rate).save(str(mp3)))
+        asyncio.run(edge_tts.Communicate(text, voice, rate=rate).save(str(mp3)))
     except Exception as exc:                                    # noqa: BLE001
         raise NarrationError(
             f"edge-tts 合成失败：{type(exc).__name__}: {str(exc)[:160]}") from exc
@@ -91,8 +92,8 @@ def _duration(path: Path) -> float:
     return float(probe.stdout.strip())
 
 
-def fit_line(text: str, budget: float, cache: Path, index: int
-             ) -> tuple[Path | None, str, float]:
+def fit_line(text: str, budget: float, cache: Path, index: int,
+             voice: str = VOICE) -> tuple[Path | None, str, float]:
     """把一句装进 budget 秒：够就停，不够就升速，都不行就抛错（绝不截断）。
 
     「装不装得下」只能靠实测时长回答，所以试装也要真的合成一句 —— 单句结果按
@@ -100,7 +101,9 @@ def fit_line(text: str, budget: float, cache: Path, index: int
     """
     attempts = []
     for rate in RATES:
-        path = synth_line(text, rate, _line_path(cache, index, text, rate))
+        target = _line_path(cache, index, text, rate, voice)
+        path = (synth_line(text, rate, target) if voice == VOICE
+                else synth_line(text, rate, target, voice))
         length = _duration(path)
         attempts.append((rate, length))
         if length + TAIL_SLACK <= budget:
@@ -139,6 +142,7 @@ def build(cfg: dict, project: Path, *, probe_only: bool = False,
 
     cache = p["work"] / "tts-cache"
     cache.mkdir(parents=True, exist_ok=True)
+    voice = str((cfg.get("audio") or {}).get("narration_voice") or VOICE)
     windows, report = [], []
     for i, line in enumerate(lines, 1):
         text = str(line.get("text") or "").strip()
@@ -155,7 +159,7 @@ def build(cfg: dict, project: Path, *, probe_only: bool = False,
         if budget <= 0.3:
             raise NarrationError(f"第 {i} 句的起点 {start:.2f}s 已经贴到槽尾 "
                                  f"{slot_end:.2f}s，没有可用的时长")
-        path, rate, length = fit_line(text, budget, cache, i)
+        path, rate, length = fit_line(text, budget, cache, i, voice)
         windows.append({"start": start, "end": round(start + budget, 3), "text": text})
         report.append({"index": i, "slot": slot, "text": text, "start": start,
                        "budget": budget, "rate": rate,
@@ -169,7 +173,7 @@ def build(cfg: dict, project: Path, *, probe_only: bool = False,
     by_text = {}
     for i, line in enumerate(lines, 1):
         by_text[str(line["text"]).strip()] = _line_path(cache, i, str(line["text"]).strip(),
-                                                        report[i - 1]["rate"])
+                                                        report[i - 1]["rate"], voice)
     voice = p["work"] / "voice.wav"
     cues = build_voice(windows, total, voice, synth=lambda text, _t: by_text[text])
 

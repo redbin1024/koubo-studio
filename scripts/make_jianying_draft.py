@@ -663,6 +663,10 @@ def build(cfg: dict, project: Path, name: str | None, install: bool,
                                  "issues": vc_issues}
     report["advanced_fx"] = adv_done
     report["overlay_fx"] = ov_done
+    try:
+        report["bgm"] = json.loads((p["work"] / "music-selection.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        report["bgm"] = None
     report["broll"] = broll_done
     report["caption_role"] = {"findings": len(role_audit.get("findings") or []),
                               "policy": role_audit.get("policy")}
