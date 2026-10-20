@@ -65,10 +65,16 @@ python scripts/music_library.py pick 接送-品牌版 --id 7377847594314287123 -
 之后 `run_all` 的 `music` 步会优先走云端曲库，不再本地合成 BGM；
 `verify` 的 `bgm-cloud` 会核对 ID 与 `work/bgm.wav`。
 
-## 5. 没有 URL 怎么办
+## 5. URL 过期 / 没有 URL
 
-曲库条目没有 `url` 时**不会伪造**。先在剪映里播放/缓存该曲，或使用带 `url` 的 CSV
-重新导入；否则 `pick` 直接报错。
+- `pick` 先试 CSV/草稿里的 CDN URL；
+- 过期/403/SSL 失败时，调用剪映 item 接口刷新一次 URL（与参考 skill 同一公共端点）；
+- 刷新后仍失败，**直接报错**，不伪造“云端音乐已加载”；
+- 下载后会先去掉开头静音，再循环/裁到片长，避免 BGM 前 0.7s 空导致
+  `long-silence` 红项。
+
+本次实测选了 `7378223391197399051`《感人温暖叙事 Where We Belong》，
+下载 140s 原曲 → 去开头静音 → 裁到 42.9s；4105 QC `long-silence` 通过。
 
 ## 6. 版权
 

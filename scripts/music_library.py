@@ -225,6 +225,48 @@ def find(query: str, cache_path: Path = DEFAULT_CACHE) -> dict:
     return (exact or hits)[0]
 
 
+JY_MGET_ITEM_URL = (
+    "https://lv-api-sinfonlinea.ulikecam.com/artist/v1/effect/mget_item"
+    "?effect_sdk_version=16.4.0&channel=jianyingpro_0&aid=3704&opengl_version=3.3"
+    "&device_id=1053764930506284&cpu=12th%20Gen%20Intel(R)%20Core(TM)%20i5-12400F"
+    "&version_name=5.9.0&language=zh-Hans&region=CN&version_code=5.9.0&device_platform=windows"
+    "&biz_id=2&subdivision_id=&gpu=NVIDIA%20GeForce%20RTX%203060&version_code_num=329984&device_type=x86_64"
+)
+JY_HEADERS = {
+    "User-Agent": "JianyingPro/5.9.0.11632 (Windows 10.0.19045; app_id:3704)",
+    "Accept": "application/json, text/plain, */*", "Content-Type": "application/json",
+}
+
+
+def resolve_cloud_url(music_id: str) -> str:
+    """Resolve a fresh CDN URL from the JianYing item endpoint.
+
+    CSV URLs are signed and expire; this is the same public item endpoint the
+    reference skill uses. We only call it when a stored URL fails.
+    """
+    try:
+        import requests
+    except ImportError as exc:  # pragma: no cover
+        raise MusicLibraryError("缺少 requests，无法刷新过期的音乐 URL") from exc
+    for body in (
+        {"items": [{"id": music_id, "effect_type": 4, "source": 3}]},
+        {"items": [{"id": music_id, "effect_type": 4}]},
+    ):
+        try:
+            response = requests.post(JY_MGET_ITEM_URL, headers=JY_HEADERS,
+                                     json=body, timeout=20)
+            response.raise_for_status()
+            data = response.json()
+        except Exception:
+            continue
+        items = ((data.get("data") or {}).get("effect_item_list") or [])
+        for entry in items:
+            for url in ((entry.get("common_attr") or {}).get("item_urls") or []):
+                if isinstance(url, str) and url.startswith(("http://", "https://")):
+                    return url
+    raise MusicLibraryError(f"音乐 {music_id} 的 CDN URL 刷新失败")
+
+
 def _download(item: dict, project: Path, total: float) -> Path:
     url = str(item.get("url") or "")
     if not url.startswith(("http://", "https://")):
@@ -234,40 +276,50 @@ def _download(item: dict, project: Path, total: float) -> Path:
     work = project_paths(project)["work"]
     raw_dir = work / "cloud-music"
     raw_dir.mkdir(parents=True, exist_ok=True)
-    suffix = ".m4a"
-    parsed = urllib.parse.urlparse(url)
-    query = urllib.parse.parse_qs(parsed.query)
-    hint = (query.get("mime_type") or [""])[0].lower()
-    if "mpeg" in hint:
-        suffix = ".mp3"
+    hint = (urllib.parse.parse_qs(urllib.parse.urlparse(url).query)
+            .get("mime_type", [""])[0].lower())
+    suffix = ".mp3" if "mpeg" in hint else ".m4a"
     raw = raw_dir / f"{item['music_id']}{suffix}"
-    if not raw.is_file() or raw.stat().st_size == 0:
-        req = urllib.request.Request(url, headers={
+
+    def fetch(target: str) -> bytes:
+        req = urllib.request.Request(target, headers={
             "User-Agent": "Mozilla/5.0 KouboStudio/1.0",
             "Referer": "https://www.jianying.com/",
         })
-        try:
-            with urllib.request.urlopen(req, timeout=45) as response:
-                ctype = (response.headers.get("Content-Type") or "").lower()
-                if ctype.startswith(("text/html", "application/json")):
-                    raise MusicLibraryError(f"音乐 URL 返回 {ctype}，不是音频")
-                length = int(response.headers.get("Content-Length") or 0)
-                if length > MAX_BYTES:
-                    raise MusicLibraryError("音乐文件超过 80MB，拒绝下载")
-                data = response.read(MAX_BYTES + 1)
-        except Exception as exc:
-            raise MusicLibraryError(f"音乐下载失败：{type(exc).__name__}: {exc}") from exc
+        with urllib.request.urlopen(req, timeout=45) as response:
+            ctype = (response.headers.get("Content-Type") or "").lower()
+            if ctype.startswith(("text/html", "application/json")):
+                raise MusicLibraryError(f"音乐 URL 返回 {ctype}，不是音频")
+            length = int(response.headers.get("Content-Length") or 0)
+            if length > MAX_BYTES:
+                raise MusicLibraryError("音乐文件超过 80MB，拒绝下载")
+            data = response.read(MAX_BYTES + 1)
         if len(data) > MAX_BYTES:
             raise MusicLibraryError("音乐文件超过 80MB，拒绝下载")
+        return data
+
+    if not raw.is_file() or raw.stat().st_size == 0:
+        try:
+            data = fetch(url)
+        except Exception as first:
+            try:
+                fresh = resolve_cloud_url(item["music_id"])
+                data = fetch(fresh)
+                item["url"] = fresh
+            except Exception as second:
+                raise MusicLibraryError(
+                    f"音乐下载失败：{type(first).__name__}: {first}；"
+                    f"刷新 URL 后：{type(second).__name__}: {second}") from second
         raw.write_bytes(data)
     bgm = work / "bgm.wav"
     subprocess.run([
         find_ffmpeg(), "-v", "error", "-y", "-stream_loop", "-1", "-i", str(raw),
+        "-af", "silenceremove=start_periods=1:start_duration=0.05:start_threshold=-45dB",
         "-t", f"{total:.3f}", "-ar", "48000", "-ac", "2", "-c:a", "pcm_s16le", str(bgm),
     ], check=True)
     write_json(work / "music-selection.json", {
         "version": 1, "music_id": item["music_id"], "title": item.get("title", ""),
-        "duration_s": item.get("duration_s"), "url": url, "raw": str(raw),
+        "duration_s": item.get("duration_s"), "url": item.get("url", url), "raw": str(raw),
         "bgm": str(bgm), "source": "jianying-cloud",
     })
     return bgm
