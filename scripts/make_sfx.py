@@ -13,6 +13,7 @@
 """
 from __future__ import annotations
 
+import re
 import subprocess
 import sys
 import wave
@@ -51,13 +52,41 @@ def read_wav(path: Path) -> np.ndarray:
         return d.reshape(-1, w.getnchannels())
 
 
-def cache_wav(name: str, cache_dir: Path) -> Path:
-    src = next((lib / f"{name}.mp3" for lib in SAMPLE_LIBS if (lib / f"{name}.mp3").is_file()), None)
-    if src is None:
-        raise SystemExit(f"音效库缺少 {name}.mp3（找过 {[str(p) for p in SAMPLE_LIBS]}）")
+def cache_wav(name: str, cache_dir: Path, project: Path | None = None) -> Path:
+    """音效名 → 本地 wav。支持三种引用：
+
+    - `asset:sfx/xxx`：走素材库 ID（推荐，路径可变、ID 不变）；
+    - 绝对/工程相对路径：直接把用户自己的音效文件转成 wav；
+    - 名字：从随包 `assets/sfx/` 找 `<name>.mp3`。
+    """
+    text = str(name)
+    src: Path | None = None
+    key = text
+    if text.startswith(("asset:", "library:")):
+        try:
+            from workflow import asset_library
+            got = asset_library.resolve_ref(text, project=project)
+            src = Path(got["path"])
+            key = "asset-" + got["id"].replace("/", "-")
+        except Exception as exc:  # noqa: BLE001
+            raise SystemExit(f"音效 {text} 解析失败：{exc}") from exc
+    else:
+        candidate = Path(text).expanduser()
+        if not candidate.is_absolute() and project is not None:
+            candidate = Path(project) / candidate
+        if candidate.is_file():
+            src = candidate
+            key = candidate.stem
+        else:
+            src = next((lib / f"{text}.mp3" for lib in SAMPLE_LIBS
+                        if (lib / f"{text}.mp3").is_file()), None)
+    if src is None or not src.is_file():
+        raise SystemExit(f"音效库缺少 {name}（找过 {[str(p) for p in SAMPLE_LIBS]}；"
+                         "也支持绝对路径与 asset:<id>）")
     cache_dir.mkdir(parents=True, exist_ok=True)
-    wav = cache_dir / f"{name}.wav"
-    if not wav.exists():
+    safe = re.sub(r"[^\w\u4e00-\u9fff-]+", "-", key).strip("-") or "sfx"
+    wav = cache_dir / f"{safe}.wav"
+    if not wav.exists() or wav.stat().st_mtime < src.stat().st_mtime:
         subprocess.run([find_ffmpeg(), "-v", "error", "-y", "-i", str(src),
                         "-ar", str(SR), "-ac", "2", "-c:a", "pcm_s16le", str(wav)], check=True)
     return wav
@@ -106,13 +135,17 @@ def build(cfg: dict, project: Path, total: float | None = None) -> dict:
     loaded: dict[str, tuple[np.ndarray, float]] = {}
     for t, name, peak_db in events:
         if name not in loaded:
-            sig = read_wav(cache_wav(name, p["work"] / "sfx-lib"))
+            sig = read_wav(cache_wav(name, p["work"] / "sfx-lib", project))
             loaded[name] = (sig, float(np.argmax(np.abs(sig).max(axis=1))) / SR)
         sig, attack = loaded[name]
         s = sig * (10 ** (peak_db / 20) / (np.max(np.abs(sig)) or 1.0))
-        if name.startswith("impact-bass"):
+        # asset:sfx/riser / 自定义路径也要按「素材本身」判高低通与尾巴对齐，
+        # 不能因为前缀是 asset: 就退化成按起音对齐。
+        base_name = Path(name).stem if not name.startswith(("asset:", "library:")) \
+            else name.split(":", 1)[1].split("/", 1)[-1]
+        if base_name.startswith("impact-bass"):
             s = highpass_60(s)
-        start = t - len(sig) / SR if name in TAIL_ALIGNED else t - attack
+        start = t - len(sig) / SR if base_name in TAIL_ALIGNED else t - attack
         i = max(int(round(start * SR)), 0)
         end = min(n, i + len(s))
         track[i:end] += s[: end - i]

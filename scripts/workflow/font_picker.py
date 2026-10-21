@@ -32,6 +32,7 @@ from _common import (
     FONT_SEARCH_DIRS, _index_dir, _weight_rank, find_font, font_display_name,
     has_cjk_glyphs, load_config, parse_srt, project_paths, write_json,
 )
+from . import asset_licenses as _lic
 from . import emfont
 from .visual_analysis import ENDPOINT, api_key_from_env
 
@@ -158,28 +159,19 @@ def infer_category(name: str, tags=()) -> str:
 
 
 def license_tier(text: str) -> str:
-    value = str(text or "").casefold()
-    if re.search(r"\bnc\b|non[- ]?commercial|非商業|非商业", value):
-        return "restricted"
-    if any(k in value for k in LICENSE_RESTRICTED):
-        return "restricted"
-    if any(k in value for k in LICENSE_PERMISSIVE):
-        return "permissive"
-    if "系统字体" in value:
-        return "system"
-    return "unknown"
+    """许可粗分层；正本在 `workflow/asset_licenses.py`，这里只保留公开 API。"""
+    return _lic.license_tier(text)
 
 
-def license_for_local(family: str, dir_source: str) -> str:
-    name = family.casefold()
-    if any(k in name for k in ("noto", "source han", "思源", "smiley", "得意黑")):
-        return "OFL-1.1"
-    if "阿里妈妈" in family:
-        return "免费商用（阿里妈妈条款，需核对）"
-    if "阿里巴巴普惠体" in family:
-        return "免费商用（阿里巴巴普惠体条款，需核对）"
+def license_for_local(family: str, dir_source: str, *,
+                      path: str | Path | None = None,
+                      project: str | Path | None = None) -> str:
+    """字体族名 → 许可 key。先读 `fonts/licenses/*.json`，再退回保守推断。"""
+    info = _lic.font_license_for(family, path, project)
+    if info.get("id") != "unknown":
+        return str(info["id"])
     if dir_source == "system":
-        return "系统字体（仅本机渲染，不可再分发）"
+        return "system-font"
     return "unknown（商用前核对授权）"
 
 
@@ -360,6 +352,7 @@ def local_candidates(project: Path | None = None, *,
             tags = [CATEGORY_TAGS.get(category, category)]
             tags.append("粗" if weight >= 700 else "细" if weight <= 300 else "常规")
             tags.append(source)
+            linfo = _lic.font_license_for(best.display, best.path, project)
             rows.append({
                 "id": "local:" + _slug(best.display),
                 "name": best.suggest,
@@ -372,7 +365,12 @@ def local_candidates(project: Path | None = None, *,
                 "tags": tags,
                 "weights": [best.style_display] if best.style_display else [],
                 "weight": weight,
-                "license": license_for_local(best.display, source),
+                "license": (linfo["id"] if linfo.get("id") != "unknown"
+                            else license_for_local(best.display, source,
+                                                   path=best.path, project=project)),
+                "license_id": linfo["id"],
+                "license_url": linfo.get("url") or "",
+                "license_review_required": bool(linfo.get("review_required")),
                 "path": str(best.path),
                 "description": f"{source} 字体",
             })
@@ -791,10 +789,11 @@ def select(project: str | Path | None = None, reference=None, *,
     selection["selected"] = selected
     selection["alternates_detail"] = [
         row for row in ranked if row["id"] in selection.get("alternates", [])]
-    if license_tier(selected.get("license") or "") in ("unknown", "system"):
+    if license_tier(selected.get("license") or "") in ("unknown", "system") \
+            or selected.get("license_review_required"):
         unchecked.append({"item": "字体授权",
                           "reason": f"{selected['name']} 的授权是「{selected.get('license')}」，"
-                                    "商用发布前需自行核对"})
+                                    "商用发布前需自行核对官方条款"})
     unchecked.append({"item": "字体观感",
                       "reason": "选择依据是字体元数据与参考片文本分析；"
                                 "成片字幕需看 work/font-samples.jpg 或播放复核"})

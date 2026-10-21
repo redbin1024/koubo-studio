@@ -1,0 +1,15 @@
+{
+  "family_aliases": ["DouyinSans", "Douyin Sans", "抖音美好体"],
+  "file_globs": ["DouyinSans*", "*Douyin*"],
+  "license": "OFL-1.1",
+  "license_url": "https://github.com/bytedance/fonts/blob/main/DouyinSans/OFL.txt",
+  "copyright": "Copyright © 2023 Beijing Zitiao Network Technology Co., Ltd.",
+  "commercial": true,
+  "attribution": "none",
+  "redistribute": true,
+  "notice_required": true,
+  "review_required": false,
+  "checked_at": "2026-10-21",
+  "source_url": "https://github.com/bytedance/fonts",
+  "notes": "字节跳动官方开源字体，仓库明确标注 SIL OFL 1.1；成片使用无需署名。再分发字体文件需附 OFL 文本与版权声明。"
+}

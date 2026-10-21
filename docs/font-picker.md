@@ -57,8 +57,13 @@ koubo font-pick my-video --library local --no-llm
 
 - Noto / 思源 / 得意黑 → `OFL-1.1`；
 - 阿里妈妈 / 阿里巴巴普惠体 → 免费商用（仍需核对官方条款）；
-- 系统字体 → `系统字体（仅本机渲染，不可再分发）`；
+- 系统字体 → `system-font`（仅本机渲染，不可再分发）；
 - 其他 → `unknown`，商用前自行核对。
+
+更准确的授权来自 `fonts/licenses/*.json`：候选会带 `license_id/license_url/
+license_review_required`，选中的字体若 `review_required` 会在
+`work/font-selection.json` 里记 `unchecked`。记录规范见
+[fonts/licenses/README.md](../fonts/licenses/README.md)。
 
 ### emfont
 

@@ -1,0 +1,15 @@
+{
+  "family_aliases": ["Alimama ShuHeiTi", "Alimama", "阿里妈妈数黑体", "阿里妈妈东方大楷", "阿里妈妈刀隶体", "阿里妈妈现代动作体"],
+  "file_globs": ["Alimama*"],
+  "license": "Alimama-Free",
+  "license_url": "https://fonts.alibabagroup.com/",
+  "copyright": "阿里巴巴集团 / 阿里妈妈（以官方下载包内授权说明为准）",
+  "commercial": true,
+  "attribution": "none",
+  "redistribute": false,
+  "notice_required": false,
+  "review_required": true,
+  "checked_at": "2026-10-21",
+  "source_url": "https://fonts.alibabagroup.com/",
+  "notes": "官方声明免费商用；不可转售字体本身。不同字族的条款可能不同，商用交付前逐个核对。"
+}

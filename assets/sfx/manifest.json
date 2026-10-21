@@ -1,48 +1,336 @@
 {
-  "_note": "随 skill 打包的 9 个真实采样，Pixabay Content License（可商用免署名）。cue → 素材的默认映射见 scripts/make_sfx.py 的 CUES 与 references/style-recipes.md。",
+  "_note": "随 skill 打包的 9 个真实采样，Pixabay Content License（可商用免署名）。cue → 素材映射见 scripts/make_sfx.py；tags/use_for/sync 供素材库检索与对齐。原始 Pixabay 单条 URL 未逐条留存，来源以打包清单为准。",
   "impact-bass-2": {
     "file": "impact-bass-2.mp3",
     "duration": 2.59,
-    "description": "Bass impact with a short swell — brief anticipation then a deep hit. Place so the peak lands on the reveal."
+    "description": "Bass impact with a short swell — brief anticipation then a deep hit. Place so the peak lands on the reveal.",
+    "title": "Bass impact",
+    "tags": [
+      "impact",
+      "bass",
+      "hit",
+      "cinematic",
+      "transition"
+    ],
+    "mood": [
+      "powerful",
+      "dramatic"
+    ],
+    "scene": [
+      "impact",
+      "reveal"
+    ],
+    "energy": 5,
+    "use_for": [
+      "场景重音",
+      "标题砸落",
+      "段落切换"
+    ],
+    "avoid_for": [
+      "连续多次使用",
+      "安静叙事段"
+    ],
+    "under_voiceover_db": -12,
+    "sync": {
+      "at": 0.022,
+      "meets": "hit"
+    },
+    "notes": "带预示性 swell 的低频撞击；落点更靠前。",
+    "license": "Pixabay-Content-License",
+    "provider": "pixabay"
   },
   "whoosh-cinematic": {
     "file": "whoosh-cinematic.mp3",
     "duration": 5.54,
-    "description": "Cinematic whoosh build (~5.5s) — sweeping scene transition. Align so the swell peaks on the cut."
+    "description": "Cinematic whoosh build (~5.5s) — sweeping scene transition. Align so the swell peaks on the cut.",
+    "title": "Cinematic whoosh",
+    "tags": [
+      "whoosh",
+      "transition",
+      "cinematic",
+      "swell"
+    ],
+    "mood": [
+      "cinematic",
+      "energetic"
+    ],
+    "scene": [
+      "transition",
+      "reveal"
+    ],
+    "energy": 4,
+    "use_for": [
+      "大转场",
+      "段落推进",
+      "揭示前铺垫"
+    ],
+    "avoid_for": [
+      "短平快剪辑",
+      "信息密度高的口播"
+    ],
+    "under_voiceover_db": -15,
+    "sync": {
+      "at": 5.2,
+      "meets": "tail"
+    },
+    "notes": "5.5s 长铺垫；按尾巴对齐落点。",
+    "license": "Pixabay-Content-License",
+    "provider": "pixabay"
   },
   "whoosh-short": {
     "file": "whoosh-short.mp3",
     "duration": 0.57,
-    "description": "Short whoosh — quick swipe/slide accent, fast element move, snappy transition. Sync to the motion."
+    "description": "Short whoosh — quick swipe/slide accent, fast element move, snappy transition. Sync to the motion.",
+    "title": "Short whoosh",
+    "tags": [
+      "whoosh",
+      "transition",
+      "swipe",
+      "quick"
+    ],
+    "mood": [
+      "neutral",
+      "energetic"
+    ],
+    "scene": [
+      "transition",
+      "ui"
+    ],
+    "energy": 3,
+    "use_for": [
+      "快速滑动",
+      "元素入场",
+      "短转场"
+    ],
+    "avoid_for": [
+      "长镜头慢移"
+    ],
+    "under_voiceover_db": -16,
+    "sync": {
+      "at": 0.12,
+      "meets": "move-peak"
+    },
+    "notes": "短嗖声；对齐运动的峰值。",
+    "license": "Pixabay-Content-License",
+    "provider": "pixabay"
   },
   "riser": {
     "file": "riser.mp3",
     "duration": 10.03,
-    "description": "Long cinematic riser (~10s build, peak at the end). Trigger at (climax_time − 10.03s) so it crests exactly on the reveal."
+    "description": "Long cinematic riser (~10s build, peak at the end). Trigger at (climax_time − 10.03s) so it crests exactly on the reveal.",
+    "title": "Riser",
+    "tags": [
+      "riser",
+      "build",
+      "tension",
+      "transition"
+    ],
+    "mood": [
+      "dramatic",
+      "anticipation"
+    ],
+    "scene": [
+      "build",
+      "reveal"
+    ],
+    "energy": 4,
+    "use_for": [
+      "高潮前铺垫",
+      "揭示前 10 秒"
+    ],
+    "avoid_for": [
+      "短段落",
+      "安静口播"
+    ],
+    "under_voiceover_db": -18,
+    "sync": {
+      "at": 9.8,
+      "meets": "tail"
+    },
+    "notes": "10s 长铺垫；起点 = 落点 − 时长。",
+    "license": "Pixabay-Content-License",
+    "provider": "pixabay"
   },
   "pop": {
     "file": "pop.mp3",
     "duration": 0.72,
-    "description": "Quick pop — element appear/spawn, chip/tag/badge in. Small precise accent, sync to the pop-in."
+    "description": "Quick pop — element appear/spawn, chip/tag/badge in. Small precise accent, sync to the pop-in.",
+    "title": "Pop",
+    "tags": [
+      "pop",
+      "ui",
+      "appear",
+      "click"
+    ],
+    "mood": [
+      "playful",
+      "bright"
+    ],
+    "scene": [
+      "ui",
+      "reveal"
+    ],
+    "energy": 2,
+    "use_for": [
+      "元素出现",
+      "标签弹出",
+      "小强调"
+    ],
+    "avoid_for": [
+      "低频重音场景"
+    ],
+    "under_voiceover_db": -19,
+    "sync": {
+      "at": 0.114,
+      "meets": "appear"
+    },
+    "notes": "短促弹出；对齐出现帧。",
+    "license": "Pixabay-Content-License",
+    "provider": "pixabay"
   },
   "ping": {
     "file": "ping.mp3",
     "duration": 1.32,
-    "description": "Sharp electronic ping — punchy accent on a key reveal or data point. Sync to the beat."
+    "description": "Sharp electronic ping — punchy accent on a key reveal or data point. Sync to the beat.",
+    "title": "Ping",
+    "tags": [
+      "ping",
+      "notification",
+      "accent",
+      "data"
+    ],
+    "mood": [
+      "clean",
+      "bright"
+    ],
+    "scene": [
+      "ui",
+      "data"
+    ],
+    "energy": 2,
+    "use_for": [
+      "数据点强调",
+      "提示音"
+    ],
+    "avoid_for": [
+      "悲伤/安静段落"
+    ],
+    "under_voiceover_db": -18,
+    "sync": {
+      "at": 0.318,
+      "meets": "accent"
+    },
+    "notes": "电子提示音；对齐强调点。",
+    "license": "Pixabay-Content-License",
+    "provider": "pixabay"
   },
   "sparkle": {
     "file": "sparkle.mp3",
     "duration": 1.8,
-    "description": "Bright sparkle / shimmer — magical reveal or 'shine' highlight on a hero element. Sync to the highlight."
+    "description": "Bright sparkle / shimmer — magical reveal or 'shine' highlight on a hero element. Sync to the highlight.",
+    "title": "Sparkle",
+    "tags": [
+      "sparkle",
+      "shimmer",
+      "shine",
+      "reveal"
+    ],
+    "mood": [
+      "bright",
+      "magical"
+    ],
+    "scene": [
+      "reveal",
+      "highlight"
+    ],
+    "energy": 3,
+    "use_for": [
+      "高光",
+      "品牌字出现",
+      "美好瞬间"
+    ],
+    "avoid_for": [
+      "严肃/医疗场景"
+    ],
+    "under_voiceover_db": -17,
+    "sync": {
+      "at": 0.021,
+      "meets": "start"
+    },
+    "notes": "闪光/微光；对齐高光起点。",
+    "license": "Pixabay-Content-License",
+    "provider": "pixabay"
   },
   "chime": {
     "file": "chime.mp3",
     "duration": 2.5,
-    "description": "Soft melodic chime — gentle positive beat: success/confirmation or a lighthearted transition. Sync to the visual moment."
+    "description": "Soft melodic chime — gentle positive beat: success/confirmation or a lighthearted transition. Sync to the visual moment.",
+    "title": "Soft chime",
+    "tags": [
+      "chime",
+      "success",
+      "confirmation",
+      "soft"
+    ],
+    "mood": [
+      "warm",
+      "positive"
+    ],
+    "scene": [
+      "confirm",
+      "transition"
+    ],
+    "energy": 2,
+    "use_for": [
+      "确认/成功",
+      "温和转场"
+    ],
+    "avoid_for": [
+      "强冲击场景"
+    ],
+    "under_voiceover_db": -16,
+    "sync": {
+      "at": 0.412,
+      "meets": "note"
+    },
+    "notes": "柔和旋律提示；对齐第一个音。",
+    "license": "Pixabay-Content-License",
+    "provider": "pixabay"
   },
   "click-soft": {
     "file": "click-soft.mp3",
     "duration": 0.37,
-    "description": "Quiet short click — low-key UI tap / soft selection. Short accent, sync exactly to the on-screen action."
+    "description": "Quiet short click — low-key UI tap / soft selection. Short accent, sync exactly to the on-screen action.",
+    "title": "Soft click",
+    "tags": [
+      "click",
+      "tap",
+      "ui",
+      "soft"
+    ],
+    "mood": [
+      "neutral",
+      "clean"
+    ],
+    "scene": [
+      "ui"
+    ],
+    "energy": 1,
+    "use_for": [
+      "点击反馈",
+      "轻量 UI 交互"
+    ],
+    "avoid_for": [
+      "大转场",
+      "重音"
+    ],
+    "under_voiceover_db": -22,
+    "sync": {
+      "at": 0.046,
+      "meets": "tap"
+    },
+    "notes": "轻点击；对齐点击帧。",
+    "license": "Pixabay-Content-License",
+    "provider": "pixabay"
   }
 }

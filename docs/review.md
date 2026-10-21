@@ -15,7 +15,7 @@ koubo review-outputs PROJECT --md
 | 文字 | 字幕重叠、标点、末条落点、包装复述、`grounded-claims`、字幕↔ASR 相似度、样式计划一致 | 语义是否准确、是否像广告、口播与字幕是否逐句对得上 |
 | 声音 | 采样率、响度、真峰、长静音、BGM、语音覆盖、清理记录 | 喇叭/环境噪声是否彻底没了、语气/节奏/齿音 |
 | 插画 | 素材存在、最小边 ≥480px、`insert-rendered`、卡段渲染 | 构图、清晰度、是否像视频截图、版权/授权 |
-| 视频 | 规格、帧率、时长、黑帧、片头/片尾/常驻标题、包装 beat、草稿 | 节奏、构图、审美、整体是否可发布 |
+| 视频 | 规格、帧率、时长、黑帧、片头/片尾/常驻标题、包装 beat、草稿、`asset-license` 素材授权台账 | 节奏、构图、审美、整体是否可发布；肖像/商标/平台规则 |
 
 ## 三态规矩
 
@@ -32,7 +32,7 @@ koubo review-outputs PROJECT --md
 text          pass       7 项自动
 audio         unchecked  已静音 3 段非语音；喇叭是否彻底清除需人耳
 illustration  unchecked  卡段渲染通过；素材审美/版权需人眼
-video         unchecked  技术项通过；节奏/构图需人看
+video         unchecked  技术项通过；素材授权台账（asset-license）与节奏/构图需人看
 ```
 
 ## 已知假阳性：草稿字体

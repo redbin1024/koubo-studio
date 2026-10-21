@@ -30,8 +30,8 @@ import build_frames, make_assets, make_captions, make_jianying_draft, make_sfx, 
 # narrate / voice 排在 captions 之前：跨字幕集的重叠预检要用到 input/voice-captions.srt，
 # 而旁白字幕只有配音那一步才写得出来。
 STEPS = ("align", "merge", "narrate", "voice", "captions", "assets", "sfx", "music",
-         "beats", "preflight", "frames", "render", "draft", "visual-review",
-         "verify", "review-outputs", "review")
+         "beats", "preflight", "frames", "render", "draft", "asset-audit",
+         "visual-review", "verify", "review-outputs", "review")
 
 
 def wants_narration(cfg: dict) -> bool:
@@ -272,6 +272,23 @@ def main() -> None:
                 result = make_jianying_draft.build(
                     cfg, project, jy["name"], bool(jy["install"]),
                     p["draft_store"], jy["ratio"], True, bool(jy["force_install"]))
+            elif step == "asset-audit":
+                try:
+                    from workflow.asset_library import audit_project
+                    result = audit_project(project)
+                except Exception as exc:  # noqa: BLE001
+                    # 台账失败不该阻断成片/草稿；verify 的 asset-license 会记没查。
+                    print(f"  ⚠ 素材台账失败：{type(exc).__name__}: {exc}")
+                    log["steps"].append({"step": step, "status": "error",
+                                         "error": f"{type(exc).__name__}: {exc}"})
+                    continue
+                summary = result.get("summary") or {}
+                print(f"  素材台账 {result.get('overall')}：pass {summary.get('pass', 0)} / "
+                      f"unchecked {summary.get('unchecked', 0)} / fail {summary.get('fail', 0)}")
+                if result.get("overall") == "fail":
+                    print("  ✗ 素材授权/文件有红项，verify 会拦；先补齐或替换素材")
+                elif result.get("overall") == "unchecked":
+                    print("  – 有素材需人工确认；这不是通过")
             elif step == "visual-review":
                 if not (p["work"] / "visual-contract.json").is_file():
                     print("  没有 visual-contract.json，跳过视觉审查包")

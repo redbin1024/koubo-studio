@@ -30,7 +30,9 @@
 - **给链接也能拆。** 用户丢来一条抖音参考视频，`koubo reference` 先取原片、切镜、转写、出三联图与接触表，再交给 `auto` / `new` 使用；拿不到就明确报错，不假装成功。
 - **字体由分析来选。** `koubo font-pick` 读参考片的风格/结构/受众，从本机 CJK 字体和 emfont 在线库选字幕字体；AI 只能从候选闭集里选，没 Key 就本地打分，换字体会被 style-lock 拦住。
 - **一条命令全自动。** `koubo auto` 从原始素材直接出可继续编辑的剪映草稿 + mp4 预览；本地规则打底，DeepSeek 只做可校验的导演建议，失败自动回退。
+- **素材可检索、可调用、授权有台账。** `koubo assets` 把 BGM/音效/B-roll/贴纸/字体登记成 JSONL 索引；配置写 `asset:<id>` 稳定引用，`asset-audit` 在交付前生成 `asset-licenses.csv` / `CREDITS.md`。
 - **剪映草稿是主交付。** 主轨逐镜头、字幕/人声/音效/BGM 分轨；mp4 是压平的预览副本。转场、滤镜、关键帧、蒙版这些只在剪映里做。
+- **剪映改过的草稿也能读。** 可选 `koubo native`：经 jianying-tool 解出剪映保存后的加密 `draft_info.json`，同步明文副本给质检读，并能在需要时驱动剪映原生导出。不装也照常出片。
 - **缺席不等于通过。** 质检有三态：`pass` / `fail` / `unchecked`。判不了的项必须写清原因，不能从报告里消失。
 - **Agent-native。** 仓库自带 [SKILL.md](SKILL.md)，Codex / Claude Code 等 Agent 可以直接按这份手册执行。
 
@@ -236,6 +238,7 @@ Vlog 会先完成粗剪、画面/文案审核，再生成旁白；缺语音会�
 | **参考片风格量化** | 切点、强调色、卡片几何、画中画、字幕带 → `config.json` 里的数值 |
 | **抖音参考片拆解** | 分享链接/本地文件 → 原片、镜头表、三联图、接触表、口播转写、全片结构；拿不到原片就报错 |
 | **按分析选字体** | 参考片风格 → 本机 CJK 字体 + emfont 候选 → AI/本地打分选字幕字体；可写 `captions.font` |
+| **素材库与授权台账** | `koubo assets`：登记/检索/`asset:<id>`/三态核验；Mixkit/Pexels/Pixabay/sfx-kit；交付附授权清单 |
 | **自动粗剪** | 口播按静音切点选说话段；Vlog 按画面变化列候选场景；生成可手改的 `work/edit-plan.json` |
 | **字幕** | SRT 轻量标记 `[[强调]]` / `((反差))` / `|` 换行；逐条样式与 `fade` / `hook` / `pop` / `rise` / `wipe` / `karaoke` 动效 |
 | **包装** | 信息卡、画中画、结尾发光大字、全部由 Pillow 现画的插图（4 种版式 / 8 种图标） |
@@ -288,8 +291,10 @@ Vlog 会先完成粗剪、画面/文案审核，再生成旁白；缺语音会�
 | `koubo auto-edit DIR --mode talking-head --clips talk.mp4` | 自动粗剪 / 生成镜头表 |
 | `koubo captions DIR` | SRT → ASS / 字幕层 |
 | `koubo draft DIR` | 装配剪映草稿 + draft-spec/audit |
+| `koubo native info / sync / doctor / export` | 原生草稿：读剪映保存过的加密草稿、同步副本、诊断、剪映导出 |
 | `koubo visual-review DIR` | 生成包装层视觉审查包（72% 静帧 / 完整片段 / 联系表） |
 | `koubo style bind DIR --style KB-TH-01 --choice-source "..."` | 锁定固定口播风格，参数漂移即红项 |
+| `koubo assets init / scan / add / search / verify / audit / suggest` | 素材库：登记、检索、`asset:<id>`、三态授权台账 |
 | `koubo mixkit search / download / broll / bgm` | Mixkit 免费视频/音乐/音效 |
 | `koubo music scan / search / pick` | 扫描剪映历史音乐 ID，搜索并选曲 |
 | `koubo style-match DIR --catalog ...` | 按内容匹配参考风格并给改编动作 |
@@ -311,11 +316,12 @@ Vlog 会先完成粗剪、画面/文案审核，再生成旁白；缺语音会�
 
 - **全自动是「可审核的自动」，不是「不用看」。** 口播选段依赖 ASR，Vlog 的旁白与故事线依赖 DeepSeek；没有 Key 时回退本地规则。发布前仍应看一遍成片与 `work/auto-decisions.json`。
 - **剪映原生特效只进草稿。** mp4 是 ffmpeg + Pillow 渲的，剪映的滤镜 / 特效 / 转场不会出现在 mp4 上。选了 `jianying_fx` 就等于「成片以剪映导出为准」。
+- **加密草稿要额外的桥。** 剪映保存后 `draft_info.json` 是密文；读它/原生导出需要可选的 `jianying-tool`（`python scripts/draft_native.py setup`）。没装时 `draft-file` 会红、`draft-doctor` 记 `unchecked`，不会假装通过。导出是 GUI 自动化，受剪映版本与辅助功能权限影响。
 - **ASR 需要核对。** Whisper 对音乐可能产生幻觉，低置信、非中文和很短的口播会被拒绝。模型阈值不能证明内容真实。
 - **自动模式默认不做信息卡/画中画/插图。** 这些需要内容支撑；参考片只取字幕几何与配色。需要这些包装时走手动流程或改 `config.json`。
 - **Vlog 自动模式不删场景。** 按场景切点保留候选镜头，故事方案只排序；要删重复/废镜头需改 `work/edit-plan.json` 后重跑。
 - **平台以 macOS 为主。** 剪映草稿箱、`say` 旁白等能力是 macOS 路径；Linux 可以跑大部分渲染与质检，Windows 请用 WSL 并自行验证路径。
-- **字体授权自己核对。** `font-pick` 会记录字体库给出的授权文本，但不代替法务判断；系统字体只在本机渲染，不能随项目分发字体文件。
+- **字体/素材授权自己核对。** `font-pick` 与 `koubo assets` 会记录许可与来源，并按 `pass/unchecked/fail` 判三态，但不代替法务判断；系统字体只在本机渲染，不能随项目分发字体文件。
 - **抖音抓取有边界。** 只解析公开单条作品的分享页，不登录、不批量、不抓评论；被风控时请用 `--cookie` 或先下载到本地。参考片只用于拆解，任何一帧都不进成片。
 - **素材与隐私自己负责。** 本仓库不包含任何真实客户素材或成片；示例均为脱敏数据。
 
@@ -329,6 +335,7 @@ Vlog 会先完成粗剪、画面/文案审核，再生成旁白；缺语音会�
 | [抖音参考片入库](docs/reference-intake.md) | 链接/文件 → 切镜、三联图、转写、结构；三态与抓取边界 |
 | [按参考片选字体](docs/font-picker.md) | 本机字体 + emfont → AI 选择、校验、style-lock 与应用边界 |
 | [草稿优先](docs/draft-first.md) | 为什么主交付是剪映草稿、草稿里能改什么、哪些已烘焙 |
+| [原生草稿适配层](docs/native-backend.md) | 读剪映加密草稿、同步明文副本、jianying-tool 桥与剪映原生导出 |
 | [package-only](docs/package-only.md) | 已剪好的成片 + SRT 只做包装，不重剪 |
 | [B-roll](docs/broll.md) | 真实细节镜头插入草稿；4105 拍摄清单 |
 | [SVG/Canvas 插图](docs/code-illustration.md) | 代码绘制插图、渲染进卡片、Canvas 动效 overlay |
@@ -337,7 +344,8 @@ Vlog 会先完成粗剪、画面/文案审核，再生成旁白；缺语音会�
 | [Canvas 动效](docs/motion.md) | `renderAt(t)` → ProRes 4444 overlay 的约定 |
 | [HyperFrames 评估](docs/hyperframes-evaluation.md) | 视频优先下 HTML/GSAP 渲染器的主链评估、10 秒验证清单 |
 | [音频真重音](docs/beats.md) | 80ms RMS + 邻域中位数找重音，供卡点/切点参考 |
-| [Mixkit 免费素材](docs/mixkit.md) | 搜索/下载 stock video、music、SFX，记录许可 |
+| [素材库](docs/asset-library.md) | 可检索/可调用的素材索引、sidecar、授权三态、远程源与交付台账 |
+| [Mixkit 免费素材](docs/mixkit.md) | 搜索/下载 stock video、music、SFX，下载自动写素材 sidecar |
 | [剪映云端音乐库](docs/music-library.md) | 扫描历史 music_id、搜索、选曲、下载为 BGM |
 | [按内容匹配风格](docs/style-match.md) | 字幕/镜头表 → 参考风格排序 + CapCut 改编动作 |
 | [参考项目名单](docs/reference-projects.md) | 吸收过哪些项目、commit、许可证和边界 |
@@ -372,10 +380,12 @@ koubo-studio/
 │   ├── auto_film.py        # koubo auto 全自动编排
 │   ├── koubo.py            # CLI 分发
 │   └── doctor.py           # 环境自检
-├── tests/                  # 248 项回归测试
+├── tests/                  # 297 项回归测试
 ├── references/             # 拆解说明 / 字段表 / 风格语汇 / 踩坑记录
 ├── examples/               # 脱敏示例
 ├── assets/sfx/             # 9 个真实采样（Pixabay Content License）
+├── assets/library/         # 素材库索引 + 授权台账（registry.jsonl/licenses.csv）
+├── fonts/licenses/         # 字体许可记录（字体二进制不进仓库）
 ├── docs/                   # 安装 / 使用 / 全自动 / 架构 / CLI 笔记
 ├── SKILL.md                # Agent 操作手册
 └── agents/openai.yaml      # Agent 元数据

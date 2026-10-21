@@ -6,12 +6,202 @@
     "ai": "可选 AI 位图，必须人工审片与标识"
   },
   "items": [
-    {"id": "food-tray", "file": "food-tray.svg", "tier": "vector", "focus": [0.5, 0.55], "license": "project-owned", "source": "code-drawn", "alt": "营养餐托盘"},
-    {"id": "quiet-room", "file": "quiet-room.svg", "tier": "vector", "focus": [0.5, 0.5], "license": "project-owned", "source": "code-drawn", "alt": "安静房间"},
-    {"id": "tea-set", "file": "tea-set.svg", "tier": "vector", "focus": [0.5, 0.55], "license": "project-owned", "source": "code-drawn", "alt": "茶席"},
-    {"id": "doorway", "file": "doorway.svg", "tier": "vector", "focus": [0.5, 0.5], "license": "project-owned", "source": "code-drawn", "alt": "门廊"},
-    {"id": "car-seat", "file": "car-seat.svg", "tier": "vector", "focus": [0.5, 0.5], "license": "project-owned", "source": "code-drawn", "alt": "车后座"},
-    {"id": "crib", "file": "crib.svg", "tier": "vector", "focus": [0.5, 0.5], "license": "project-owned", "source": "code-drawn", "alt": "床边照护"},
-    {"id": "care-hands", "file": "care-hands.svg", "tier": "vector", "focus": [0.5, 0.5], "license": "project-owned", "source": "code-drawn", "alt": "照护双手"}
-  ]
+    {
+      "id": "food-tray",
+      "file": "food-tray.svg",
+      "tier": "vector",
+      "focus": [
+        0.5,
+        0.55
+      ],
+      "license": "project-owned",
+      "source": "code-drawn",
+      "alt": "营养餐托盘",
+      "tags": [
+        "food",
+        "meal",
+        "tray",
+        "nutrition",
+        "care"
+      ],
+      "mood": [
+        "warm",
+        "clean"
+      ],
+      "scene": [
+        "food",
+        "care"
+      ],
+      "provider": "project"
+    },
+    {
+      "id": "quiet-room",
+      "file": "quiet-room.svg",
+      "tier": "vector",
+      "focus": [
+        0.5,
+        0.5
+      ],
+      "license": "project-owned",
+      "source": "code-drawn",
+      "alt": "安静房间",
+      "tags": [
+        "room",
+        "quiet",
+        "calm",
+        "interior",
+        "home"
+      ],
+      "mood": [
+        "quiet",
+        "warm"
+      ],
+      "scene": [
+        "home",
+        "rest"
+      ],
+      "provider": "project"
+    },
+    {
+      "id": "tea-set",
+      "file": "tea-set.svg",
+      "tier": "vector",
+      "focus": [
+        0.5,
+        0.55
+      ],
+      "license": "project-owned",
+      "source": "code-drawn",
+      "alt": "茶席",
+      "tags": [
+        "tea",
+        "cup",
+        "calm",
+        "quiet",
+        "rest"
+      ],
+      "mood": [
+        "quiet",
+        "warm"
+      ],
+      "scene": [
+        "rest",
+        "care"
+      ],
+      "provider": "project"
+    },
+    {
+      "id": "doorway",
+      "file": "doorway.svg",
+      "tier": "vector",
+      "focus": [
+        0.5,
+        0.5
+      ],
+      "license": "project-owned",
+      "source": "code-drawn",
+      "alt": "门廊",
+      "tags": [
+        "door",
+        "doorway",
+        "home",
+        "arrival",
+        "threshold"
+      ],
+      "mood": [
+        "warm",
+        "quiet"
+      ],
+      "scene": [
+        "home",
+        "transition"
+      ],
+      "provider": "project"
+    },
+    {
+      "id": "car-seat",
+      "file": "car-seat.svg",
+      "tier": "vector",
+      "focus": [
+        0.5,
+        0.5
+      ],
+      "license": "project-owned",
+      "source": "code-drawn",
+      "alt": "车后座",
+      "tags": [
+        "car",
+        "seat",
+        "drive",
+        "commute",
+        "safety"
+      ],
+      "mood": [
+        "clean",
+        "care"
+      ],
+      "scene": [
+        "commute",
+        "care"
+      ],
+      "provider": "project"
+    },
+    {
+      "id": "crib",
+      "file": "crib.svg",
+      "tier": "vector",
+      "focus": [
+        0.5,
+        0.5
+      ],
+      "license": "project-owned",
+      "source": "code-drawn",
+      "alt": "床边照护",
+      "tags": [
+        "crib",
+        "baby",
+        "care",
+        "bedside",
+        "quiet"
+      ],
+      "mood": [
+        "warm",
+        "quiet"
+      ],
+      "scene": [
+        "care",
+        "baby"
+      ],
+      "provider": "project"
+    },
+    {
+      "id": "care-hands",
+      "file": "care-hands.svg",
+      "tier": "vector",
+      "focus": [
+        0.5,
+        0.5
+      ],
+      "license": "project-owned",
+      "source": "code-drawn",
+      "alt": "照护双手",
+      "tags": [
+        "hands",
+        "care",
+        "help",
+        "touch",
+        "trust"
+      ],
+      "mood": [
+        "warm",
+        "soft"
+      ],
+      "scene": [
+        "care",
+        "trust"
+      ],
+      "provider": "project"
+    }
+  ],
+  "_note": "项目自绘 SVG/PNG 概念插图；license=project-owned。仍不是实拍证据，不能拿来冒充真实场景。"
 }

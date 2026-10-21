@@ -1,0 +1,15 @@
+{
+  "family_aliases": ["ZCOOL", "站酷高端黑", "站酷庆科黄油体", "站酷酷黑", "站酷快乐体"],
+  "file_globs": ["ZCOOL*", "站酷*"],
+  "license": "ZCOOL-Free",
+  "license_url": "https://www.zcool.com.cn/special/zcoolfonts/",
+  "copyright": "站酷网（以官方下载包内授权说明为准）",
+  "commercial": true,
+  "attribution": "none",
+  "redistribute": false,
+  "notice_required": false,
+  "review_required": true,
+  "checked_at": "2026-10-21",
+  "source_url": "https://www.zcool.com.cn/special/zcoolfonts/",
+  "notes": "站酷官方免费商用字体；不可转售字体本身。不同字族条款可能不同，商用交付前逐个核对。"
+}

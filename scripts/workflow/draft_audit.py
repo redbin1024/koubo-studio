@@ -2,22 +2,18 @@
 
 执行层（make_jianying_draft）不能自己证明自己正确。这里只读两份东西：
   work/draft-spec.json     先写下的决策
-  draft_content.json       剪映实际落盘的对象
+  活动草稿                   剪映实际落盘、下次打开会读的那份
+                            （macOS 是 draft_info.json，Windows 是 draft_content.json；
+                             加密时经 workflow/draft_native.py 解出来）
 
 检查的是最近真实踩过的坑：主轨退回一整段、人声轨丢失、字幕行距 0.02 叠字、
 贴纸/特效/滤镜没写进去、转场数量对不上、素材路径失效。
 """
 from __future__ import annotations
 
-import json
 from pathlib import Path
 
-
-def _load(path: Path) -> dict:
-    try:
-        return json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, ValueError):
-        return {}
+from . import draft_native
 
 
 def _tracks(draft: dict) -> list[dict]:
@@ -51,12 +47,22 @@ def audit(spec: dict, draft_dir: Path, *, installed: str | None = None) -> dict:
                        "status": "pass" if ok is True else ("fail" if ok is False else "unchecked"),
                        "detail": detail})
 
-    draft_path = Path(draft_dir) / "draft_content.json"
-    draft = _load(draft_path)
-    if not draft:
-        add("draft-readable", False, f"读不到 {draft_path}")
+    try:
+        draft, meta = draft_native.read_draft(draft_dir)
+    except (draft_native.DraftNativeError, OSError) as exc:
+        add("draft-readable", False, str(exc))
         return _finish(checks, draft_dir)
-    add("draft-readable", True, str(draft_path))
+    add("draft-readable", True, f"{meta['path']}（{meta['format']}）")
+
+    twin = draft_native.twin_status(draft_dir, active_data=draft)
+    if twin.get("twin_exists") and twin.get("equal") is not None:
+        add("draft-twin", bool(twin["equal"]),
+            f"{Path(twin['active']).name} 与 {Path(twin['twin']).name} "
+            + ("内容一致" if twin["equal"] else "内容不一致；副本可能过期，跑 draft_native.py sync"))
+    elif not twin.get("twin_exists"):
+        add("draft-twin", None, "只有一份草稿文件，没有可比较的副本")
+    else:
+        add("draft-twin", None, "有一份是加密格式且桥不可用，无法比较")
 
     canvas = spec.get("canvas") or {}
     got = draft.get("canvas_config") or {}

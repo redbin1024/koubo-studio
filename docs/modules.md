@@ -27,7 +27,7 @@ SVG 模块仍然存在，但**当前成片没有用它**：
 new_project / auto_film
   → align → merge → narrate/voice → captions
   → assets → sfx → music → beats → preflight → frames → render
-  → draft → visual-review → verify → review-outputs → review
+  → draft → asset-audit → visual-review → verify → review-outputs → review
 ```
 
 | 步骤 | 入口 | 实现 | 什么时候用 |
@@ -39,6 +39,8 @@ new_project / auto_film
 | 解说槽 | `tts.py` / `auto_voice.py` | `narration` / `speech_policy` | 口播+解说，或无声素材自动旁白 |
 | 字幕 | `make_captions.py` | `caption_plan` / `caption_layer` | 所有项目；mp4 与草稿共用样式计划 |
 | 包装素材 | `make_assets.py` | `caption_plan` | 玻璃卡、图窗、CTA、贴纸 |
+| 素材库 | `asset_library.py` / `workflow/asset_library.py` | `asset_licenses` | 登记、检索、稳定引用、授权台账 |
+| 素材 audit | `run_all` 的 `asset-audit` | `workflow/asset_library.py` | 工程用量 → `work/asset-manifest.json` + `output/asset-licenses.csv` |
 | 真实静帧 | `extract_still.py` | `PIL` | 有 clean-cut，要真实护理/环境图 |
 | SVG 插画 | `render_illustrations.py`、`render_svg.py` | Playwright | 没有实拍、只需要概念/章节图 |
 | 动效 overlay | `render_motion.py` | Playwright + ffmpeg | HTML/Canvas → ProRes 4444 alpha |
@@ -100,7 +102,17 @@ new_project / auto_film
 | `workflow/visual_analysis.py` | 静帧/构图分析 |
 | `make_visual_review.py` | 接触表、视觉审查包 |
 
-### 5. 音频
+### 5. 素材库
+
+| 模块 | 什么时候用 |
+| --- | --- |
+| `asset_library.py` | `koubo assets`：init/scan/add/search/verify/audit/suggest/remote |
+| `workflow/asset_library.py` | 注册表、sidecar、检索、核验、用量台账、召回建议 |
+| `workflow/asset_licenses.py` | 许可目录、三态判据、字体许可记录 |
+| `workflow/asset_remote.py` | Pexels/Pixabay 单条检索/下载 + sfx-kit 导入 |
+| `mixkit.py` | 搜索/下载 Mixkit 视频/音乐/音效，可写 B-roll/BGM；下载写 sidecar |
+
+### 6. 音频
 
 | 模块 | 什么时候用 |
 | --- | --- |
@@ -110,7 +122,6 @@ new_project / auto_film
 | `make_sfx.py` | 音效轨 |
 | `make_bgm.py` | 本地合成 BGM |
 | `music_library.py` | 扫描剪映 music_id、选曲、下载 BGM |
-| `mixkit.py` | 搜索/下载 Mixkit 视频/音乐/音效，可写 B-roll/BGM |
 | `audio_beats.py` | 口播/promo 真重音 → `work/beats.json` |
 | `workflow/preflight.py` | frames 前校验卡片/插图/B-roll/转场/BGM |
 | `preflight.py` | frames 前预检，可单独运行 |
@@ -119,7 +130,7 @@ new_project / auto_film
 | `workflow/loudness.py` | 响度/真峰归一 |
 | `review_voice.py` / `export_voice_review.py` | 逐句听审 |
 
-### 6. 交付 / 质检
+### 7. 交付 / 质检
 
 | 模块 | 什么时候用 |
 | --- | --- |

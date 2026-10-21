@@ -505,8 +505,14 @@ def insert_card(W, H, box_px, spec, theme, font_path, med_path, radius):
     return layer
 
 
-def _sticker_layer(W: int, H: int, spec: dict) -> Image.Image:
-    """一张全画布透明贴纸：坐标/大小都按画布归一化，加到剪映里就是独立贴纸层。"""
+def _sticker_layer(W: int, H: int, spec: dict, project: Path | None = None,
+                   library_root: str | Path | None = None) -> Image.Image:
+    """一张全画布透明贴纸：坐标/大小都按画布归一化，加到剪映里就是独立贴纸层。
+
+    两种来源：
+      - `source` 指向图片/`asset:<id>`：外部贴纸（素材库里的 png/webp/svg 渲染结果）；
+      - 只有 `icon`：用内置线稿图标现画（旧行为）。
+    """
     layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     d = ImageDraw.Draw(layer)
     try:
@@ -515,6 +521,35 @@ def _sticker_layer(W: int, H: int, spec: dict) -> Image.Image:
         size = float(spec.get("size", 0.09)) * W
     except (TypeError, ValueError):
         return layer
+    source = str(spec.get("source") or spec.get("image") or spec.get("sticker") or "")
+    if source:
+        path: Path | None = None
+        try:
+            if source.startswith(("asset:", "library:")):
+                from workflow import asset_library
+                got = asset_library.resolve_ref(source, project=project,
+                                                library_root=library_root)
+                path = Path(got["path"])
+            else:
+                candidate = Path(source).expanduser()
+                if not candidate.is_absolute() and project is not None:
+                    candidate = project / candidate
+                path = candidate
+        except Exception as exc:  # noqa: BLE001
+            print(f"  ⚠ 贴纸 {source} 解析失败，退回内置图标：{exc}")
+        if path and path.is_file():
+            try:
+                art = Image.open(path).convert("RGBA")
+                if art.width > 0:
+                    scale = max(8.0, size) / art.width
+                    art = art.resize((max(1, round(art.width * scale)),
+                                      max(1, round(art.height * scale))),
+                                     Image.LANCZOS)
+                layer.alpha_composite(art, (round(cx - art.width / 2),
+                                            round(cy - art.height / 2)))
+                return layer
+            except Exception as exc:  # noqa: BLE001
+                print(f"  ⚠ 贴纸 {path} 打不开，退回内置图标：{exc}")
     color = hex_to_rgba(spec.get("color") or "#D8B36A")
     _insert_icon(d, cx, cy, max(8.0, size), str(spec.get("icon") or "star"), color, None)
     return layer
@@ -743,7 +778,8 @@ def build(cfg: dict, project: Path) -> dict:
     sticker_cfg = cfg.get("stickers") or {}
     if sticker_cfg.get("enabled"):
         for i, spec in enumerate(sticker_cfg.get("items") or [], 1):
-            art = _sticker_layer(W, H, spec)
+            art = _sticker_layer(W, H, spec, project,
+                                 (cfg.get("assets") or {}).get("library"))
             name = f"sticker-{i}.png"
             written.append(save(art, name))
             stickers.append({**spec, "asset": name})

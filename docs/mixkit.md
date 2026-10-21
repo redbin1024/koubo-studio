@@ -46,6 +46,10 @@ koubo mixkit bgm PROJECT --id 443
 
 ## 记录与审查
 
+下载完成后还会在文件旁写 `<file>.asset.json` sidecar（素材库 ID、来源、许可），
+`koubo assets audit PROJECT` / `run_all` 的 `asset-audit` 靠它把 Mixkit 素材计入台账。
+`work/mixkit.json` 仍然保留，作为旧下载和 `review-outputs` 的兜底。
+
 `work/mixkit.json` 记录：
 
 - `kind / id / title / url`

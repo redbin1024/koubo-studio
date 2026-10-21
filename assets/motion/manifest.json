@@ -1,0 +1,17 @@
+{
+  "_note": "项目自绘动效 overlay 的索引。HTML/Canvas 源由 render_motion.py 渲染成 ProRes 4444 alpha；不是外部素材。",
+  "items": [
+    {
+      "id": "steam",
+      "file": "steam.html",
+      "title": "热气/蒸汽",
+      "tags": ["steam", "ambient", "warm", "food", "care", "loop"],
+      "mood": ["warm", "quiet"],
+      "scene": ["food", "care", "ambient"],
+      "use_for": ["餐食/护理画面的氛围叠加", "静态图窗的轻动态"],
+      "avoid_for": ["需要强信息量的数据段", "快节奏转场"],
+      "license": "project-owned",
+      "provider": "project"
+    }
+  ]
+}

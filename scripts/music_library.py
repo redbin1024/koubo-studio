@@ -322,6 +322,23 @@ def _download(item: dict, project: Path, total: float) -> Path:
         "duration_s": item.get("duration_s"), "url": item.get("url", url), "raw": str(raw),
         "bgm": str(bgm), "source": "jianying-cloud",
     })
+    try:
+        from workflow import asset_library
+        rel = raw.resolve().relative_to(project.resolve()).as_posix()
+        entry = asset_library.build_entry(
+            ident=f"bgm/jianying-cloud-{item['music_id']}", kind="bgm",
+            base="project", path=rel, project=project,
+            title=str(item.get("title") or item["music_id"]),
+            license_key="Jianying-Cloud", provider="jianying-cloud",
+            provider_id=str(item["music_id"]),
+            source_url=str(item.get("url") or url),
+            downloaded_at=asset_library.today(),
+            tags=["bgm", "music", "jianying-cloud"],
+            notes="剪映云端音乐；授权随平台，发布前核对；不随项目分发。",
+        )
+        asset_library.write_sidecar(raw, entry)
+    except Exception as exc:  # noqa: BLE001
+        print(f"  ⚠ 素材库 sidecar 写入失败（不影响 BGM）：{exc}")
     return bgm
 
 

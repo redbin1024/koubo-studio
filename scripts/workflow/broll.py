@@ -40,9 +40,21 @@ def resolve(cfg: dict, project: Path, cues: list[dict]) -> tuple[list[dict], lis
         if keyword and keyword not in plain:
             errors.append(f"broll #{i} 的触发词 {keyword!r} 不在第 {cue_index} 条字幕")
             continue
-        source = Path(str(item.get("source") or ""))
-        if not source.is_absolute():
-            source = input_path(project, str(source))
+        raw_source = str(item.get("source") or "")
+        if raw_source.startswith(("asset:", "library:")):
+            try:
+                from workflow import asset_library
+                got = asset_library.resolve_ref(
+                    raw_source, project=project,
+                    library_root=(cfg.get("assets") or {}).get("library"))
+                source = Path(got["path"])
+            except Exception as exc:  # noqa: BLE001
+                errors.append(f"broll #{i} 的 {raw_source} 解析失败：{exc}")
+                continue
+        else:
+            source = Path(raw_source)
+            if not source.is_absolute():
+                source = input_path(project, raw_source)
         if not source.is_file():
             errors.append(f"broll #{i} 找不到素材 {source}")
             continue

@@ -51,6 +51,15 @@ def check(project: Path) -> dict:
     except Exception as exc:  # 预检不能因为单个导入失败而中断整轮
         warnings.append(f"草稿资源预检跳过：{type(exc).__name__}: {exc}")
 
+    # 素材库引用 / B-roll / 字体：frames 前能解析的引用先解析，别等 audit 才发现
+    try:
+        from workflow import asset_library
+        asset_errors, asset_warnings = asset_library.preflight_issues(cfg, project)
+        errors.extend(asset_errors)
+        warnings.extend(asset_warnings)
+    except Exception as exc:  # 预检不能因为素材库损坏而整轮中断
+        warnings.append(f"素材库预检跳过：{type(exc).__name__}: {exc}")
+
     # 音频长度：只在文件已存在时检查；云端/本地合成会在 music 步生成
     bgm = p["work"] / "bgm.wav"
     if bgm.is_file():

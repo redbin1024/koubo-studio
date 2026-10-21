@@ -252,6 +252,48 @@ def _slot_check(cfg: dict, total: float, srt: Path) -> list[tuple[str, object, s
     return out
 
 
+def check_native_draft(target: Path, add) -> None:
+    """草稿的「活动文件」检查：剪映下次打开真正读的那份。
+
+    加密时走 jianying-tool 桥；桥不在就明确红/没查，不把「读不了」当「没问题」。
+    """
+    from workflow import draft_native
+
+    target = Path(target)
+    if not target.is_dir():
+        add("draft-file", None, "草稿目录不存在，本项没查")
+        add("draft-doctor", None, "草稿目录不存在，本项没查")
+        return
+    try:
+        _, meta = draft_native.read_draft(target)
+        status = draft_native.twin_status(target)
+        if status.get("equal") is True:
+            twin_note = "两份内容一致"
+        elif status.get("equal") is False:
+            twin_note = f"{Path(status['twin']).name} 与活动文件不一致（副本可能过期）"
+        elif status.get("twin_exists"):
+            twin_note = "两份无法比较（一份加密且桥不可用）"
+        else:
+            twin_note = "只有活动文件，没有明文副本"
+        add("draft-file", True, f"{meta['file']}（{meta['format']}）· {twin_note}")
+    except (draft_native.DraftNativeError, OSError) as exc:
+        add("draft-file", False, str(exc))
+    doc = draft_native.doctor(target)
+    source = doc.get("source")
+    if source == "jianying-tool":
+        errors = doc.get("errors") or []
+        warnings = doc.get("warnings") or []
+        add("draft-doctor", bool(doc.get("ok")),
+            f"jianying-tool {doc.get('tool')}：{len(errors)} 错误 / {len(warnings)} 警告"
+            + ("；" + "；".join(errors[:2]) if errors else ""))
+    elif source == "basic":
+        add("draft-doctor", None,
+            "只做了基础结构检查（未装 jianying-tool，没有深度诊断）")
+    else:
+        detail = (doc.get("warnings") or doc.get("errors") or ["未知原因"])[:2]
+        add("draft-doctor", None, "无法诊断：" + "；".join(detail))
+
+
 def run_checks(cfg: dict, project: Path) -> dict:
     p = project_paths(project)
     from workflow.delivery import current_output
@@ -288,10 +330,11 @@ def run_checks(cfg: dict, project: Path) -> dict:
                      "insert-slot", "insert-grounded",
                      "caption-band-clearance", "insert-rendered",
                      "style-plan-consistent", "bgm-present", "jianying-fx",
-                     "jianying-draft", "jianying-installed", "draft-audit",
+                     "jianying-draft", "jianying-installed", "draft-file",
+                     "draft-doctor", "draft-audit",
                      "visual-contract", "visual-review", "advanced-fx",
                      "style-lock", "caption-role", "grounded-claims",
-                     "overlay-fx", "bgm-cloud", "draft-font"):
+                     "overlay-fx", "bgm-cloud", "draft-font", "asset-license"):
             add(name, None, "没有成片，本项没查")
         return _write(p, out, {}, {}, checks)
 
@@ -523,6 +566,9 @@ def run_checks(cfg: dict, project: Path) -> dict:
             f"已登记进剪映草稿箱：{installed}" if installed
             else ("按配置只留 draft-store（jianying.install = false）" if not jy["install"]
                   else "草稿没进剪映草稿箱（覆盖保护触发或草稿箱不可写），看 [draft] 的 ⚠"))
+
+    # ---- 草稿的「活动文件」：剪映下次打开真正读的那份（加密时靠 jianying-tool 解）
+    check_native_draft(Path(draft_record.get("installed_to") or draft), add)
 
     # ---- 草稿字体：config 写了不等于剪映认；必须看 text material 与 range font
     jy_font = (cfg.get("captions") or {}).get("jianying_font") or {}
@@ -758,6 +804,32 @@ def run_checks(cfg: dict, project: Path) -> dict:
                     f"重跑会静默覆盖掉剪映侧的改动。看 make_jianying_draft._app_written 的判定条件")
 
 
+
+    # ---- 素材授权台账：文件/哈希/许可三态；没有台账只能记没查
+    manifest_path = p["work"] / "asset-manifest.json"
+    try:
+        import json as _json
+        manifest = _json.loads(manifest_path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        manifest = None
+    if manifest is None:
+        add("asset-license", None,
+            "没有 work/asset-manifest.json；先跑 `koubo assets audit PROJECT`（run_all 会在 draft 后自动跑）")
+    else:
+        items = manifest.get("items") or []
+        bad = [x for x in items if x.get("status") == "fail"]
+        unchecked = [x for x in items if x.get("status") == "unchecked"]
+        if bad:
+            add("asset-license", False,
+                f"{len(bad)} 条素材授权/文件有问题：" +
+                "；".join(f"{x.get('title') or x.get('id')}（{x.get('status')}）" for x in bad[:3]))
+        elif unchecked:
+            add("asset-license", None,
+                f"{len(unchecked)}/{len(items)} 条素材需人工确认：" +
+                "；".join(f"{x.get('title') or x.get('id')}" for x in unchecked[:3]))
+        else:
+            add("asset-license", True,
+                f"{len(items)} 条素材文件/哈希/许可均通过（来源与肖像风险仍需人工签收）")
 
     # ---- 实测常量还和登记表一致吗（references/measured.json）
     # 这些数字是「先量再抄」量出来的，量完就该有保质期。改了值而没改登记表 = 下次没人知道该重量什么。

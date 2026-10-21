@@ -20,7 +20,7 @@ ILLUSTRATION = ["insert-slot", "insert-grounded", "caption-band-clearance",
 VIDEO = ["output-exists", "resolution", "framerate", "duration", "black-frames",
          "no-opening-cover", "no-end-card", "no-sticky-title", "visual-contract",
          "visual-review", "jianying-draft", "jianying-installed", "draft-audit",
-         "jianying-fx", "jianying-drift", "measured-constants"]
+         "jianying-fx", "jianying-drift", "measured-constants", "asset-license"]
 
 
 def _read(path: Path, default=None):

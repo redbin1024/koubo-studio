@@ -16,7 +16,7 @@ scripts/
 
 references/              # 数值正本、字段说明、踩坑记录、跨文件规矩登记
 examples/                # 脱敏示例
-tests/                   # 回归测试（248 项）
+tests/                   # 回归测试（297 项）
 assets/sfx/              # 可商用真实音效采样
 ```
 
@@ -47,7 +47,7 @@ auto_film.py
 
 ```text
 align → merge → narrate → voice → captions → assets → sfx → music
-      → beats → preflight → frames → render → draft
+      → beats → preflight → frames → render → draft → asset-audit
       → visual-review → verify → review-outputs → review
 ```
 
@@ -64,6 +64,7 @@ align → merge → narrate → voice → captions → assets → sfx → music
 | `frames` | `work/body-anim-silent.mp4`、`work/graded.mp4` | 逐帧合成包装层 |
 | `render` | `output/final-*.mp4` | 烧字幕 + 混音 + 响度归一 |
 | `draft` | `draft-store/<名字>/`、剪映草稿箱 | 每轮必出，不是可选项 |
+| `asset-audit` | `work/asset-manifest.json`、`output/asset-licenses.csv`、`output/CREDITS.md` | 工程实际用量的素材授权台账；`verify.asset-license` 读它 |
 | `verify` | `work/qc-report.json` | 三态质检 |
 | `review` | `work/voice-review/v2-<凭据>/` | 逐句人工听审样张 |
 
@@ -143,6 +144,8 @@ mp4 是压平的交付件：改一个字要重跑整条流水线。
 | 新质检项 | `verify.py`，并在「没成片时也要报告」的名单里登记 |
 | 新音效 cue | `make_sfx.py` 的 `CUES`，同步 `references/style-recipes.md` |
 | 新 LLM 供应商 | `workflow/visual_analysis.py` 的 transport 层 |
+| 新素材来源 | `workflow/asset_remote.py` 加 provider；许可进 `workflow/asset_licenses.py` |
+| 新素材元数据 | `workflow/asset_library.py` 的 `build_entry` + `assets/library/README.md` |
 | 新粗剪策略 | `auto_edit.py` + `workflow/edit_plan.py` |
 
 ## 测试

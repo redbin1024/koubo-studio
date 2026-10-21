@@ -65,6 +65,13 @@ SVG/Canvas：插图源放 `assets/illustrations/*.svg`，config 引用 `illustra
 B-roll：真实细节素材放 `input/broll/`，配置 `broll.items`（cue/keyword/source/in/dur），
 只进剪映草稿；不能拿生成图冒充证据。见 `docs/broll.md`。
 
+素材库：`koubo assets init/scan/add/search/verify/audit/suggest`。索引在
+`assets/library/registry.jsonl`，配置里可写 `asset:<id>`（如 `asset:sfx/pop`）稳定调用；
+下载的 Mixkit/剪映云端素材会写 `.asset.json` sidecar。`run_all` 在 `draft` 后自动跑
+`asset-audit`，生成 `output/asset-licenses.csv` 与 `CREDITS.md`；`verify` 的
+`asset-license` 三态检查读它。没有 `pass` 不等于可用，`unchecked` 必须人工签收。
+见 `docs/asset-library.md`。
+
 固定风格：`koubo style bind PROJECT --style KB-TH-01 --choice-source '用户指定'`，
 写 `work/style-lock.json`；改风格参数不升版本会被 `style-lock` 拦下。
 
@@ -227,6 +234,7 @@ python scripts/recalibrate.py ~/Downloads/demo_02.mp4   # 拿参考片重量一�
 | `analyze_pacing.py` | 自适应切点 / 镜长分布 / VFR / LUFS；给风格规则提供锚点 |
 | `analyze_reference.py` | 量参考片：切点 / 强调色 / 卡片几何 / 画中画 / 字幕带 |
 | `reference_intake.py` | 抖音链接/本地参考片 → 原片、节奏、三联图、接触表、转写、结构、`REPORT.md` |
+| `asset_library.py` / `workflow/asset_library.py` | 素材登记、检索、`asset:` 稳定引用、授权台账、按字幕召回 |
 | `font_pick.py` | 按参考片分析从本机字体/emfont 选字幕字体；可写 `captions.font`，受 style-lock 约束 |
 | `check_measured.py` | 校验实测常量还和登记表一致（防漂移，已接进 verify 第 19 项） |
 | `recalibrate.py` | 拿参考片把实测常量重量一遍，报与登记表的差异 |
@@ -244,6 +252,7 @@ python scripts/recalibrate.py ~/Downloads/demo_02.mp4   # 拿参考片重量一�
 | `render.py` | 烧字幕 + 混音 + 响度归一 → `output/final-*.mp4` |
 | `verify.py` | 质检：规格 + 房规 + 风格是否真的落地 → `work/qc-report.json` |
 | `jy_hybrid.py` | **可选**混合后端：jy1 写内容 + 本模块补关键词变色 + capcut-cli 补交付层 |
+| `draft_native.py` | **可选**原生草稿：读剪映保存后的加密 `draft_info.json`、同步明文副本、`doctor`、剪映原生导出（走 jianying-tool 桥） |
 | `make_jianying_draft.py` | 装配剪映草稿：主轨 / 包装层 / 贴纸 / 人声 / 音效 /（旁白 / BGM）/ 字幕；写 draft-spec + visual-contract + caption-role + draft-audit |
 | `make_visual_review.py` | 包装层视觉审查包：72% 静帧 / 完整 beat 片段 / 联系表；pending 等人工 |
 | `run_all.py` | 串起全流程（align 最先跑），`--only` / `--skip` 控制步骤 |
@@ -442,6 +451,23 @@ python scripts/jy_hybrid.py PROJECT_DIR --name "片名_混合后端"
 
 ⚠️ **装之前先 ⌘Q 退出剪映** —— 它运行时会用内存里的草稿列表回写 `root_meta_info.json`，
 可能把新登记的条目冲掉。没登记上就加 `--no-install` 只生成，或事后重跑。
+
+### 原生草稿：剪映保存过的那份也能读
+
+剪映在 macOS 上把活动时间线写进 `draft_info.json`，**保存后是密文**。
+`koubo native` 用可选的 `jianying-tool` 桥解出来，补的不只是「能看」：
+
+```bash
+python scripts/draft_native.py setup                 # vendor/jytool-venv，不动 .venv
+python scripts/draft_native.py info "工程/draft-store/片名"
+python scripts/draft_native.py doctor "工程/draft-store/片名"
+python scripts/draft_native.py sync "工程/draft-store/片名"   # 活动文件 → 明文副本
+```
+
+- `draft_audit` 现在审**活动文件**；`verify` 新增 `draft-file` / `draft-doctor`。
+- 字体/行距这类收尾步骤改成**两份都写**；构建结束再做一次双向对齐。
+- 不装 `jianying-tool` 不影响出片：`draft-doctor` 记 `unchecked`，不会假 pass。
+- 细节与限制见 [docs/native-backend.md](docs/native-backend.md)。
 
 ## 写旁白：先算字数，再写字
 

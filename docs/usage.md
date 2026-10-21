@@ -240,6 +240,35 @@ koubo fonts my-video --all    # 连系统字体一起列
 
 ---
 
+## 素材库
+
+素材不是「丢进文件夹」：登记、检索、稳定引用、授权台账各一层，完整说明见
+[素材库](asset-library.md)。
+
+```bash
+koubo assets init                       # 建目录 + 登记随包音效/插图/动效
+koubo assets add FILE --kind broll --license CC0-1.0 --source-url URL
+koubo assets search 城市夜景 --kind broll
+koubo assets verify --strict            # pass / unchecked / fail
+koubo assets audit PROJECT              # output/asset-licenses.csv + CREDITS.md
+koubo assets suggest PROJECT --cue 7    # 按字幕召回，只出建议
+```
+
+配置里用 `asset:<id>` 稳定引用：
+
+```jsonc
+"broll": {"items": [
+  {"cue": 7, "keyword": "放心", "source": "asset:broll/city-night", "dur": 1.8}
+]},
+"sfx": {"events": [
+  {"t": 10.9, "clip": "asset:sfx/whoosh-short", "peak_db": -22}
+]}
+```
+
+`run_all` 在 `draft` 后自动跑 `asset-audit`；`verify` 的 `asset-license` 会把
+缺文件/哈希不符/非商用许可判红，把授权不明/需署名未导出/需核对条款记
+`unchecked`。**`unchecked` 不是通过。**
+
 ## 声音
 
 ### 语音目标：交付契约
@@ -502,6 +531,8 @@ koubo run my-video
 | `KOUBO_JY_STORE` | 指定剪映草稿箱 |
 | `KOUBO_JY1` | pyJianYingDraft 路径（混合后端） |
 | `KOUBO_VERBOSE=1` | 打印每条子进程命令 |
+| `KOUBO_ASSET_LIBRARY` | 素材库根，默认 `<repo>/assets/library` |
+| `PEXELS_API_KEY` / `PIXABAY_API_KEY` | `koubo assets remote` 的公开 API Key |
 | `DEEPSEEK_API_KEY` | 云端导演 / 视觉分析 / 故事方案（可选；不设则本地规则） |
 | `KOUBO_HOME` | 安装目录 |
 | `KOUBO_REPO` / `KOUBO_REF` | 安装源 |

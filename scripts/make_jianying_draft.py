@@ -35,7 +35,7 @@ from _common import (  # noqa: E402
 )
 from workflow import caption_plan  # noqa: E402
 from workflow import (advanced_fx, broll, caption_roles, draft_audit,  # noqa: E402
-                      draft_spec, overlay_fx, visual_contract)
+                      draft_native, draft_spec, overlay_fx, visual_contract)
 
 # 剪映字号 15 时一行塞不下太多字：16 是 lint 的上限，实际 9 字以内最稳
 JY_MAX_CHARS = 9
@@ -659,6 +659,12 @@ def build(cfg: dict, project: Path, name: str | None, install: bool,
         if report.get("installed_to"):
             set_text_font(Path(report["installed_to"]), jy_font)
         report["text_font"] = applied
+    # 最后再把活动文件镜像成明文副本：字体/行距这些收尾步骤曾经只写
+    # draft_content.json，而 macOS 剪映读的是 draft_info.json —— 两边不能各说各话。
+    report["twin_sync"] = draft_native.ensure_twin(proj)
+    if report.get("installed_to"):
+        report["twin_sync_installed"] = draft_native.ensure_twin(
+            Path(report["installed_to"]))
     report["tracks"]["stickers"] = sticker_count
 
     # 9. 草稿审计：和 draft-spec 对账。失败不在这里抛，交给 verify 的 draft-audit 红项，
@@ -719,6 +725,8 @@ def set_text_font(proj: Path, font: dict) -> dict:
 
     CapCut 不是读 config.captions.font；它读 draft 里的 font_id/font_resource_id
     和 content 的 per-range font。缺这两处，预览/导出就会退回默认字体。
+
+    **两份都写**：macOS 剪映读 draft_info.json，只改 draft_content.json 等于没改。
     """
     path = Path(proj) / "draft_content.json"
     try:
@@ -750,8 +758,10 @@ def set_text_font(proj: Path, font: dict) -> dict:
                              "path": font_path or ("D:" if resource_id else "")}
         material["content"] = json.dumps(content, ensure_ascii=False)
         count += 1
-    path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n",
-                    encoding="utf-8")
+    try:
+        draft_native.write_all(proj, data)
+    except (draft_native.DraftNativeError, OSError) as exc:
+        return {"applied": 0, "error": f"字体没写进草稿：{exc}"}
     return {"applied": count, "resource_id": resource_id, "name": name}
 
 
@@ -760,6 +770,9 @@ def set_text_line_spacing(proj: Path, spacing: float) -> None:
 
     capcut import-srt 默认 line_spacing=0.02，双行字幕在剪映里两行几乎贴在一起；
     0.22 是 22% 字高的安全行距。改的是草稿 JSON 的 text material，不影响 SRT。
+
+    **两份都写**：剪映在 macOS 读 draft_info.json；只改明文副本会留下「预览对了、
+    剪映打开还是 0.02」的分裂。加密的那份不盲改，至少保住明文副本。
     """
     path = Path(proj) / "draft_content.json"
     try:
@@ -773,7 +786,10 @@ def set_text_line_spacing(proj: Path, spacing: float) -> None:
             material["line_spacing"] = round(float(spacing), 3)
             changed = True
     if changed:
-        write_json(path, data)
+        try:
+            draft_native.write_all(proj, data)
+        except (draft_native.DraftNativeError, OSError):
+            write_json(path, data)
 
 
 def fix_duration(proj: Path) -> None:
@@ -862,6 +878,9 @@ def install_draft(cap: Capcut, src: Path, name: str, store: Path,
                 "--drafts", str(dest_root), "-q", check=False)
         cap.run("lint", str(dest), "--fix", "-q", check=False)
         cap.run("lint", str(dest), check=False)
+        # 装进草稿箱后 capcut 可能只重写了明文那份；剪映读的是活动文件，
+        # 这里再对齐一次，避免「工程里对、草稿箱里旧」。
+        draft_native.ensure_twin(dest)
         print(f"  → 已登记进剪映草稿箱：{name}")
         return str(dest)
     except OSError as e:

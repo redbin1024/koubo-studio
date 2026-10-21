@@ -260,6 +260,38 @@ def _record(project: Path, item: dict, local: Path, url: str) -> None:
         "search_url": item.get("search_url") or item.get("page") or "",
     })
     write_json(path, data)
+    _write_asset_sidecar(project, item, local, url)
+
+
+def _write_asset_sidecar(project: Path, item: dict, local: Path, url: str) -> None:
+    """给下载文件写 sidecar，让素材库 audit 能读到来源/许可；失败不影响下载。"""
+    try:
+        from workflow import asset_library
+        kind = {"video": "broll", "music": "bgm", "sfx": "sfx"}.get(
+            str(item.get("kind")), "broll")
+        try:
+            rel = local.resolve().relative_to(project.resolve()).as_posix()
+        except ValueError:
+            return
+        entry = asset_library.build_entry(
+            ident=f"{kind}/mixkit-{item.get('id') or local.stem}",
+            kind=kind, base="project", path=rel,
+            project=project,
+            title=str(item.get("title") or local.stem),
+            license_key=str(item.get("license") or LICENSE.get(kind, "Mixkit-Free-License")),
+            provider="mixkit", provider_id=item.get("id"),
+            source_url=str(item.get("page") or item.get("search_url") or ""),
+            download_url=url,
+            downloaded_at=asset_library.today(),
+            tags={"broll": ["b-roll", "stock"],
+                  "bgm": ["bgm", "music"],
+                  "sfx": ["sfx", "sound"]}[kind] + (
+                      [str(item.get("title"))] if item.get("title") else []),
+            notes="Mixkit 免费素材；不可单独转售/再分发素材本身。",
+        )
+        asset_library.write_sidecar(local, entry)
+    except Exception as exc:  # noqa: BLE001
+        print(f"  ⚠ 素材库 sidecar 写入失败（不影响下载）：{exc}")
 
 
 def download(project: Path, kind: str, item_id: str | None, url: str | None,
@@ -315,6 +347,13 @@ def use_as_broll(project: Path, local: Path, cue: int, keyword: str, dur: float 
     broll_dir.mkdir(parents=True, exist_ok=True)
     dest = broll_dir / local.name
     dest.write_bytes(local.read_bytes())
+    try:
+        from workflow import asset_library
+        sc = asset_library.read_sidecar(local)
+        if sc:
+            asset_library.write_sidecar(dest, sc)
+    except Exception as exc:  # noqa: BLE001
+        print(f"  ⚠ B-roll sidecar 复制失败：{exc}")
     block = cfg.setdefault("broll", {"enabled": True, "items": []})
     block["enabled"] = True
     block.setdefault("items", []).append({

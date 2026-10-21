@@ -94,8 +94,9 @@ def main() -> None:
     data["items"] = [x for x in data["items"] if x.get("file") != rel]
     data["items"].append({"id": dest.stem, "file": rel,
                           "tier": "still", "source": f"{a.source}@{picked_time:.3f}s",
+                          "note": "从用户提供的源片抽帧；商用权利随源片",
                           "focus": [float(x) for x in a.focus.split(",")],
-                          "license": "project-owned",
+                          "license": "project-input",
                           "score": candidates[0]["score"] if candidates else None,
                           "candidates": candidates[:5]})
     write_json(manifest, data)

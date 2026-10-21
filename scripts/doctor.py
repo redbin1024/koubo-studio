@@ -165,6 +165,22 @@ def check_capcut(report: Report) -> None:
         report.add("jianying-store", OK, str(store))
 
 
+def check_draft_native(report: Report) -> None:
+    """jianying-tool 是可选的桥：没有它照样出草稿，只是读不了剪映保存过的加密草稿。"""
+    from workflow import draft_native
+
+    info = draft_native.probe()
+    if info.get("available"):
+        report.add("jianying-tool", OK,
+                   f"{info.get('version')}（Python {info.get('python_version')}）"
+                   f" · {info.get('python')}")
+    else:
+        report.add("jianying-tool", WARN,
+                   "未安装 —— 剪映保存过的加密草稿读不了，原生导出不可用；"
+                   "普通草稿构建/质检不受影响",
+                   "python scripts/draft_native.py setup（需要 uv）")
+
+
 def check_optional(report: Report) -> None:
     for module, package, purpose, hint in (
         ("edge_tts", "edge-tts", "解说旁白（tts.py）", "pip install edge-tts"),
@@ -184,6 +200,25 @@ def check_optional(report: Report) -> None:
         report.add("optional:yt-dlp", WARN,
                    "未安装 —— 抖音链接下载只能在分享页可用时工作",
                    "pip install -U yt-dlp；或先把视频下载到本地传给 koubo reference")
+
+
+def check_assets(report: Report) -> None:
+    """素材库是可选模块；索引存在就顺带查文件/哈希/授权，不在就只记 warn。"""
+    try:
+        from workflow import asset_library as al
+        root = al.default_library_root()
+        if not (root / "registry.jsonl").is_file():
+            report.add("assets", WARN, f"没有素材库索引：{root}", "koubo assets init")
+            return
+        entries = al.load_registry(root)
+        got = al.verify_entries(entries, library_root=root)
+        c = got["counts"]
+        status = OK if c["fail"] == 0 and c["unchecked"] == 0 else WARN
+        report.add("assets", status,
+                   f"{len(entries)} 条 / pass {c['pass']} / unchecked {c['unchecked']} / fail {c['fail']}",
+                   "koubo assets verify --strict" if status != OK else "")
+    except Exception as exc:                                 # noqa: BLE001
+        report.add("assets", WARN, f"素材库检查跳过：{type(exc).__name__}: {exc}")
 
 
 def check_install(report: Report) -> None:
@@ -211,7 +246,8 @@ def run_checks() -> Report:
         platform=f"{sys.platform} / {os.uname().machine if hasattr(os, 'uname') else '?'}",
     )
     for fn in (check_python, check_python_deps, check_ffmpeg, check_font,
-               check_capcut, check_optional, check_install):
+               check_capcut, check_draft_native, check_optional, check_assets,
+               check_install):
         try:
             fn(report)
         except Exception as exc:                             # noqa: BLE001

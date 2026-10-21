@@ -80,6 +80,8 @@ python scripts/music_library.py pick 接送-品牌版 --id 7377847594314287123 -
 
 - `music_id` / URL 来自你自己的剪映草稿或你提供的目录；
 - 下载文件只放本机 `work/cloud-music`，不进仓库、不随项目分发；
+- `pick` 会在文件旁写 `.asset.json` sidecar（`license=Jianying-Cloud`），
+  `koubo assets audit` 会把它记成 `unchecked`，提示发布前核对平台条款；
 - 发布前按剪映/音乐平台授权和平台规则确认商用范围。
 
 ## 7. 配音

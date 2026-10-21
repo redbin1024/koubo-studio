@@ -69,6 +69,29 @@ class DraftAuditTests(unittest.TestCase):
         self.assertIn("audio-voice", failed)
         self.assertIn("text-line-spacing", failed)
 
+    def test_audits_the_active_file_not_the_plaintext_twin(self):
+        """macOS 剪映读 draft_info.json；它和明文副本不一致时，必须审活动文件。"""
+        from unittest.mock import patch
+        from workflow import draft_native
+        from workflow.draft_audit import audit
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            # 明文副本里“丢了人声”，活动文件里有 → 审对文件才会 pass
+            (root / "draft_content.json").write_text(
+                json.dumps(_draft(voice=False), ensure_ascii=False), encoding="utf-8")
+            (root / "draft_info.json").write_text(
+                json.dumps(_draft(voice=True), ensure_ascii=False), encoding="utf-8")
+            with patch.object(draft_native, "file_order",
+                              return_value=("draft_info.json", "draft_content.json")):
+                report = audit(_spec(), root)
+
+        checks = {c["name"]: c for c in report["checks"]}
+        self.assertEqual(checks["audio-voice"]["status"], "pass", checks["audio-voice"])
+        self.assertEqual(checks["draft-readable"]["status"], "pass")
+        self.assertIn("draft_info.json", checks["draft-readable"]["detail"])
+        self.assertEqual(checks["draft-twin"]["status"], "fail", checks["draft-twin"])
+
 
 if __name__ == "__main__":
     unittest.main()

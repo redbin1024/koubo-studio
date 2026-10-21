@@ -1,0 +1,15 @@
+{
+  "family_aliases": ["Smiley Sans", "SmileySans", "得意黑"],
+  "file_globs": ["SmileySans*", "*Smiley*"],
+  "license": "OFL-1.1",
+  "license_url": "https://github.com/atelier-anchor/smiley-sans/blob/main/LICENSE",
+  "copyright": "Copyright (c) 2022--2024, atelierAnchor. Reserved Font Names: Smiley, 得意黑.",
+  "commercial": true,
+  "attribution": "none",
+  "redistribute": true,
+  "notice_required": true,
+  "review_required": false,
+  "checked_at": "2026-10-21",
+  "source_url": "https://github.com/atelier-anchor/smiley-sans",
+  "notes": "OFL 字体；成片使用无需署名。保留字体名 Smiley / 得意黑 不得用于修改版；再分发需附 OFL 文本。"
+}

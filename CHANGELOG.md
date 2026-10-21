@@ -1,5 +1,34 @@
 # Changelog
 
+## 1.21.0 — 2026-10-21
+
+### 素材库：可检索、可调用、授权台账
+
+- 新增 `koubo assets`：`init/scan/add/search/show/path/set-license/verify/export/audit/suggest/stats/seed`。
+  索引正本 `assets/library/registry.jsonl`，每个素材带 kind/tags/mood/scene/use_for/
+  duration/bpm/sync/许可/来源/哈希；文件旁写 `.asset.json` sidecar。
+- 配置可用 `asset:<id>` 稳定引用：`broll.items[].source` 与 `sfx.events[].clip`
+  已接入；文件改名/换目录不再改配置。
+- 许可目录 `workflow/asset_licenses.py`：CC0/CC-BY/CC-BY-SA/CC-BY-ND/CC-BY-NC/
+  OFL/Apache/MIT/BSD/Pixabay/Mixkit/Pexels/剪映云端/项目自有/用户提供等，
+  统一判 `pass / unchecked / fail`；授权快照与核对日期让条款变化可被发现。
+- 字体许可记录 `fonts/licenses/*.json`：Noto/思源、抖音美好体、得意黑、Monu Titl、
+  阿里巴巴普惠体、阿里妈妈、站酷；`font-pick` 候选带 `license_id/license_url/
+  license_review_required`，需核对的字体不再静默通过。
+- 新增远程源 `workflow/asset_remote.py`：Pexels/Pixabay 单条检索/下载（
+  `PEXELS_API_KEY` / `PIXABAY_API_KEY`），sfx-kit CC0 音效按分类导入；
+  12 小时缓存、限流、无 Key 明确报错。
+- Mixkit 下载、剪映云端 BGM 下载自动写 sidecar；`extract_still` 的静帧改为
+  `project-input`（权利随源片）。
+- 流水线新增 `asset-audit`（draft 后）：写 `work/asset-manifest.json`，生成
+  `output/asset-licenses.csv` 与 `output/CREDITS.md`；`verify` 新增
+  `asset-license` 三态，`preflight` 提前报 `asset:` 坏引用，`review-outputs`
+  视频门纳入。
+- `suggest` 按字幕做可解释的元数据召回（场景同义词 + tags/use_for + 时长 +
+  许可），只出建议，不改 config。
+- 新增 [素材库文档](docs/asset-library.md)、`assets/library/README.md`、
+  `fonts/licenses/README.md`；测试 297 项通过。
+
 ## 1.20.3 — 2026-10-21
 
 ### 审查可读性

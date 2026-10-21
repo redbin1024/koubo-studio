@@ -1,0 +1,15 @@
+{
+  "family_aliases": ["Monu Titl", "MonuTitl", "典迹题幕"],
+  "file_globs": ["MonuTitl*", "Monu*Titl*"],
+  "license": "MonuTitl-OFL",
+  "license_url": "https://github.com/MY1L/Monu/releases/tag/Titl",
+  "copyright": "Copyright MY1L / 典迹 Monu（以字体文件内版权声明为准）",
+  "commercial": true,
+  "attribution": "none",
+  "redistribute": true,
+  "notice_required": true,
+  "review_required": true,
+  "checked_at": "2026-10-21",
+  "source_url": "https://github.com/MY1L/Monu/releases/tag/Titl",
+  "notes": "作者仓库说明该系列多为 OFL 1.1，但具体到 Monu Titl 的发布页/字体内许可证描述需再核对一次；核对前商用交付记为 unchecked。"
+}

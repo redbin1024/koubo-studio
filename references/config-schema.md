@@ -197,6 +197,12 @@
     "loudness": { "I": -14, "TP": -2.6, "LRA": 11 }
   },
 
+  "assets": {                             // 可选：素材库/授权策略
+    "library": "/path/to/assets/library", // 默认 <repo>/assets/library；也可用 KOUBO_ASSET_LIBRARY
+    "commercial": true,                   // audit/verify 按商业项目判许可
+    "strict_license": false               // true：授权未知直接 fail（默认记 unchecked）
+  },
+
   "segments": { "fade_out": 0.40 },       // 收尾淡黑时长
 
   "jianying": {                           // 剪映草稿（run_all 中在质检前生成，每轮必出）

@@ -8,7 +8,7 @@
 
 - 来源：<https://pixabay.com/sound-effects/>
 - 许可：[Pixabay Content License](https://pixabay.com/service/license-summary/)
-- 允许商用与非商用、修改与再分发，无需署名。此处登记仅为透明起见。
+- 允许商用与非商用、修改，无需署名；**不可原样转售/再分发素材本身**。此处登记仅为透明起见。
 - 逐条说明见 `assets/sfx/manifest.json`。
 
 ## 字体
@@ -17,6 +17,13 @@
 
 - 来源：<https://github.com/notofonts/noto-cjk>
 - 许可：SIL Open Font License 1.1
+- 逐字体许可记录见 `fonts/licenses/`（字体二进制不进仓库）。
+
+## 可选：sfx-kit
+
+`koubo assets import-sfx-kit` 可导入用户本地克隆的
+[sfx-kit](https://github.com/wyzowl/sfx-kit)（CC0）。**不随本仓库分发**，
+只读取其 `sounds.json` 元数据并按分类复制/链接用户已下载的文件。
 
 ## 运行依赖
 

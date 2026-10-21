@@ -1,0 +1,15 @@
+{
+  "family_aliases": ["Alibaba PuHuiTi", "AlibabaPuHuiTi", "阿里巴巴普惠体"],
+  "file_globs": ["AlibabaPuHuiTi*", "*PuHuiTi*", "*Puhuiti*"],
+  "license": "Alibaba-PuHuiTi",
+  "license_url": "https://fonts.alibabagroup.com/",
+  "copyright": "阿里巴巴集团（以官方下载包内授权说明为准）",
+  "commercial": true,
+  "attribution": "none",
+  "redistribute": false,
+  "notice_required": false,
+  "review_required": true,
+  "checked_at": "2026-10-21",
+  "source_url": "https://fonts.alibabagroup.com/",
+  "notes": "官方声明免费商用；不可转售字体本身。条款可能更新，商用交付前到官方页面核对一次。"
+}
