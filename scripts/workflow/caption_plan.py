@@ -257,6 +257,7 @@ def resolve_inserts(cfg: dict, cues: list[dict], project: Path | None = None) ->
             "keyword": keyword,
             "title": str(spec.get("title") or ""), "text": str(spec.get("text") or ""),
             "illustration": str(spec.get("illustration") or ""),
+            "illustration_focus": spec.get("illustration_focus") or [0.5, 0.5],
             "illustration_path": (
                 str((Path(project) / "assets" / str(spec["illustration"])).resolve())
                 if spec.get("illustration") else ""),

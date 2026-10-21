@@ -2,10 +2,10 @@
   "schema_version": 1,
   "id": "KB-TH-02",
   "name": "接送纪实",
-  "version": "1.0.1",
+  "version": "1.0.4",
   "readiness": {
     "status": "draft_polish_pending",
-    "scope": "接送 30s 品牌版：23 镜头 / 120BPM；插入卡改为 editorial（Songti 标题/细线图标/CARE NOTE 标签）；扫描光条/暖食滤镜/发光字落位；视觉审查 5 beat 待剪映导出确认。"
+    "scope": "接送 v4：草稿字体同时写本机 Noto 路径与云 resource；实拍照护；无扫描光条。"
   },
   "provenance": {
     "source_project": "接送-品牌版",
@@ -61,6 +61,11 @@
         "contrast": "#FF5E86",
         "gold": "#F2D26A",
         "outline": "#000000"
+      },
+      "jianying_font": {
+        "name": "SourceHanSansCN-Bold",
+        "resource_id": "7265596643066516029",
+        "path": "/Users/redbin/Library/Fonts/NotoSansCJKsc-Black.otf"
       }
     },
     "card": {

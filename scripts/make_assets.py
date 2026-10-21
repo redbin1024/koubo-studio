@@ -392,8 +392,13 @@ def _insert_card_editorial(W, H, box_px, spec, theme, font_path, med_path, radiu
         win_w = min(int(bw * 0.30), int(win_h * 1.15))
         wx, wy = x0 + pad, y0 + pad
         art = Image.open(illustration).convert("RGBA")
+        focus = spec.get("illustration_focus") or [0.5, 0.5]
+        try:
+            centering = (float(focus[0]), float(focus[1]))
+        except (TypeError, ValueError, IndexError):
+            centering = (0.5, 0.5)
         art = ImageOps.fit(art, (win_w, win_h), method=Image.LANCZOS,
-                           centering=(0.5, 0.5))
+                           centering=centering)
         mask = Image.new("L", (win_w, win_h), 0)
         ImageDraw.Draw(mask).rounded_rectangle(
             (0, 0, win_w - 1, win_h - 1),

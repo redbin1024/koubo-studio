@@ -290,7 +290,8 @@ def run_checks(cfg: dict, project: Path) -> dict:
                      "style-plan-consistent", "bgm-present", "jianying-fx",
                      "jianying-draft", "jianying-installed", "draft-audit",
                      "visual-contract", "visual-review", "advanced-fx",
-                     "style-lock", "caption-role", "overlay-fx", "bgm-cloud"):
+                     "style-lock", "caption-role", "overlay-fx", "bgm-cloud",
+                     "draft-font"):
             add(name, None, "没有成片，本项没查")
         return _write(p, out, {}, {}, checks)
 
@@ -522,6 +523,43 @@ def run_checks(cfg: dict, project: Path) -> dict:
             f"已登记进剪映草稿箱：{installed}" if installed
             else ("按配置只留 draft-store（jianying.install = false）" if not jy["install"]
                   else "草稿没进剪映草稿箱（覆盖保护触发或草稿箱不可写），看 [draft] 的 ⚠"))
+
+    # ---- 草稿字体：config 写了不等于剪映认；必须看 text material 与 range font
+    jy_font = (cfg.get("captions") or {}).get("jianying_font") or {}
+    if not jy_font.get("resource_id") and not jy_font.get("path"):
+        pass
+    else:
+        target = Path(draft_record.get("installed_to") or draft)
+        try:
+            draft_data = json.loads((target / "draft_content.json").read_text(encoding="utf-8"))
+            texts = (draft_data.get("materials") or {}).get("texts") or []
+            want_id = str(jy_font.get("resource_id") or "")
+            want_path = str(jy_font.get("path") or "")
+            bad = []
+            for text in texts:
+                if want_id and not want_path and str(text.get("font_resource_id") or "") != want_id:
+                    bad.append("material.font_resource_id")
+                    continue
+                if want_path and str(text.get("font_path") or "") != want_path:
+                    bad.append("material.font_path")
+                    continue
+                try:
+                    content = json.loads(text.get("content") or "{}")
+                except (TypeError, ValueError):
+                    bad.append("content 不是 JSON")
+                    continue
+                for style in content.get("styles") or []:
+                    got = style.get("font") or {}
+                    if want_id and not want_path and str(got.get("id") or "") != want_id:
+                        bad.append("content.styles.font.id")
+                    if want_path and str(got.get("path") or "") != want_path:
+                        bad.append("content.styles.font.path")
+            ok = bool(texts) and not bad
+            add("draft-font", ok,
+                f"{jy_font.get('name') or want_id} 已写入 {len(texts)} 条文本"
+                if ok else f"草稿字体没写全：{'、'.join(sorted(set(bad))[:3]) or '没有文本材质'}")
+        except (OSError, ValueError) as exc:
+            add("draft-font", False, f"读不了草稿字体（{exc}）")
 
     # ---- draft-spec 对账：执行层不能自证，必须和先写下的规格比
     draft_qc_path = p["work"] / "draft-qc.json"

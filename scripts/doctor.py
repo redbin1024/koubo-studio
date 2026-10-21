@@ -175,6 +175,15 @@ def check_optional(report: Report) -> None:
                        f"{sys.executable} -m pip install {package}")
         else:
             report.add(f"optional:{package}", OK, _version_of(package))
+    exe = shutil.which("yt-dlp")
+    if exe:
+        report.add("optional:yt-dlp", OK, exe)
+    elif importlib.util.find_spec("yt_dlp") is not None:
+        report.add("optional:yt-dlp", OK, "python -m yt_dlp")
+    else:
+        report.add("optional:yt-dlp", WARN,
+                   "未安装 —— 抖音链接下载只能在分享页可用时工作",
+                   "pip install -U yt-dlp；或先把视频下载到本地传给 koubo reference")
 
 
 def check_install(report: Report) -> None:

@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "tiers": {
+    "still": "真实成片静帧，优先用于证据/环境",
+    "vector": "代码绘制 SVG，用于概念/章节；2x 输出",
+    "ai": "可选 AI 位图，必须人工审片与标识"
+  },
+  "items": [
+    {"id": "food-tray", "file": "food-tray.svg", "tier": "vector", "focus": [0.5, 0.55], "license": "project-owned", "source": "code-drawn", "alt": "营养餐托盘"},
+    {"id": "quiet-room", "file": "quiet-room.svg", "tier": "vector", "focus": [0.5, 0.5], "license": "project-owned", "source": "code-drawn", "alt": "安静房间"},
+    {"id": "tea-set", "file": "tea-set.svg", "tier": "vector", "focus": [0.5, 0.55], "license": "project-owned", "source": "code-drawn", "alt": "茶席"},
+    {"id": "doorway", "file": "doorway.svg", "tier": "vector", "focus": [0.5, 0.5], "license": "project-owned", "source": "code-drawn", "alt": "门廊"},
+    {"id": "car-seat", "file": "car-seat.svg", "tier": "vector", "focus": [0.5, 0.5], "license": "project-owned", "source": "code-drawn", "alt": "车后座"},
+    {"id": "crib", "file": "crib.svg", "tier": "vector", "focus": [0.5, 0.5], "license": "project-owned", "source": "code-drawn", "alt": "床边照护"},
+    {"id": "care-hands", "file": "care-hands.svg", "tier": "vector", "focus": [0.5, 0.5], "license": "project-owned", "source": "code-drawn", "alt": "照护双手"}
+  ]
+}

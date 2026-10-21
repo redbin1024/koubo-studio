@@ -68,6 +68,13 @@ def build_config(name: str, aspect: str, video: str | None, clips: list[str],
     if contrast:
         cfg["captions"]["palette"]["contrast"] = contrast["hex"]
     card = teardown.get("card")
+    # 满屏色块不是信息卡：纯色/满屏背景也会被 find_card 当成「稳定大色块」。
+    if isinstance(card, dict):
+        try:
+            if float(card.get("area") or 0) > 0.55:
+                card = None
+        except (TypeError, ValueError):
+            pass
     if card:
         cfg["card"].update({"enabled": True, "start": card["start"], "end": card["end"],
                             "box": card["bbox_norm"], "fill": card["fill_hex"]})
@@ -87,7 +94,8 @@ def main() -> None:
     ap.add_argument("--clips", nargs="*", default=[], help="需要粗剪拼接的素材")
     ap.add_argument("--mode", choices=("talking-head", "vlog"),
                     help="素材类型；Vlog 默认要求旁白，口播默认要求现场人声")
-    ap.add_argument("--reference", default=None, help="参考片，量完自动填卡片/画中画/配色")
+    ap.add_argument("--reference", default=None,
+                    help="参考片：本地路径 / 抖音链接 / koubo reference 产出目录")
     ap.add_argument("--aspect", default="9:16", choices=["9:16", "16:9"])
     ap.add_argument("--force", action="store_true", help="覆盖已存在的 config.json")
     a = ap.parse_args()
@@ -99,12 +107,27 @@ def main() -> None:
 
     teardown = None
     if a.reference:
-        out = p["work"] / "reference-teardown.json"
-        print(f"  量参考片 → {out}")
-        subprocess.run([sys.executable, str(Path(__file__).parent / "analyze_reference.py"),
-                        a.reference, "--out", str(out),
-                        "--frames", str(p["work"] / "ref-frames")], check=True)
-        teardown = json.loads(out.read_text(encoding="utf-8"))
+        from workflow.reference_source import ReferenceSourceError, prepare_reference
+        try:
+            prepared = prepare_reference(a.reference, p["work"])
+        except ReferenceSourceError as exc:
+            raise SystemExit(f"参考片取不到：{exc}") from exc
+        if prepared.get("teardown"):
+            print(f"  复用参考片档案 → {prepared.get('profile') or prepared['teardown']}")
+            teardown = prepared["teardown"]
+        else:
+            out = p["work"] / "reference-teardown.json"
+            print(f"  量参考片 → {out}")
+            subprocess.run([sys.executable, str(Path(__file__).parent / "analyze_reference.py"),
+                            str(prepared["video"]), "--out", str(out),
+                            "--frames", str(p["work"] / "ref-frames")], check=True)
+            teardown = json.loads(out.read_text(encoding="utf-8"))
+        card = (teardown or {}).get("card") or {}
+        try:
+            if float(card.get("area") or 0) > 0.55:
+                print("  ⚠ 检出的卡片占满画面，更像背景；已忽略卡片与画中画")
+        except (TypeError, ValueError):
+            pass
 
     cfg = build_config(a.name or project.name, a.aspect, a.video, a.clips, teardown,
                        mode=a.mode or ("talking-head" if a.video else None))

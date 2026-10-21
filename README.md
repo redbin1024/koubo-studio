@@ -27,6 +27,8 @@
 口播工坊把这些串成一条**可审核的流水线**：
 
 - **先量，再抄。** 参考片的卡片几何、强调色、字幕带、画中画位置会被量成数值，不是靠肉眼猜。
+- **给链接也能拆。** 用户丢来一条抖音参考视频，`koubo reference` 先取原片、切镜、转写、出三联图与接触表，再交给 `auto` / `new` 使用；拿不到就明确报错，不假装成功。
+- **字体由分析来选。** `koubo font-pick` 读参考片的风格/结构/受众，从本机 CJK 字体和 emfont 在线库选字幕字体；AI 只能从候选闭集里选，没 Key 就本地打分，换字体会被 style-lock 拦住。
 - **一条命令全自动。** `koubo auto` 从原始素材直接出可继续编辑的剪映草稿 + mp4 预览；本地规则打底，DeepSeek 只做可校验的导演建议，失败自动回退。
 - **剪映草稿是主交付。** 主轨逐镜头、字幕/人声/音效/BGM 分轨；mp4 是压平的预览副本。转场、滤镜、关键帧、蒙版这些只在剪映里做。
 - **缺席不等于通过。** 质检有三态：`pass` / `fail` / `unchecked`。判不了的项必须写清原因，不能从报告里消失。
@@ -116,12 +118,50 @@ koubo auto my-video --clips a.mov b.mov c.mov
 # 参考片只取字幕几何 / 配色
 koubo auto my-video --video talk.mp4 --reference ref.mp4
 
+# 参考片同时自动选字幕字体（受 style-lock 约束）
+koubo auto my-video --video talk.mp4 --reference my-video/work/reference --font auto
+
 # 不联网、不调模型
 koubo auto my-video --video talk.mp4 --no-llm
 
 # 更准的 ASR（默认 small，首次会下载模型）
 koubo auto my-video --video talk.mp4 --asr-model large-v3
 ```
+
+### 抖音参考片：先拆，再抄
+
+```bash
+# 1. 拆参考片：下载 → 切镜 → 三联图 → 转写 → 结构/镜头语义（可选）
+koubo reference "https://v.douyin.com/xxxx/" -p my-video
+
+# 2. 建工程 / 全自动时直接复用档案，不重复抽帧
+koubo new my-video --video ~/Movies/口播.mp4 --reference my-video/work/reference
+koubo auto my-video --video ~/Movies/口播.mp4 --reference my-video/work/reference
+```
+
+`--reference` 也接受本地文件或抖音链接。产物在 `my-video/work/reference/`：
+`reference-profile.json`（下游契约）、`REPORT.md`（人看）、`contact-sheet.jpg`
+（所有镜头总览）与每镜 `frames/strip-NN.jpg`（左/中/右三联图）。
+没装 ASR、没有 `DEEPSEEK_API_KEY`、某批拆解失败都会写进报告末尾的「未检查」。
+完整说明见 [抖音参考片入库](docs/reference-intake.md)。
+
+### 按参考片选字幕字体
+
+```bash
+# 只出建议（读 my-video/work/reference/reference-profile.json）
+koubo font-pick my-video
+
+# 确认后写入 config.captions.font
+koubo font-pick my-video --apply
+
+# 不联网 / 不调 AI：只用本机字体
+koubo font-pick my-video --library local --no-llm
+```
+
+候选来自本机 CJK 字体（工程 `fonts/` 优先）和 emfont 在线字体库；AI 只从候选闭集里选，
+输出要过 id/字号/授权校验，失败回退本地打分。项目有 `work/style-lock.json` 时默认不改
+锁定字体，`--force` 才会写并让 `koubo style check` 变红。完整说明见
+[按参考片选字体](docs/font-picker.md)。
 
 ### 在 DeepSeek 窗口里用，不填 Key
 
@@ -194,6 +234,8 @@ Vlog 会先完成粗剪、画面/文案审核，再生成旁白；缺语音会�
 | --- | --- |
 | **一条命令全自动** | `koubo auto`：粗剪、字幕、声音、包装、剪映草稿 + mp4 预览、质检修复一次完成 |
 | **参考片风格量化** | 切点、强调色、卡片几何、画中画、字幕带 → `config.json` 里的数值 |
+| **抖音参考片拆解** | 分享链接/本地文件 → 原片、镜头表、三联图、接触表、口播转写、全片结构；拿不到原片就报错 |
+| **按分析选字体** | 参考片风格 → 本机 CJK 字体 + emfont 候选 → AI/本地打分选字幕字体；可写 `captions.font` |
 | **自动粗剪** | 口播按静音切点选说话段；Vlog 按画面变化列候选场景；生成可手改的 `work/edit-plan.json` |
 | **字幕** | SRT 轻量标记 `[[强调]]` / `((反差))` / `|` 换行；逐条样式与 `fade` / `hook` / `pop` / `rise` / `wipe` / `karaoke` 动效 |
 | **包装** | 信息卡、画中画、结尾发光大字、全部由 Pillow 现画的插图（4 种版式 / 8 种图标） |
@@ -240,7 +282,9 @@ Vlog 会先完成粗剪、画面/文案审核，再生成旁白；缺语音会�
 | --- | --- |
 | `koubo auto DIR --video in.mp4` | **一条命令全自动**：mp4 + 剪映草稿 + 自动修复 |
 | `koubo package DIR --video in.mp4 --srt in.srt` | 已剪好的成片只做包装，不重剪 |
-| `koubo new DIR --video in.mp4 [--reference ref.mp4]` | 建工程，可选量参考片 |
+| `koubo reference 链接 -p DIR` | 抖音链接/本地参考片 → 镜头表、口播、结构与 `REPORT.md` |
+| `koubo font-pick DIR [--apply]` | 按分析从本机/emfont 字体库选字幕字体；`--apply` 写入 config |
+| `koubo new DIR --video in.mp4 [--reference ref.mp4]` | 建工程，可选量参考片（也接受链接或拆解目录） |
 | `koubo auto-edit DIR --mode talking-head --clips talk.mp4` | 自动粗剪 / 生成镜头表 |
 | `koubo captions DIR` | SRT → ASS / 字幕层 |
 | `koubo draft DIR` | 装配剪映草稿 + draft-spec/audit |
@@ -267,6 +311,8 @@ Vlog 会先完成粗剪、画面/文案审核，再生成旁白；缺语音会�
 - **自动模式默认不做信息卡/画中画/插图。** 这些需要内容支撑；参考片只取字幕几何与配色。需要这些包装时走手动流程或改 `config.json`。
 - **Vlog 自动模式不删场景。** 按场景切点保留候选镜头，故事方案只排序；要删重复/废镜头需改 `work/edit-plan.json` 后重跑。
 - **平台以 macOS 为主。** 剪映草稿箱、`say` 旁白等能力是 macOS 路径；Linux 可以跑大部分渲染与质检，Windows 请用 WSL 并自行验证路径。
+- **字体授权自己核对。** `font-pick` 会记录字体库给出的授权文本，但不代替法务判断；系统字体只在本机渲染，不能随项目分发字体文件。
+- **抖音抓取有边界。** 只解析公开单条作品的分享页，不登录、不批量、不抓评论；被风控时请用 `--cookie` 或先下载到本地。参考片只用于拆解，任何一帧都不进成片。
 - **素材与隐私自己负责。** 本仓库不包含任何真实客户素材或成片；示例均为脱敏数据。
 
 ---
@@ -276,11 +322,15 @@ Vlog 会先完成粗剪、画面/文案审核，再生成旁白；缺语音会�
 | 文档 | 内容 |
 | --- | --- |
 | [全自动成片](docs/auto.md) | `koubo auto`、导演决策、旁白策略、自动修复与回退 |
+| [抖音参考片入库](docs/reference-intake.md) | 链接/文件 → 切镜、三联图、转写、结构；三态与抓取边界 |
+| [按参考片选字体](docs/font-picker.md) | 本机字体 + emfont → AI 选择、校验、style-lock 与应用边界 |
 | [草稿优先](docs/draft-first.md) | 为什么主交付是剪映草稿、草稿里能改什么、哪些已烘焙 |
 | [package-only](docs/package-only.md) | 已剪好的成片 + SRT 只做包装，不重剪 |
 | [B-roll](docs/broll.md) | 真实细节镜头插入草稿；4105 拍摄清单 |
 | [SVG/Canvas 插图](docs/code-illustration.md) | 代码绘制插图、渲染进卡片、Canvas 动效 overlay |
+| [工作流与模块地图](docs/modules.md) | 当前插画来源、每步入口、模块何时使用 |
 | [Canvas 动效](docs/motion.md) | `renderAt(t)` → ProRes 4444 overlay 的约定 |
+| [HyperFrames 评估](docs/hyperframes-evaluation.md) | 视频优先下 HTML/GSAP 渲染器的主链评估、10 秒验证清单 |
 | [剪映云端音乐库](docs/music-library.md) | 扫描历史 music_id、搜索、选曲、下载为 BGM |
 | [按内容匹配风格](docs/style-match.md) | 字幕/镜头表 → 参考风格排序 + CapCut 改编动作 |
 | [参考项目名单](docs/reference-projects.md) | 吸收过哪些项目、commit、许可证和边界 |
@@ -315,7 +365,7 @@ koubo-studio/
 │   ├── auto_film.py        # koubo auto 全自动编排
 │   ├── koubo.py            # CLI 分发
 │   └── doctor.py           # 环境自检
-├── tests/                  # 176 项回归测试
+├── tests/                  # 239 项回归测试
 ├── references/             # 拆解说明 / 字段表 / 风格语汇 / 踩坑记录
 ├── examples/               # 脱敏示例
 ├── assets/sfx/             # 9 个真实采样（Pixabay Content License）

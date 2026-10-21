@@ -1,5 +1,66 @@
 # Changelog
 
+## 1.20.0 — 2026-10-21
+
+### 插画/视觉与音频收口
+
+- 插画分三层：真实静帧（still）/ SVG 概念图（vector）/ 可选 AI 位图；
+  80px 小图窗不再塞 SVG。
+- 新增 `extract_still.py`：从 `clean-cut.mp4` 抽真实静帧，写 `assets/stills/manifest.json`。
+- `illustration_focus` 支持图窗焦点裁切；4105 CTA、接送两条信息条改用真实静帧。
+- 4105 叠卡延长到 12.63–24.30，三行分别 12.95/16.75/19.45；
+  `captions.skip [5,6,7]`，叠卡期间不放底部字幕。
+- 混音从“BGM 压人声”改为“人声优先”：voice_volume 2.2、BGM 0.12/0.10、
+  目标 -13 LUFS；4105 实测 -13.0 LUFS / -2.0 dBTP。
+- 新增 `draft-font` 质检；JianYing 11.6 加密草稿仍无法稳定注入字体，
+  成片字体正常，草稿保留默认字体（限制已记录）。
+- 新增 [工作流与模块地图](docs/modules.md)。
+- 测试 239 项通过。
+
+## 1.19.0 — 2026-10-20
+
+### 按参考片自动选字体
+
+- 新增 `font_pick.py` / `koubo font-pick`：读 `reference-profile.json` 的风格、结构、
+  受众与字幕文案，从**本机 CJK 字体 + emfont 在线库**里选一款字幕字体。
+- 本机字体按渲染顺序扫描（工程 `fonts/` → 安装目录 → `KOUBO_FONT_DIRS` → 系统），
+  只收带汉字的字体，同族保留最粗字重；候选带授权文本。
+- emfont 复用 [emfont-mcp](https://github.com/emfont/emfont-mcp) 背后的
+  `/list` `/info` `/g` HTTP 接口，不引入 Node/MCP；目录/详情有缓存，
+  接口不可用时 `auto` 回退本机字体并记入「未检查」。
+- AI 只从候选闭集里选，校验 id / confidence / usage / alternates；无 Key、
+  调用失败或输出不合格时回退本地风格打分，`mode=ai|fallback` 写清楚。
+- `--apply` 写 `config.captions.font`；项目有 `work/style-lock.json` 时默认拒绝，
+  `--force` 才写并标记 `style_lock_conflict`（`koubo style check` 会红）。
+- emfont 字体按工程字幕/口播/卡片文字生成子集 TTF，存 `fonts/emfont-<id>.ttf`；
+  应用前用 PIL 检查字幕缺字，缺字就换备选。
+- `koubo reference ... --pick-font`：拆完顺手出字体建议（不写 config）。
+- 新增 `workflow/emfont.py`、`workflow/font_picker.py`、`docs/font-picker.md`、
+  2 个测试文件；测试总数 **239**。
+
+## 1.18.0 — 2026-10-20
+
+### 抖音参考片入库与拆解
+
+- 新增 `reference_intake.py` / `koubo reference`：抖音分享链接或本地视频 →
+  原片、节奏、三联图、接触表、口播转写、全片结构与 `REPORT.md`。
+- 抖音来源走分享页 SSR：首次请求拿 `ttwid`，带 Cookie 自动重试一次；
+  失败回退 `yt-dlp`（可选），再失败明确报错。不引入 MediaCrawler
+  （NON-COMMERCIAL LEARNING LICENSE + 扫码登录），不登录、不批量。
+- 切镜复用 `workflow.pacing` 的自适应切点，并用固定阈值补漏；长镜头拆成
+  ≤5s beat，镜头过多时合并最短邻居，按镜头边界分 ≤15s 段。
+- 每镜抽首/中/尾三联图与中点关键帧，Pillow 拼 `contact-sheet.jpg`。
+- 新增 `workflow/reference_vision.py`：DeepSeek 视觉拆解，结论必须引用三联图证据；
+  枚举 / 镜头 id / 置信度由代码校验，失败只影响该批并记 `unchecked`。
+- 报告三态：没装 faster-whisper、没有 Key、某批拆解失败、字体量不了、
+  音乐没识别、字幕 `margin_v` 未重算，都逐条写进「未检查」。
+- `new_project.py` / `auto_film.py` 的 `--reference` 接受本地文件、抖音链接或
+  `koubo reference` 产出目录；传目录直接复用 `teardown.json`，不重复抽帧。
+- 修复 `analyze_reference.scene_cuts` 的切点时间与分数错位一刀的 bug。
+- 满屏色块不再当成信息卡写进 `config.card`（面积 >55% 时剔除并写明）。
+- 新增 4 个测试文件（来源解析、切镜/接触表、视觉校验、档案汇总与端到端）；
+  测试总数 **213**。
+
 ## 1.17.1 — 2026-10-20
 
 ### d08 参考版：叠卡

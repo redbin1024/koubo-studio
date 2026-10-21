@@ -34,6 +34,8 @@ ALIASES = {
     "init": "new_project.py",
     "run": "run_all.py",
     "analyze": "analyze_reference.py",
+    "reference": "reference_intake.py",
+    "font-pick": "font_pick.py",
     "auto-edit": "auto_edit.py",
     "captions": "make_captions.py",
     "render": "render.py",
@@ -69,6 +71,8 @@ DESCRIPTIONS = {
     "run": "跑完整流水线：成片 + 剪映草稿 + 质检",
     "doctor": "环境自检",
     "analyze": "量参考片",
+    "reference": "抖音链接/本地参考片 → 镜头表、口播与结构档案",
+    "font-pick": "按参考片分析选字幕字体（本地字体库 + emfont），可写入 config",
     "auto-edit": "自动粗剪 / 镜头表",
     "captions": "SRT → ASS / 字幕层",
     "render": "烧字幕、混音、响度归一",
@@ -154,6 +158,8 @@ def help_text() -> str:
         "用法：koubo <命令> [参数...]",
         "",
         "最常用：",
+        "  koubo reference 抖音链接 -p DIR     先拆参考片，再 koubo auto --reference",
+        "  koubo font-pick DIR --reference DIR/work/reference --apply",
         "  koubo auto DIR --video 口播.mp4 [--reference 参考片.mp4]",
         "  koubo new DIR --video 口播.mp4 [--reference 参考片.mp4]",
         "  koubo run DIR",
@@ -161,7 +167,8 @@ def help_text() -> str:
         "",
         "全部命令：",
     ]
-    for name in ("auto", "new", "run", "doctor", "update", "scripts", "version"):
+    for name in ("auto", "reference", "font-pick", "new", "run", "doctor",
+                 "update", "scripts", "version"):
         lines.append(f"  {name:<12}{DESCRIPTIONS.get(name, '')}")
     lines.append("")
     lines.append("脚本别名：koubo scripts 查看；或 koubo script auto_edit.py ...")

@@ -83,14 +83,16 @@ def scene_cuts(path: Path, threshold: float) -> list[dict]:
         find_ffmpeg(), "-hide_banner", "-nostats", "-i", str(path),
         "-vf", f"select='gt(scene,{threshold})',metadata=print", "-an", "-f", "null", "-",
     ])
-    cuts, score = [], None
+    # ffmpeg 先打印 `pts_time:`，下一行才是 `lavfi.scene_score`。
+    # 早期版本按相反顺序配对，导致切点整体错位到下一刀；这里显式记住 pts。
+    cuts, at = [], None
     for line in proc.stderr.splitlines():
-        if "lavfi.scene_score" in line:
+        if "pts_time:" in line:
+            at = round(float(line.split("pts_time:")[1].split()[0]), 3)
+        elif "lavfi.scene_score" in line and at is not None:
             score = float(line.rsplit("=", 1)[1])
-        elif "pts_time:" in line and score is not None:
-            cuts.append({"t": round(float(line.split("pts_time:")[1].split()[0]), 3),
-                         "score": round(score, 4)})
-            score = None
+            cuts.append({"t": at, "score": round(score, 4)})
+            at = None
     return cuts
 
 

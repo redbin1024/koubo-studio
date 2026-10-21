@@ -25,6 +25,11 @@
     "strip_punctuation": true,            // 房规：去标点
     "duplicate_policy": "warn",          // warn：复述字幕记 unchecked；fail：直接红项
     "burn": "layer",                      // layer = Pillow 逐帧画（默认）；ass = 交回 libass
+    "jianying_font": {                    // 剪映草稿专用字体（cloud resource）
+      "name": "SourceHanSansCN-Bold",     // 必须在 `capcut enums --fonts --jianying` 里
+      "resource_id": "7265596643066516029",
+      "path": ""
+    },
     "font": "Noto Sans CJK SC Black",     // 族名，中英文都认（"阿里妈妈数黑体" 同一个字体）。
                                           // 顺序：工程 fonts/ → 安装目录 fonts/ → KOUBO_FONT_DIRS → 系统目录，
                                           // 第一个命中的目录定案；写错了报错并列出可用族名，
@@ -146,7 +151,8 @@
       { "kind": "icon-label",             // icon-label / list / stat / quote（全部由脚本现画）
         "trigger": { "cue": 6, "keyword": "准时" },   // 或 { "slot": 1 } 挂在解说槽上
         "icon": "clock",                  // check/clock/bowl/leaf/heart/home/star/shield
-        "illustration": "illustrations/food-tray.png", // 可选：左侧圆角图窗，SVG 自动渲染
+        "illustration": "stills/clean-9.2.jpg", // 可选：左侧图窗，支持 PNG/SVG/真实静帧
+        "illustration_focus": [0.56, 0.4],      // 焦点裁切（x,y 0–1）；不写=居中
         "title": "准时送达", "text": "精致的营养餐", "hold": 2.4 }
     ]
   },

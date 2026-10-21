@@ -7,25 +7,25 @@
     {
       "id": "KB-TH-01",
       "name": "暖食玻璃卡",
-      "version": "1.2.3",
+      "version": "1.2.8",
       "aliases": [],
       "recipe": "recipes/KB-TH-01.json",
-      "recipe_sha256": "04a73d37f47345a456a7004d3a321997e12b6cf16b62d238d875a8b2a5286d69",
+      "recipe_sha256": "857adda90375ec800b6a464c2127027cd81ebead4c8205cac5088d07530e04c6",
       "readiness": {
         "status": "visual_review_pending",
-        "scope": "4105 全功能版：d08 参考版，玻璃卡加两层错位叠卡；云端配乐；无片头标题；editorial 插图；QC 待复验。"
+        "scope": "4105 字体生效版：草稿字体同时写本机 Songti 路径与云 resource；叠卡/实拍 CTA/云端配乐。"
       }
     },
     {
       "id": "KB-TH-02",
       "name": "接送纪实",
-      "version": "1.0.1",
+      "version": "1.0.4",
       "aliases": [],
       "recipe": "recipes/KB-TH-02.json",
-      "recipe_sha256": "e5441aefd408dd08d565b44de152ae64bf9ea4ee81a6c61fbb0f06ce69568c53",
+      "recipe_sha256": "353c95133e27e5d7419dc0fd529ba4cd5637c34ba00dcc55c65cf5e42e850510",
       "readiness": {
         "status": "draft_polish_pending",
-        "scope": "接送 30s 品牌版：23 镜头 / 120BPM；插入卡改为 editorial（Songti 标题/细线图标/CARE NOTE 标签）；扫描光条/暖食滤镜/发光字落位；视觉审查 5 beat 待剪映导出确认。"
+        "scope": "接送 v4：草稿字体同时写本机 Noto 路径与云 resource；实拍照护；无扫描光条。"
       }
     }
   ]

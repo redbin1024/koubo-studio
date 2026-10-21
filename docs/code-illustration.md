@@ -27,12 +27,11 @@ python scripts/render_svg.py assets/illustrations/car-seat.svg /tmp/car-seat.png
 3. 写 `work/illustrations.json`（源/产物 SHA）；
 4. `make_assets` 把图放进卡片左侧圆角图窗，右侧仍排 Songti 标题 + 正文。
 
-已接入 6 张：
+已接入过 6 张，但 2026-10-20 设计复盘后：
 
-- 4105 卡片行：`food-tray` / `quiet-room` / `tea-set`
-- 4105 末尾 CTA：`doorway`
-- 接送「有人扶稳」：`car-seat`
-- 接送「送到床边」：`crib`
+- 4105 卡片行的小图窗已撤（80px 下 SVG 细节看不清）；
+- 4105 CTA、接送两条信息条改用**真实成片静帧**（`assets/stills/`）；
+- SVG 仍保留为素材库/概念图，不强行塞进小图窗。
 
 当前库里：
 
@@ -61,6 +60,20 @@ python scripts/render_motion.py assets/motion/steam.html \
 
 **边界**：动效只做 1–2 个 hero moment，不把整片交给 Canvas；overlay 内部文字不可在剪映里逐字改。
 当前动效渲染是独立命令，尚未自动写入 draft 轨；等剪映对 ProRes alpha 的导入实测后再接。
+
+## 三层素材（v2）
+
+- **still**：真实成片静帧，优先用于护理/环境/证据；`extract_still.py` 从
+  `input/clean-cut.mp4` 抽帧，写 `assets/stills/manifest.json`。
+- **vector**：代码绘制 SVG；`assets/illustrations/manifest.json` 记录 tier/focus/
+  license；只用于概念/章节，不塞 80px 小图窗。
+- **ai**：可选，当前没有 provider；接入后必须人工审片、标识来源。
+- 图窗裁切支持 `illustration_focus: [x,y]`，不再永远居中。
+
+```bash
+python scripts/extract_still.py 接送-品牌版 --time 9.2 \
+  --out stills/clean-9.2.jpg --focus 0.56,0.4
+```
 
 ## 设计 token
 

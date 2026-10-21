@@ -71,6 +71,13 @@ koubo auto my-video --clips ~/Movies/a.mov ~/Movies/b.mov ~/Movies/c.mov
 # 给参考片：只取字幕几何、配色与版式数值
 koubo auto my-video --video talk.mp4 --reference ~/Movies/ref.mp4
 
+# 参考片是抖音链接，或已经用 koubo reference 拆过
+koubo auto my-video --video talk.mp4 --reference "https://v.douyin.com/xxxx/"
+koubo auto my-video --video talk.mp4 --reference my-video/work/reference
+
+# 按参考片分析自动选字幕字体（受 style-lock 约束）
+koubo auto my-video --video talk.mp4 --reference my-video/work/reference --font auto
+
 # 不调用云端模型
 koubo auto my-video --video talk.mp4 --no-llm
 
@@ -87,11 +94,12 @@ koubo auto my-video --video talk.mp4 --force
 | --- | --- |
 | `--video PATH` | 单条素材 |
 | `--clips a b c` | 多段素材（Vlog） |
-| `--reference PATH` | 参考片；只抄字幕几何/配色，不抄画面 |
+| `--reference PATH` | 参考片：本地路径 / 抖音链接 / `koubo reference` 产出目录；只抄字幕几何/配色，不抄画面 |
 | `--mode auto\|talking-head\|vlog` | 默认 auto：单条有说话段→口播，多段/无音轨→Vlog |
 | `--asr-model` | `small`（默认）/ `medium` / `large-v3` |
 | `--llm-model` | 默认 `deepseek-flash` |
 | `--no-llm` | 不调用云端模型，只用本地规则 |
+| `--font keep\|auto` | `keep`（默认）保留 config 字体；`auto` 按参考片分析选字体，被 style-lock 锁定时不改 |
 | `--no-narration` | 无声素材不生成 TTS 旁白 |
 | `--captions` | `generated`（默认）/ `burned-in`（源片已有字幕，不再生成）/ `none`（不生成画面字幕） |
 | `--max-repairs` | 质检红项最多修复轮数，默认 2 |

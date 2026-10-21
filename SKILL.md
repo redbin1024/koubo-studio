@@ -1,6 +1,6 @@
 ---
 name: koubo-studio
-description: 口播 / Vlog 的可审核智能剪辑工作流，以剪映草稿为主交付：既支持 `koubo auto` 一条命令自动出逐镜头可编辑草稿 + mp4 预览（量参考片风格、ASR 字幕、自动旁白、BGM/音效、质检自动修复），也支持逐步手工控制；本地规则打底，DeepSeek 可选。用户给出参考视频说「按这个风格剪一遍」「换一个风格再剪一遍」，或要求口播 / Vlog 自动成片、加字幕、信息卡、画中画、旁白、剪映草稿时使用。
+description: 口播 / Vlog 的可审核智能剪辑工作流，以剪映草稿为主交付：既支持 `koubo auto` 一条命令自动出逐镜头可编辑草稿 + mp4 预览（量参考片风格、ASR 字幕、自动旁白、BGM/音效、质检自动修复），也支持逐步手工控制；本地规则打底，DeepSeek 可选。用户给出参考视频（本地文件或抖音分享链接）说「按这个风格剪一遍」「拆一下这条参考片」「换一个风格再剪一遍」，或要求口播 / Vlog 自动成片、加字幕、选字幕字体、信息卡、画中画、旁白、剪映草稿时使用。
 metadata:
   short-description: 口播 / Vlog 的量片、粗剪、字幕、包装、剪映草稿与全自动成片
 ---
@@ -12,6 +12,11 @@ metadata:
 
 凭肉眼对着网格线猜几何会差 30%，所以永远先跑 `analyze_reference.py` 把参考片量成数值，
 再把这些数值写进 `config.json`。参考片只用来**取数**，任何一帧都不进成片。
+
+用户给的是**抖音分享链接**（不是本地文件）时，先跑 `reference_intake.py`（`koubo reference`）：
+它取原片、切镜、抽首/中/尾三联图、转写口播，可选做视觉拆解，产出
+`work/reference/reference-profile.json` 与 `REPORT.md`。不要直接把链接塞给
+`analyze_reference.py`，它只吃本地文件；也不要在拿不到原片时假装量过了。
 
 > 下面的命令默认在仓库根目录执行。装好后也可以用 `koubo <别名>`（`koubo --help` 看全部），
 > 或在任意目录用 `~/.agents/skills/koubo-studio/bin/koubo`。环境自检：`koubo doctor`。
@@ -29,6 +34,9 @@ koubo auto PROJECT --video talk.mp4
 
 # 多段 Vlog
 koubo auto PROJECT --clips a.mov b.mov c.mov
+
+# 有参考片档案时，自动选字幕字体（受 style-lock 约束）
+koubo auto PROJECT --video talk.mp4 --reference PROJECT/work/reference --font auto
 
 # 已经剪好的成片 + SRT：只做包装，不重剪
 koubo package PROJECT --video edited.mp4 --srt edited.srt --captions burned-in
@@ -167,8 +175,20 @@ python scripts/recalibrate.py ~/Downloads/demo_02.mp4   # 拿参考片重量一�
 2. **量参考片**（如果第 1 步没给，或想重新量）：
    `python scripts/analyze_reference.py REF.mp4 --out work/reference-teardown.json --frames work/ref-frames`。
    读 [references/reference-teardown.md](references/reference-teardown.md) 理解每个字段怎么用、哪些量不准。
+   **参考片是抖音链接或需要整片拆解时**，改用：
+   `python scripts/reference_intake.py "https://v.douyin.com/xxxx/" -p DIR`
+   （`--no-llm` 不调视觉模型，`--no-asr` 不转写，`--force` 重算）。
+   它写出 `DIR/work/reference/REPORT.md`、`reference-profile.json`、接触表和每镜三联图；
+   没装 ASR / 没 Key / 某批拆解失败会进报告的「未检查」，不会被写成通过。
+   `new_project.py` / `auto_film.py` 的 `--reference` 也接受链接或该目录，传目录时直接复用
+   `teardown.json`，不重复抽帧。
 3. **写 `config.json`**。字段全表见 [references/config-schema.md](references/config-schema.md)，
    成品样例见 [examples/config.example.json](examples/config.example.json)。
+   字体可选：`python scripts/font_pick.py DIR --reference DIR/work/reference --apply`
+   会读参考片风格，从本机 CJK 字体 + emfont 在线库选一款，写 `captions.font`。
+   AI 只从候选闭集里选，没 Key 回退本地打分；项目有 `work/style-lock.json` 时默认不换字体，
+   `--force` 才会写并让 `style check` 变红。字体授权、emfont 子集和未检查项见
+   [docs/font-picker.md](docs/font-picker.md)。
 4. **写字幕** `input/captions.srt`。用轻量标记表达设计意图，不要在 config 里再维护一份行号映射表：
    - `[[词]]` → 正向强调色（参考片里的黄）
    - `((词))` → 反差强调色（参考片里的粉）
@@ -206,6 +226,8 @@ python scripts/recalibrate.py ~/Downloads/demo_02.mp4   # 拿参考片重量一�
 | `auto_film.py` | **全自动**：素材 → 候选镜头 → 导演决策 → 粗剪 / 字幕 / 旁白 / 包装 → 逐镜头草稿 + mp4 预览 → 质检修复 |
 | `analyze_pacing.py` | 自适应切点 / 镜长分布 / VFR / LUFS；给风格规则提供锚点 |
 | `analyze_reference.py` | 量参考片：切点 / 强调色 / 卡片几何 / 画中画 / 字幕带 |
+| `reference_intake.py` | 抖音链接/本地参考片 → 原片、节奏、三联图、接触表、转写、结构、`REPORT.md` |
+| `font_pick.py` | 按参考片分析从本机字体/emfont 选字幕字体；可写 `captions.font`，受 style-lock 约束 |
 | `check_measured.py` | 校验实测常量还和登记表一致（防漂移，已接进 verify 第 19 项） |
 | `recalibrate.py` | 拿参考片把实测常量重量一遍，报与登记表的差异 |
 | `list_fonts.py` | 列出可用字体族名（中英文）与 `captions.font` 该写什么 |

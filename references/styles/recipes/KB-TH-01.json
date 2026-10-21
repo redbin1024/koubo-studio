@@ -2,10 +2,10 @@
   "schema_version": 1,
   "id": "KB-TH-01",
   "name": "暖食玻璃卡",
-  "version": "1.2.3",
+  "version": "1.2.8",
   "readiness": {
     "status": "visual_review_pending",
-    "scope": "4105 全功能版：d08 参考版，玻璃卡加两层错位叠卡；云端配乐；无片头标题；editorial 插图；QC 待复验。"
+    "scope": "4105 字体生效版：草稿字体同时写本机 Songti 路径与云 resource；叠卡/实拍 CTA/云端配乐。"
   },
   "provenance": {
     "source_project": "4105-全功能版",
@@ -31,7 +31,7 @@
       "fps": 30
     },
     "captions": {
-      "font": "Noto Sans CJK SC Black",
+      "font": "Songti SC Black",
       "size": 90,
       "outline": 8,
       "shadow": 4,
@@ -62,6 +62,11 @@
         "contrast": "#FF6284",
         "gold": "#F2D26A",
         "outline": "#000000"
+      },
+      "jianying_font": {
+        "name": "SourceHanSerifCN-Medium",
+        "resource_id": "7265597365539574329",
+        "path": "/System/Library/Fonts/Supplemental/Songti.ttc"
       }
     },
     "card": {
@@ -118,10 +123,6 @@
         {
           "name": "光晕",
           "intensity": 0.25
-        },
-        {
-          "name": "扫描光条",
-          "intensity": 0.18
         }
       ],
       "filters": [

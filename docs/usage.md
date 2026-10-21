@@ -57,7 +57,8 @@ koubo new my-video --clips 1.mp4 2.mp4 --mode vlog
 - `--video`：单条口播素材，相对路径从 `input/` 找，也可用绝对路径。
 - `--clips`：多段素材，先拼接 / 粗剪。
 - `--mode talking-head|vlog`：决定默认语音目标（口播 `source`，Vlog `narration`）。
-- `--reference`：自动量参考片，并把卡片几何、画中画位置、强调色写进 `config.json`。
+- `--reference`：自动量参考片，并把卡片几何、画中画位置、强调色写进 `config.json`；
+  也接受抖音分享链接或 `koubo reference` 的产出目录（传目录时直接复用 `teardown.json`）。
 - `--aspect 9:16|16:9`：画布比例。
 
 单独量参考片：
@@ -69,6 +70,27 @@ koubo analyze ~/Movies/参考片.mp4 \
 ```
 
 量出来的字段怎么用、哪些量不准，见 [reference-teardown.md](../references/reference-teardown.md)。
+
+参考片是抖音链接，或想要整片拆解（切镜、三联图、口播、结构）时：
+
+```bash
+koubo reference "https://v.douyin.com/xxxx/" -p my-video
+# → my-video/work/reference/REPORT.md + reference-profile.json + contact-sheet.jpg
+```
+
+它取原片失败会明确报错，不会拿空数据继续；没装 ASR / 没有 Key / 某批拆解失败会写进
+报告的「未检查」。完整说明见 [抖音参考片入库](reference-intake.md)。
+
+选字幕字体（按参考片分析，本机字体 + emfont）：
+
+```bash
+koubo font-pick my-video                  # 只出建议
+koubo font-pick my-video --apply          # 写 config.captions.font
+koubo font-pick my-video --library local --no-llm   # 不联网、不调 AI
+```
+
+字体属于 style-lock 的风格投影：项目绑定 `work/style-lock.json` 时默认不换字体；
+要用 `--force` 并接受 `koubo style check` 红项。完整说明见 [按参考片选字体](font-picker.md)。
 
 > 参考片只用来**取数**，任何一帧都不会进成片。
 
@@ -474,6 +496,7 @@ koubo run my-video
 | `KOUBO_FFMPEG` / `KOUBO_FFPROBE` | 指定 ffmpeg / ffprobe |
 | `KOUBO_FONTS_DIR` | 给 libass 的 fontsdir |
 | `KOUBO_FONT_DIRS` | 额外字体目录，冒号分隔 |
+| `EMFONT_API_BASE` | emfont API 地址（默认 `https://font.emtech.cc`；可指向本地镜像） |
 | `KOUBO_EMOJI_FONT` | 指定 emoji 字体 |
 | `KOUBO_CAPCUT` | 指定 capcut 可执行文件 |
 | `KOUBO_JY_STORE` | 指定剪映草稿箱 |

@@ -207,21 +207,40 @@ def _reset_work(project: Path) -> None:
 
 # ---------------------------------------------------------------- 工程与素材
 
-def _measure_reference(project: Path, reference: Path) -> dict:
+def _measure_reference(project: Path, reference) -> dict:
+    """reference 可以是本地文件、抖音链接，或 `koubo reference` 的产出目录。"""
+    from workflow.reference_source import ReferenceSourceError, prepare_reference
     p = project_paths(project)
+    try:
+        prepared = prepare_reference(reference, p["work"])
+    except ReferenceSourceError as exc:
+        raise AutoError(f"参考片取不到：{exc}") from exc
+    if prepared.get("teardown"):
+        print(f"  复用参考片档案 → {prepared.get('profile') or prepared['teardown']}")
+        return prepared["teardown"]
+    video = prepared.get("video")
+    if not video or not Path(video).is_file():
+        raise AutoError("参考片没有可分析的视频文件")
     out = p["work"] / "reference-teardown.json"
     print(f"  量参考片 → {out}")
     proc = subprocess.run(
         [sys.executable, str(Path(__file__).parent / "analyze_reference.py"),
-         str(reference), "--out", str(out), "--frames", str(p["work"] / "ref-frames")],
+         str(video), "--out", str(out), "--frames", str(p["work"] / "ref-frames")],
         capture_output=True, text=True)
     if proc.returncode != 0:
         tail = "\n".join((proc.stderr or proc.stdout or "").strip().splitlines()[-6:])
         raise AutoError(f"参考片拆解失败：\n{tail}")
     try:
-        return json.loads(out.read_text(encoding="utf-8"))
+        teardown = json.loads(out.read_text(encoding="utf-8"))
     except (OSError, ValueError) as exc:
         raise AutoError(f"参考片拆解结果读不了：{exc}") from exc
+    card = (teardown or {}).get("card") or {}
+    try:
+        if float(card.get("area") or 0) > 0.55:
+            print("  ⚠ 检出的卡片占满画面，更像背景；已忽略卡片与画中画")
+    except (TypeError, ValueError):
+        pass
+    return teardown
 
 
 def _resolve_clips(args, project: Path) -> list[Path]:
@@ -270,8 +289,7 @@ def _load_or_build_config(args, project: Path, clips: list[Path]) -> dict:
 
     if args.force:
         _reset_work(project)
-    teardown = _measure_reference(project, Path(args.reference).expanduser().resolve()) \
-        if args.reference else None
+    teardown = _measure_reference(project, args.reference) if args.reference else None
     mode_hint = args.mode if args.mode != "auto" else ("vlog" if len(clips) > 1 else "talking-head")
     cfg = build_config(project.name, _aspect(clips),
                        str(clips[0]) if len(clips) == 1 else None,
@@ -913,12 +931,15 @@ def main() -> None:
     ap.add_argument("project")
     ap.add_argument("--video", help="单条口播/素材路径")
     ap.add_argument("--clips", nargs="+", help="多段素材路径（Vlog）")
-    ap.add_argument("--reference", help="参考片；只取字幕几何、配色与布局数值")
+    ap.add_argument("--reference",
+                    help="参考片：本地路径 / 抖音链接 / koubo reference 产出目录；只取几何与配色")
     ap.add_argument("--mode", choices=("auto", "talking-head", "vlog"), default="auto")
     ap.add_argument("--asr-model", default=ASR_DEFAULT,
                     help=f"faster-whisper 模型（默认 {ASR_DEFAULT}；可选 large-v3）")
     ap.add_argument("--llm-model", default=LLM_DEFAULT)
     ap.add_argument("--no-llm", action="store_true", help="不调用云端模型，只用本地规则")
+    ap.add_argument("--font", choices=("keep", "auto"), default="keep",
+                    help="keep 保留 config 字体；auto 按参考片分析选字体（受 style-lock 约束）")
     ap.add_argument("--no-narration", action="store_true", help="无声素材也不生成旁白")
     ap.add_argument("--captions", choices=("generated", "burned-in", "none"), default=None,
                     help="画面字幕模式：生成 / 源片已烧录 / 不要字幕（默认 generated）")
@@ -955,6 +976,20 @@ def main() -> None:
         cfg.setdefault("captions", {})["mode"] = args.captions
     mode = _resolve_mode(clips, args.mode)
     cfg["mode"] = mode
+    if args.font == "auto":
+        from workflow import font_picker
+        profile_dir = project_paths(project)["work"] / "reference"
+        try:
+            picked = font_picker.select(
+                project, profile_dir if profile_dir.is_dir() else None,
+                no_llm=args.no_llm, force=False, log=print)
+            picked = font_picker.apply_selection(project, picked, force=False, log=print)
+            if picked.get("applied"):
+                print(f"  字体 → {picked['applied']['font']}")
+            elif picked.get("apply_blocked"):
+                print(f"  字体未改：{picked['apply_blocked']['reason']}")
+        except Exception as exc:  # 字体不是出片前置条件
+            print(f"  ⚠ 字体选择跳过：{exc}")
     print(f"  素材 {len(clips)} 条 / 模式 {mode} / 画布 {cfg['canvas']['width']}x"
           f"{cfg['canvas']['height']}")
 

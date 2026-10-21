@@ -41,7 +41,7 @@ def projection(cfg: dict) -> dict:
     cap_style = _pick(cap, ["font", "size", "outline", "shadow", "spacing",
                             "margin_lr", "margin_v", "max_width", "fade_in_ms",
                             "fade_out_ms", "anim_ms", "layout", "burn",
-                            "big", "hook", "palette"])
+                            "big", "hook", "palette", "jianying_font"])
     card = cfg.get("card") or {}
     card_style = _pick(card, ["fill", "edge", "radius", "edge_width", "wipe",
                               "box_dur", "row_enter", "box", "stack", "stack_offset"])

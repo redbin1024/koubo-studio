@@ -8,13 +8,15 @@
 scripts/
 ├── *.py                 # 命令入口：argparse、读 config、调用 workflow
 ├── auto_film.py         # 全自动编排：候选 → 导演 → 粗剪 → 字幕/声音 → 质检修复
-├── workflow/            # 可复用实现：镜头表、字幕计划、自动导演、自动旁白、draft-spec、draft-audit、visual-contract、交付凭据
+├── reference_intake.py  # 参考片入库：抖音链接/本地文件 → 切镜、转写、结构、REPORT
+├── font_pick.py         # 按参考片分析选字体：本机 CJK + emfont，受 style-lock 约束
+├── workflow/            # 可复用实现：镜头表、字幕计划、自动导演、自动旁白、字体选择、draft-spec、draft-audit、visual-contract、交付凭据
 ├── _common.py           # ffmpeg/字体定位、默认值、房规、时间码、SRT 解析
 └── compat 模块          # edit_plan.py / visual_analysis.py / storyboard.py 只做再导出
 
 references/              # 数值正本、字段说明、踩坑记录、跨文件规矩登记
 examples/                # 脱敏示例
-tests/                   # 回归测试（176 项）
+tests/                   # 回归测试（239 项）
 assets/sfx/              # 可商用真实音效采样
 ```
 
@@ -54,7 +56,7 @@ align → merge → narrate → voice → captions → assets → sfx → music
 | `merge` | `input/clean-cut.mp4`、`work/edit-plan.json` | 按镜头表粗剪 |
 | `narrate` / `voice` | `work/voice.wav`、旁白字幕 | 解说只落在解说槽 |
 | `captions` | `input/*.ass`、`work/style-plan.json` | 逐条样式计划，mp4 与草稿共用 |
-| `assets` | `assets/insert-*.png` | 插图全部脚本现画 |
+| `assets` | `assets/insert-*.png` | 卡片/图窗由脚本画；插图优先真实静帧，SVG 仅概念图 |
 | `sfx` / `music` | `work/sfx-track.wav`、`work/bgm.wav` | 真实采样 / 本地合成 |
 | `frames` | `work/body-anim-silent.mp4`、`work/graded.mp4` | 逐帧合成包装层 |
 | `render` | `output/final-*.mp4` | 烧字幕 + 混音 + 响度归一 |

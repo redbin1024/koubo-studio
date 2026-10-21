@@ -653,6 +653,12 @@ def build(cfg: dict, project: Path, name: str | None, install: bool,
     if report.get("installed_to"):
         set_text_line_spacing(Path(report["installed_to"]), spacing)
     report["text_line_spacing"] = spacing
+    jy_font = (cfg.get("captions") or {}).get("jianying_font") or {}
+    if jy_font.get("resource_id") or jy_font.get("path"):
+        applied = set_text_font(proj, jy_font)
+        if report.get("installed_to"):
+            set_text_font(Path(report["installed_to"]), jy_font)
+        report["text_font"] = applied
     report["tracks"]["stickers"] = sticker_count
 
     # 9. 草稿审计：和 draft-spec 对账。失败不在这里抛，交给 verify 的 draft-audit 红项，
@@ -706,6 +712,47 @@ def verify_timeline(cap: Capcut, proj: Path, total: float, want_texts: int) -> d
     if texts != want_texts:
         raise SystemExit(f"字幕条数对不上：草稿 {texts} / SRT {want_texts}")
     return {"end": end, "texts": texts}
+
+
+def set_text_font(proj: Path, font: dict) -> dict:
+    """把字体写进剪映文本材质和 content.styles[].font。
+
+    CapCut 不是读 config.captions.font；它读 draft 里的 font_id/font_resource_id
+    和 content 的 per-range font。缺这两处，预览/导出就会退回默认字体。
+    """
+    path = Path(proj) / "draft_content.json"
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {"applied": 0, "error": "draft_content.json 读不出来"}
+    resource_id = "" if font.get("path") else str(font.get("resource_id") or "")
+    font_path = str(font.get("path") or "")
+    name = str(font.get("name") or "")
+    count = 0
+    for material in (data.get("materials") or {}).get("texts") or []:
+        if font_path:
+            # 本机字体：按 CapCut draft schema 只写 font_path，不写 cloud id。
+            for key in ("font_id", "font_resource_id", "font_name"):
+                material.pop(key, None)
+            material["font_path"] = font_path
+        else:
+            material["font_id"] = resource_id
+            material["font_resource_id"] = resource_id
+            material["font_name"] = name
+            material["font_path"] = ""
+        try:
+            content = json.loads(material.get("content") or "{}")
+        except (TypeError, ValueError):
+            continue
+        for style in content.get("styles") or []:
+            # CapCut 云字体用 drive-only 占位 path；空 path 会被当成无效字体回退。
+            style["font"] = {"id": resource_id,
+                             "path": font_path or ("D:" if resource_id else "")}
+        material["content"] = json.dumps(content, ensure_ascii=False)
+        count += 1
+    path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n",
+                    encoding="utf-8")
+    return {"applied": count, "resource_id": resource_id, "name": name}
 
 
 def set_text_line_spacing(proj: Path, spacing: float) -> None:
