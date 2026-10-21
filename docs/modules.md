@@ -111,6 +111,8 @@ new_project / auto_film
 | `make_bgm.py` | 本地合成 BGM |
 | `music_library.py` | 扫描剪映 music_id、选曲、下载 BGM |
 | `mixkit.py` | 搜索/下载 Mixkit 视频/音乐/音效，可写 B-roll/BGM |
+| `audio_beats.py` | 口播/promo 真重音 → `work/beats.json` |
+| `failure_bundle.py` | 失败时保存配置/QC/日志/接触表 |
 | `workflow/loudness.py` | 响度/真峰归一 |
 | `review_voice.py` / `export_voice_review.py` | 逐句听审 |
 

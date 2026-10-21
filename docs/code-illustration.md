@@ -71,8 +71,13 @@ python scripts/render_motion.py assets/motion/steam.html \
 - 图窗裁切支持 `illustration_focus: [x,y]`，不再永远居中。
 
 ```bash
+# 指定时间
 python scripts/extract_still.py 接送-品牌版 --time 9.2 \
   --out stills/clean-9.2.jpg --focus 0.56,0.4
+
+# 自动扫 10 帧，按清晰度/亮度挑最佳
+python scripts/extract_still.py 接送-品牌版 --scan 10 \
+  --out stills/best.jpg --focus 0.56,0.4
 ```
 
 ## 设计 token

@@ -334,6 +334,7 @@ Vlog 会先完成粗剪、画面/文案审核，再生成旁白；缺语音会�
 | [工作流与模块地图](docs/modules.md) | 当前插画来源、每步入口、模块何时使用 |
 | [Canvas 动效](docs/motion.md) | `renderAt(t)` → ProRes 4444 overlay 的约定 |
 | [HyperFrames 评估](docs/hyperframes-evaluation.md) | 视频优先下 HTML/GSAP 渲染器的主链评估、10 秒验证清单 |
+| [音频真重音](docs/beats.md) | 80ms RMS + 邻域中位数找重音，供卡点/切点参考 |
 | [Mixkit 免费素材](docs/mixkit.md) | 搜索/下载 stock video、music、SFX，记录许可 |
 | [剪映云端音乐库](docs/music-library.md) | 扫描历史 music_id、搜索、选曲、下载为 BGM |
 | [按内容匹配风格](docs/style-match.md) | 字幕/镜头表 → 参考风格排序 + CapCut 改编动作 |

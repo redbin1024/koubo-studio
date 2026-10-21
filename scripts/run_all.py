@@ -30,7 +30,8 @@ import build_frames, make_assets, make_captions, make_jianying_draft, make_sfx, 
 # narrate / voice 排在 captions 之前：跨字幕集的重叠预检要用到 input/voice-captions.srt，
 # 而旁白字幕只有配音那一步才写得出来。
 STEPS = ("align", "merge", "narrate", "voice", "captions", "assets", "sfx", "music",
-         "frames", "render", "draft", "visual-review", "verify", "review-outputs", "review")
+         "beats", "frames", "render", "draft", "visual-review", "verify",
+         "review-outputs", "review")
 
 
 def wants_narration(cfg: dict) -> bool:
@@ -242,6 +243,10 @@ def main() -> None:
                     continue
                 import make_bgm
                 result = make_bgm.build(cfg, project)
+            elif step == "beats":
+                from workflow.audio_beats import build as build_beats
+                result = build_beats(project)
+                print(f"  真重音 {len(result.get('beats') or [])} 个 → work/beats.json")
             elif step == "frames":
                 result = build_frames.build(cfg, project, resolve_duration(cfg, project))
             elif step == "render":
@@ -288,6 +293,12 @@ def main() -> None:
             print(f"  ✗ {e}")
             log["steps"].append({"step": step, "status": "failed", "error": str(e)})
             write_json(p["work"] / "pipeline.json", log)
+            try:
+                from workflow.failure_bundle import capture
+                failure = capture(project, step, str(e))
+                print(f"  失败现场 → {failure}")
+            except Exception as bundle_error:  # 诊断包不能遮蔽原始错误
+                print(f"  ⚠ 失败现场未保存：{bundle_error}")
             raise
         dt = time.time() - t0
         log["steps"].append({"step": step, "status": "ok", "seconds": round(dt, 1),
