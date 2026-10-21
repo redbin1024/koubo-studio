@@ -12,7 +12,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-CACHE_DIRS = ("work/auto-edit-pro",)
+CACHE_DIRS = ("work/auto-edit-pro", "work/segments", "work/tests")
 
 
 def size(path: Path) -> int:
