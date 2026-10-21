@@ -290,6 +290,7 @@ Vlog 会先完成粗剪、画面/文案审核，再生成旁白；缺语音会�
 | `koubo draft DIR` | 装配剪映草稿 + draft-spec/audit |
 | `koubo visual-review DIR` | 生成包装层视觉审查包（72% 静帧 / 完整片段 / 联系表） |
 | `koubo style bind DIR --style KB-TH-01 --choice-source "..."` | 锁定固定口播风格，参数漂移即红项 |
+| `koubo mixkit search / download / broll / bgm` | Mixkit 免费视频/音乐/音效 |
 | `koubo music scan / search / pick` | 扫描剪映历史音乐 ID，搜索并选曲 |
 | `koubo style-match DIR --catalog ...` | 按内容匹配参考风格并给改编动作 |
 | `koubo review-outputs DIR --md` | 文字/声音/插画/视频四道审查门 |
@@ -333,6 +334,7 @@ Vlog 会先完成粗剪、画面/文案审核，再生成旁白；缺语音会�
 | [工作流与模块地图](docs/modules.md) | 当前插画来源、每步入口、模块何时使用 |
 | [Canvas 动效](docs/motion.md) | `renderAt(t)` → ProRes 4444 overlay 的约定 |
 | [HyperFrames 评估](docs/hyperframes-evaluation.md) | 视频优先下 HTML/GSAP 渲染器的主链评估、10 秒验证清单 |
+| [Mixkit 免费素材](docs/mixkit.md) | 搜索/下载 stock video、music、SFX，记录许可 |
 | [剪映云端音乐库](docs/music-library.md) | 扫描历史 music_id、搜索、选曲、下载为 BGM |
 | [按内容匹配风格](docs/style-match.md) | 字幕/镜头表 → 参考风格排序 + CapCut 改编动作 |
 | [参考项目名单](docs/reference-projects.md) | 吸收过哪些项目、commit、许可证和边界 |

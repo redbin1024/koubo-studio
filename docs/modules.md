@@ -43,7 +43,7 @@ new_project / auto_film
 | SVG 插画 | `render_illustrations.py`、`render_svg.py` | Playwright | 没有实拍、只需要概念/章节图 |
 | 动效 overlay | `render_motion.py` | Playwright + ffmpeg | HTML/Canvas → ProRes 4444 alpha |
 | 音效 | `make_sfx.py` | `assets/sfx` | 需要落点音效 |
-| BGM | `make_bgm.py` 或 `music_library.py` | 合成 / 剪映曲库 | 零版权床垫，或从曲库选曲 |
+| BGM | `make_bgm.py` / `music_library.py` / `mixkit.py` | 合成 / 剪映曲库 / Mixkit | 零版权床垫、剪映选曲或 Mixkit 免费音乐 |
 | 逐帧合成 | `build_frames.py` | `caption_layer` / `advanced_fx` / `broll` | 卡片、字幕、调色、模糊底 |
 | 成片 | `render.py` | `loudness` | 混音、响度归一、烧字幕 |
 | 剪映草稿 | `make_jianying_draft.py` | `draft_spec` / `jy_hybrid` | 每轮必出；可继续手改 |
@@ -110,6 +110,7 @@ new_project / auto_film
 | `make_sfx.py` | 音效轨 |
 | `make_bgm.py` | 本地合成 BGM |
 | `music_library.py` | 扫描剪映 music_id、选曲、下载 BGM |
+| `mixkit.py` | 搜索/下载 Mixkit 视频/音乐/音效，可写 B-roll/BGM |
 | `workflow/loudness.py` | 响度/真峰归一 |
 | `review_voice.py` / `export_voice_review.py` | 逐句听审 |
 

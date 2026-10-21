@@ -218,6 +218,12 @@ def main() -> None:
                     log["steps"].append({"step": step, "status": "skipped"})
                     continue
                 want = resolve_duration(cfg, project)
+                if bgm_cfg.get("source") == "mixkit":
+                    if not out.is_file():
+                        raise SystemExit(f"audio.bgm.source=mixkit，但缺 {out}；先跑 koubo mixkit bgm")
+                    print(f"  Mixkit BGM：{bgm_cfg.get('title', '')}（沿用 work/bgm.wav）")
+                    log["steps"].append({"step": step, "status": "ok", "source": "mixkit"})
+                    continue
                 if bgm_cfg.get("music_id"):
                     import music_library
                     cloud = music_library.prepare(cfg, project, want)
