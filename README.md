@@ -294,6 +294,8 @@ Vlog 会先完成粗剪、画面/文案审核，再生成旁白；缺语音会�
 | `koubo music scan / search / pick` | 扫描剪映历史音乐 ID，搜索并选曲 |
 | `koubo style-match DIR --catalog ...` | 按内容匹配参考风格并给改编动作 |
 | `koubo review-outputs DIR --md` | 文字/声音/插画/视频四道审查门 |
+| `koubo preflight DIR` | frames 前校验卡片/插图/B-roll/转场/BGM |
+| `koubo cleanup` | 工作区清理清单（默认 dry-run） |
 | `koubo run DIR` | 跑完整流水线（成片 + 草稿 + 质检） |
 | `koubo verify DIR` | 只跑质检 |
 | `koubo fonts DIR [--all]` | 列出可用字体族名 |
@@ -370,7 +372,7 @@ koubo-studio/
 │   ├── auto_film.py        # koubo auto 全自动编排
 │   ├── koubo.py            # CLI 分发
 │   └── doctor.py           # 环境自检
-├── tests/                  # 247 项回归测试
+├── tests/                  # 248 项回归测试
 ├── references/             # 拆解说明 / 字段表 / 风格语汇 / 踩坑记录
 ├── examples/               # 脱敏示例
 ├── assets/sfx/             # 9 个真实采样（Pixabay Content License）

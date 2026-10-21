@@ -5,7 +5,7 @@
 哪些是自动查过、哪些必须人看/人听，绝不把 unchecked 写成 pass。
 """
 from __future__ import annotations
-import argparse, json, sys
+import argparse, difflib, json, re, sys
 from pathlib import Path
 from PIL import Image
 sys.path.insert(0, str(Path(__file__).parent))
@@ -42,6 +42,32 @@ def _gate(name: str, qc: dict, names: list[str]) -> dict:
     return {"name": name, "status": status, "checks": checks}
 
 
+def _caption_asr(project: Path) -> tuple[float | None, str]:
+    srt = project_paths(project)["input"] / "captions.srt"
+    try:
+        raw = srt.read_text(encoding="utf-8")
+    except OSError:
+        return None, "没有 captions.srt"
+    raw = re.sub(r"^\d+\s*$|^\d\d:\d\d:\d\d[,.]\d+ --> .*$", "", raw, flags=re.M)
+    cap = re.sub(r"\s+|\[\[|\]\]|\{@[^}]+\}", "", raw)
+    try:
+        data = json.loads((project / "work" / "transcript.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None, "没有 work/transcript.json，无法比对字幕与口播"
+    transcript = (str(data.get("text") or "")
+                  if data.get("text") else
+                  "".join(str(w.get("text") or "") for w in data.get("words") or []))
+    transcript = re.sub(r"\s+", "", transcript)
+    if not cap or not transcript:
+        return None, "字幕或转写为空，无法比对"
+    ratio = difflib.SequenceMatcher(None, cap, transcript).ratio()
+    if ratio < 0.35:
+        return False, f"字幕与 ASR 字符相似度 {ratio:.2f}，疑似重写/错位，需人工核对"
+    if ratio < 0.60:
+        return None, f"字幕与 ASR 字符相似度 {ratio:.2f} 偏低，需人工核对"
+    return True, f"字幕与 ASR 字符相似度 {ratio:.2f}"
+
+
 def _illustration_assets(project: Path, cfg: dict) -> list[dict]:
     p = project_paths(project)
     rows = []
@@ -69,6 +95,14 @@ def build(project: Path) -> dict:
     qc = {c["name"]: c for c in qc_rows}
     gates = [_gate("text", qc, TEXT), _gate("audio", qc, AUDIO),
              _gate("illustration", qc, ILLUSTRATION), _gate("video", qc, VIDEO)]
+    asr_ok, asr_detail = _caption_asr(project)
+    gates[0]["checks"].append({"name": "caption-asr-coverage",
+                               "status": "unchecked" if asr_ok is None else ("pass" if asr_ok else "fail"),
+                               "detail": asr_detail})
+    if asr_ok is None and gates[0]["status"] == "pass":
+        gates[0]["status"] = "unchecked"
+    elif asr_ok is False:
+        gates[0]["status"] = "fail"
 
     # 声音：清理记录是证据，不是“已听审”
     clean = _read(p["work"] / "audio-clean.json")

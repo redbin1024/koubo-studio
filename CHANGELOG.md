@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.20.3 — 2026-10-21
+
+### 审查可读性
+
+- `review-outputs` 文字门新增 `caption-asr-coverage`：字幕与 ASR 转写做字符级相似度；
+  <0.35 红项，0.35–0.60 记为 unchecked，>0.60 通过。新片实测 0.86。
+- `koubo preflight` / `koubo cleanup` 增加独立入口。
+- 文档补字幕↔ASR 审查与 preflight/cleanup 命令。
+- 248 项测试。
+
 ## 1.20.2 — 2026-10-21
 
 ### 素材与清理
