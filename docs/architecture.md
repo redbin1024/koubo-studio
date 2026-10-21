@@ -16,7 +16,7 @@ scripts/
 
 references/              # 数值正本、字段说明、踩坑记录、跨文件规矩登记
 examples/                # 脱敏示例
-tests/                   # 回归测试（239 项）
+tests/                   # 回归测试（247 项）
 assets/sfx/              # 可商用真实音效采样
 ```
 
@@ -47,7 +47,8 @@ auto_film.py
 
 ```text
 align → merge → narrate → voice → captions → assets → sfx → music
-      → frames → render → draft → verify → review
+      → beats → preflight → frames → render → draft
+      → visual-review → verify → review-outputs → review
 ```
 
 | 步骤 | 产物 | 说明 |
@@ -57,7 +58,9 @@ align → merge → narrate → voice → captions → assets → sfx → music
 | `narrate` / `voice` | `work/voice.wav`、旁白字幕 | 解说只落在解说槽 |
 | `captions` | `input/*.ass`、`work/style-plan.json` | 逐条样式计划，mp4 与草稿共用 |
 | `assets` | `assets/insert-*.png` | 卡片/图窗由脚本画；插图优先真实静帧，SVG 仅概念图 |
-| `sfx` / `music` | `work/sfx-track.wav`、`work/bgm.wav` | 真实采样 / 本地合成 |
+| `sfx` / `music` | `work/sfx-track.wav`、`work/bgm.wav` | 真实采样 / 本地合成 / 剪映曲库 / Mixkit |
+| `beats` | `work/beats.json` | 音频真重音，供卡点参考；不改切点 |
+| `preflight` | 无（失败即停） | 卡片/插图/B-roll/转场/BGM 长度提前校验 |
 | `frames` | `work/body-anim-silent.mp4`、`work/graded.mp4` | 逐帧合成包装层 |
 | `render` | `output/final-*.mp4` | 烧字幕 + 混音 + 响度归一 |
 | `draft` | `draft-store/<名字>/`、剪映草稿箱 | 每轮必出，不是可选项 |

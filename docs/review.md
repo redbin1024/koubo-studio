@@ -35,6 +35,12 @@ illustration  unchecked  卡段渲染通过；素材审美/版权需人眼
 video         unchecked  技术项通过；节奏/构图需人看
 ```
 
+## 已知假阳性：草稿字体
+
+`verify` 的 `draft-font` 只检查 `draft_content.json` 字段，不能证明 JianYing 真的用了字体。
+JianYing 11.6 的 `draft_info.json` 加密，生成器无法验证；所以该检查现在是
+**`unchecked`**，不是 `pass`。要确认字体，必须人工打开草稿看，或做烧录版。
+
 ## 边界
 
 - 文字审查是 **token 级品牌/承诺依据检查**，不是语义事实核查；

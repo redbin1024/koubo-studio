@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.20.1 — 2026-10-21
+
+### 健壮性与收口
+
+- `draft-font` 不再假 pass：字段已写入但 JianYing 11.6 加密，改为 `unchecked`。
+- `run_all` 所有异常都写失败现场包，不再只捕获 `SystemExit`。
+- 新增 `preflight`：卡片/插图/B-roll/转场/BGM 长度在 frames 前报错。
+- `claims.allow`：既有品牌 CTA 可人工列入白名单，但结果是 `unchecked`，不是通过。
+- 删除一次性 `render_caption_overlays.py`。
+- README/架构/模块文档补 `beats`、`preflight`、`review-outputs`，测试数改 247。
+- 新增 grounding allowlist 测试。
+
 ## 1.20.0 — 2026-10-21
 
 ### 插画/视觉与音频收口

@@ -554,10 +554,16 @@ def run_checks(cfg: dict, project: Path) -> dict:
                         bad.append("content.styles.font.id")
                     if want_path and str(got.get("path") or "") != want_path:
                         bad.append("content.styles.font.path")
-            ok = bool(texts) and not bad
-            add("draft-font", ok,
-                f"{jy_font.get('name') or want_id} 已写入 {len(texts)} 条文本"
-                if ok else f"草稿字体没写全：{'、'.join(sorted(set(bad))[:3]) or '没有文本材质'}")
+            fields_ok = bool(texts) and not bad
+            if not fields_ok:
+                add("draft-font", False,
+                    f"草稿字体没写全：{'、'.join(sorted(set(bad))[:3]) or '没有文本材质'}")
+            else:
+                # 字段写对不等于剪映真的用了：JianYing 11.6 的 draft_info 加密，
+                # 生成器无法验证实际渲染，不能把这一项报成 pass。
+                add("draft-font", None,
+                    f"{jy_font.get('name') or want_id} 字段已写入 {len(texts)} 条文本；"
+                    "JianYing 11.6 加密 draft_info，实际字体需打开草稿人工确认")
         except (OSError, ValueError) as exc:
             add("draft-font", False, f"读不了草稿字体（{exc}）")
 

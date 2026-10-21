@@ -47,7 +47,15 @@ def check(cfg: dict, project: Path) -> tuple[bool | None, str]:
     if not transcript:
         return None, "没有 work/transcript.json，无法核对品牌/承诺是否被口播"
     visible = _visible(cfg, project)
-    missing = [tok for tok in CLAIM_TOKENS if tok in visible and tok not in transcript]
+    allow = {str(x) for x in ((cfg.get("claims") or {}).get("allow") or [])}
+    missing = [tok for tok in CLAIM_TOKENS
+               if tok in visible and tok not in transcript and tok not in allow]
     if missing:
         return False, f"上屏出现未口播的品牌/承诺词：{'、'.join(missing)}"
+    allowed_hits = [tok for tok in CLAIM_TOKENS
+                    if tok in visible and tok not in transcript and tok in allow]
+    if allowed_hits:
+        return None, (
+            f"上屏词 {'、'.join(allowed_hits)} 已列入 claims.allow；"
+            "这是人工保留，不是口播依据，仍需人签收")
     return True, "上屏品牌/承诺词均能在口播转写中找到"

@@ -30,8 +30,8 @@ import build_frames, make_assets, make_captions, make_jianying_draft, make_sfx, 
 # narrate / voice 排在 captions 之前：跨字幕集的重叠预检要用到 input/voice-captions.srt，
 # 而旁白字幕只有配音那一步才写得出来。
 STEPS = ("align", "merge", "narrate", "voice", "captions", "assets", "sfx", "music",
-         "beats", "frames", "render", "draft", "visual-review", "verify",
-         "review-outputs", "review")
+         "beats", "preflight", "frames", "render", "draft", "visual-review",
+         "verify", "review-outputs", "review")
 
 
 def wants_narration(cfg: dict) -> bool:
@@ -247,6 +247,14 @@ def main() -> None:
                 from workflow.audio_beats import build as build_beats
                 result = build_beats(project)
                 print(f"  真重音 {len(result.get('beats') or [])} 个 → work/beats.json")
+            elif step == "preflight":
+                from workflow.preflight import check as preflight
+                result = preflight(project)
+                if result["errors"]:
+                    raise SystemExit("；".join(result["errors"]))
+                for warning in result.get("warnings") or []:
+                    print(f"  ⚠ {warning}")
+                print(f"  预检通过（B-roll {result['broll']} / 草稿资源 {result['fx']}）")
             elif step == "frames":
                 result = build_frames.build(cfg, project, resolve_duration(cfg, project))
             elif step == "render":
@@ -289,13 +297,16 @@ def main() -> None:
                 except (ValueError, subprocess.CalledProcessError) as exc:
                     raise SystemExit(str(exc)) from exc
                 print(f"  {result['lines']} 句 → {result['directory']}")
-        except SystemExit as e:
+        except (SystemExit, Exception) as e:
+            # SystemExit 是预期的配置/渲染错误；其他异常同样要留下现场，
+            # 不能只打印 traceback 就丢掉本轮的 QC/日志/接触表。
             print(f"  ✗ {e}")
-            log["steps"].append({"step": step, "status": "failed", "error": str(e)})
+            log["steps"].append({"step": step, "status": "failed",
+                                 "error": f"{type(e).__name__}: {e}"})
             write_json(p["work"] / "pipeline.json", log)
             try:
                 from workflow.failure_bundle import capture
-                failure = capture(project, step, str(e))
+                failure = capture(project, step, f"{type(e).__name__}: {e}")
                 print(f"  失败现场 → {failure}")
             except Exception as bundle_error:  # 诊断包不能遮蔽原始错误
                 print(f"  ⚠ 失败现场未保存：{bundle_error}")

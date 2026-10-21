@@ -179,5 +179,6 @@ koubo reference "https://v.douyin.com/xxxx/" -p my-video --pick-font
 ```
 
 `make_jianying_draft` 会把 resource_id 写进文本材质和每个 range 的 `font`；
-`verify` 的 `draft-font` 逐条核对。resource_id 必须在
-`capcut enums --fonts --jianying` 的列表里，否则剪映会回退默认字体。
+`verify` 的 `draft-font` 只能核对字段是否写入，**不能证明剪映真的用了字体**。
+JianYing 11.6 的 `draft_info.json` 加密，生成器无法验证实际渲染；
+所以该检查是 `unchecked`，要人工打开草稿确认，或做烧录版。
