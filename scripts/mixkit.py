@@ -7,11 +7,14 @@ Mixkit 是 Envato 的免费素材站：脚本只抓公开页面/下载地址，�
 from __future__ import annotations
 
 import argparse
+import hashlib
 import html as html_mod
 import json
+import os
 import re
 import subprocess
 import sys
+import time
 import urllib.parse
 import urllib.request
 from pathlib import Path
@@ -33,25 +36,42 @@ KIND_PATHS = {
     "sfx": "free-sound-effects",
 }
 MAX_BYTES = 200 * 1024 * 1024
+CACHE_DIR = Path(os.environ.get("KOUBO_MIXKIT_CACHE", Path.home() / ".cache" / "koubo" / "mixkit"))
+CACHE_TTL = 3600
 
 
 class MixkitError(RuntimeError):
     pass
 
 
+def _cache_path(url: str) -> Path:
+    return CACHE_DIR / (hashlib.sha256(url.encode()).hexdigest()[:20] + ".html")
+
+
 def _get(url: str, *, timeout: int = 30) -> str:
-    req = urllib.request.Request(url, headers={"User-Agent": UA})
-    try:
-        with urllib.request.urlopen(req, timeout=timeout) as response:
-            raw = response.read(MAX_BYTES + 1)
-            ctype = (response.headers.get("Content-Type") or "").lower()
-    except Exception as exc:  # noqa: BLE001
-        raise MixkitError(f"Mixkit 请求失败 {url}: {type(exc).__name__}: {exc}") from exc
-    if len(raw) > MAX_BYTES:
-        raise MixkitError("页面超过 200MB，拒绝")
-    if "text/html" not in ctype and "json" not in ctype:
-        raise MixkitError(f"Mixkit 返回非 HTML/JSON：{ctype}")
-    return raw.decode("utf-8", "ignore")
+    CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    cached = _cache_path(url)
+    if cached.is_file() and time.time() - cached.stat().st_mtime < CACHE_TTL:
+        return cached.read_text(encoding="utf-8", errors="ignore")
+    last: Exception | None = None
+    for attempt in range(2):
+        req = urllib.request.Request(url, headers={"User-Agent": UA})
+        try:
+            with urllib.request.urlopen(req, timeout=timeout) as response:
+                raw = response.read(MAX_BYTES + 1)
+                ctype = (response.headers.get("Content-Type") or "").lower()
+            if len(raw) > MAX_BYTES:
+                raise MixkitError("页面超过 200MB，拒绝")
+            if "text/html" not in ctype and "json" not in ctype:
+                raise MixkitError(f"Mixkit 返回非 HTML/JSON：{ctype}")
+            text = raw.decode("utf-8", "ignore")
+            cached.write_text(text, encoding="utf-8")
+            return text
+        except Exception as exc:  # noqa: BLE001
+            last = exc
+            if attempt == 0:
+                time.sleep(0.6)
+    raise MixkitError(f"Mixkit 请求失败 {url}: {type(last).__name__}: {last}") from last
 
 
 def _jsonld(page: str) -> list:
@@ -204,17 +224,23 @@ def _safe_stem(item: dict, fallback: str) -> str:
 
 def _download_file(url: str, dest: Path) -> Path:
     dest.parent.mkdir(parents=True, exist_ok=True)
-    req = urllib.request.Request(url, headers={"User-Agent": UA, "Referer": BASE + "/"})
-    try:
-        with urllib.request.urlopen(req, timeout=60) as response:
-            ctype = (response.headers.get("Content-Type") or "").lower()
-            if ctype.startswith(("text/html", "application/json")):
-                raise MixkitError(f"下载地址返回 {ctype}")
-            data = response.read(MAX_BYTES + 1)
-    except Exception as exc:  # noqa: BLE001
-        if isinstance(exc, MixkitError):
-            raise
-        raise MixkitError(f"下载失败：{type(exc).__name__}: {exc}") from exc
+    data = None
+    last: Exception | None = None
+    for attempt in range(2):
+        req = urllib.request.Request(url, headers={"User-Agent": UA, "Referer": BASE + "/"})
+        try:
+            with urllib.request.urlopen(req, timeout=60) as response:
+                ctype = (response.headers.get("Content-Type") or "").lower()
+                if ctype.startswith(("text/html", "application/json")):
+                    raise MixkitError(f"下载地址返回 {ctype}")
+                data = response.read(MAX_BYTES + 1)
+            break
+        except Exception as exc:  # noqa: BLE001
+            last = exc
+            if attempt == 0:
+                time.sleep(0.8)
+    if data is None:
+        raise MixkitError(f"下载失败：{type(last).__name__}: {last}") from last
     if len(data) > MAX_BYTES:
         raise MixkitError("素材超过 200MB，拒绝")
     dest.write_bytes(data)

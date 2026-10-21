@@ -66,5 +66,7 @@ koubo mixkit bgm PROJECT --id 443
 ## 限制
 
 - 没有官方公开 API；页面结构变化会导致解析失败，失败会明确报错，不静默降级；
+- 页面/下载有 2 次重试和 1 小时页面缓存（`~/.cache/koubo/mixkit`）；
+- `review-outputs` 会检查本地文件与许可字段，但商用范围仍需人工确认；
 - 不是所有关键词都有结果；没有结果时换关键词或查分类页；
 - `--id` 只对固定文件名 URL 有效；active_storage ID 用 `--url`。

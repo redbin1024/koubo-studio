@@ -80,6 +80,22 @@ def build(project: Path) -> dict:
         })
         gates[1]["status"] = "unchecked"
 
+    # Mixkit 等第三方素材：路径/许可字段可查，授权用途仍需人看
+    mixkit = _read(p["work"] / "mixkit.json", {})
+    mixkit_items = mixkit.get("items") or []
+    if mixkit_items:
+        bad_mixkit = [x for x in mixkit_items
+                      if not (Path(x.get("local") or "").is_file() and x.get("license"))]
+        gates[2]["checks"].append({
+            "name": "mixkit-provenance",
+            "status": "fail" if bad_mixkit else "unchecked",
+            "detail": (f"{len(mixkit_items)} 条 Mixkit 素材；缺文件/许可 {len(bad_mixkit)}"
+                       if bad_mixkit else
+                       f"{len(mixkit_items)} 条 Mixkit 素材路径/许可已记录；商用范围需人确认"),
+        })
+        if gates[2]["status"] == "pass":
+            gates[2]["status"] = "unchecked"
+
     # 插画：文件尺寸/来源可自动查，审美与版权仍需人看
     assets = _illustration_assets(project, cfg)
     gates[2]["assets"] = assets

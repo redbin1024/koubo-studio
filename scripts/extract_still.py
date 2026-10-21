@@ -19,6 +19,20 @@ def _clarity(path: Path) -> tuple[float, float, float]:
     return float(lap.var()), float(gray.mean()), float(gray.std())
 
 
+def _faces(path: Path) -> int:
+    try:
+        import cv2
+        cascade = cv2.CascadeClassifier(
+            str(Path(cv2.data.haarcascades) / "haarcascade_frontalface_default.xml"))
+        image = cv2.imdecode(np.fromfile(str(path), dtype=np.uint8), cv2.IMREAD_COLOR)
+        if image is None:
+            return 0
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        return len(cascade.detectMultiScale(gray, 1.2, 4, minSize=(80, 80)))
+    except Exception:
+        return 0
+
+
 def _extract(src: Path, t: float, dest: Path) -> bool:
     subprocess.run([find_ffmpeg(), "-v", "error", "-y", "-ss", f"{t:.3f}",
                     "-i", str(src), "-frames:v", "1", "-q:v", "2", str(dest)], check=True)
@@ -58,9 +72,12 @@ def main() -> None:
                 continue
             clarity, mean, std = _clarity(path)
             bright = 20 < mean < 235 and std > 15
-            score = float(np.log1p(max(clarity, 1.0)) * 10 + (20 if bright else 0))
-            candidates.append({"time": round(t, 3), "file": str(path), "clarity": round(clarity, 2),
-                               "brightness": round(mean, 2), "score": round(score, 2)})
+            faces = _faces(path)
+            score = float(np.log1p(max(clarity, 1.0)) * 10
+                          + (100 if faces else 0) + (20 if bright else 0))
+            candidates.append({"time": round(t, 3), "file": str(path),
+                               "clarity": round(clarity, 2), "brightness": round(mean, 2),
+                               "faces": faces, "score": round(score, 2)})
         if not candidates:
             raise SystemExit("没有抽到可用候选帧")
         candidates.sort(key=lambda x: x["score"], reverse=True)

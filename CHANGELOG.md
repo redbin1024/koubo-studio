@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.20.2 — 2026-10-21
+
+### 素材与清理
+
+- Mixkit：页面/下载 2 次重试 + 1 小时页面缓存；`review-outputs` 增加 Mixkit 路径/许可检查。
+- `extract_still --scan` 增加人脸权重；优先选有正脸、清晰、亮度合格的静帧。
+- 新增 `cleanup_workspace.py`：默认 dry-run，`--apply-cache` 只删可再生的
+  `work/auto-edit-pro` 与 `__pycache__`，不动模型/项目/成片。
+- 实测清理 `work/auto-edit-pro` 约 698M；清单写 `work/cleanup-inventory.md`。
+- 文档补 Mixkit 重试/许可与清理清单。
+- 247 项测试。
+
 ## 1.20.1 — 2026-10-21
 
 ### 健壮性与收口
