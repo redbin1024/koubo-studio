@@ -125,6 +125,10 @@ def build(cfg: dict, project: Path) -> dict:
         channel[delay:] += channel[:-delay] * 0.22
 
     curve = _intensity(total)
+    if len(curve) < n:                         # 浮点截断/四舍五入可能差 1 个采样
+        curve = np.pad(curve, (0, n - len(curve)), mode="edge")
+    elif len(curve) > n:
+        curve = curve[:n]
     gain = spec["pluck"] / 0.20               # 用拨弦密度当「情绪强度」的代理
     left *= curve * gain
     right *= curve * gain
