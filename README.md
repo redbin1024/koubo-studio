@@ -292,6 +292,7 @@ Vlog 会先完成粗剪、画面/文案审核，再生成旁白；缺语音会�
 | `koubo style bind DIR --style KB-TH-01 --choice-source "..."` | 锁定固定口播风格，参数漂移即红项 |
 | `koubo music scan / search / pick` | 扫描剪映历史音乐 ID，搜索并选曲 |
 | `koubo style-match DIR --catalog ...` | 按内容匹配参考风格并给改编动作 |
+| `koubo review-outputs DIR --md` | 文字/声音/插画/视频四道审查门 |
 | `koubo run DIR` | 跑完整流水线（成片 + 草稿 + 质检） |
 | `koubo verify DIR` | 只跑质检 |
 | `koubo fonts DIR [--all]` | 列出可用字体族名 |
@@ -328,6 +329,7 @@ Vlog 会先完成粗剪、画面/文案审核，再生成旁白；缺语音会�
 | [package-only](docs/package-only.md) | 已剪好的成片 + SRT 只做包装，不重剪 |
 | [B-roll](docs/broll.md) | 真实细节镜头插入草稿；4105 拍摄清单 |
 | [SVG/Canvas 插图](docs/code-illustration.md) | 代码绘制插图、渲染进卡片、Canvas 动效 overlay |
+| [产出审查门](docs/review.md) | 文字/声音/插画/视频四道门，自动项与人工项分开 |
 | [工作流与模块地图](docs/modules.md) | 当前插画来源、每步入口、模块何时使用 |
 | [Canvas 动效](docs/motion.md) | `renderAt(t)` → ProRes 4444 overlay 的约定 |
 | [HyperFrames 评估](docs/hyperframes-evaluation.md) | 视频优先下 HTML/GSAP 渲染器的主链评估、10 秒验证清单 |

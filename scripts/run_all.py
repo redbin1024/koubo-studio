@@ -30,7 +30,7 @@ import build_frames, make_assets, make_captions, make_jianying_draft, make_sfx, 
 # narrate / voice 排在 captions 之前：跨字幕集的重叠预检要用到 input/voice-captions.srt，
 # 而旁白字幕只有配音那一步才写得出来。
 STEPS = ("align", "merge", "narrate", "voice", "captions", "assets", "sfx", "music",
-         "frames", "render", "draft", "visual-review", "verify", "review")
+         "frames", "render", "draft", "visual-review", "verify", "review-outputs", "review")
 
 
 def wants_narration(cfg: dict) -> bool:
@@ -262,6 +262,11 @@ def main() -> None:
                 result = make_visual_review.build(cfg, project, force=True)
             elif step == "verify":
                 result = verify.run_checks(cfg, project)
+            elif step == "review-outputs":
+                import review_outputs
+                result = review_outputs.build(project)
+                print(f"  四道门：{ {g['name']: g['status'] for g in result['gates']} }")
+                print(f"  报告 → {p['work'] / 'review-report.json'}")
             else:
                 if not wants_narration(cfg):
                     print("  没有声明逐句旁白，跳过听审样张")

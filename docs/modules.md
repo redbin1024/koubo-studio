@@ -27,7 +27,7 @@ SVG 模块仍然存在，但**当前成片没有用它**：
 new_project / auto_film
   → align → merge → narrate/voice → captions
   → assets → sfx → music → frames → render
-  → draft → visual-review → verify → review
+  → draft → visual-review → verify → review-outputs → review
 ```
 
 | 步骤 | 入口 | 实现 | 什么时候用 |
