@@ -49,6 +49,7 @@ new_project / auto_film
 | 逐帧合成 | `build_frames.py` | `caption_layer` / `advanced_fx` / `broll` | 卡片、字幕、调色、模糊底 |
 | 成片 | `render.py` | `loudness` | 混音、响度归一、烧字幕 |
 | 剪映草稿 | `make_jianying_draft.py` | `draft_spec` / `jy_hybrid` | 每轮必出；可继续手改 |
+| 原生草稿 | `draft_native.py` | `workflow/draft_native` + jianying-tool 桥 | 剪映保存过（加密）的草稿：读 / 同步副本 / 诊断 / 导出 |
 | 视觉审查 | `make_visual_review.py` | `visual_contract` | 包装 beat 多、需要人眼复核 |
 | 质检 | `verify.py` | `draft_audit` / `delivery` | 每轮；三态 pass/fail/unchecked |
 | 听审 | `review_voice.py` / `export_voice_review.py` | `voice_review` | 有旁白时逐句听 |

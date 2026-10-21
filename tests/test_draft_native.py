@@ -287,6 +287,33 @@ class DraftNativeTests(unittest.TestCase):
         self.assertEqual({c[0]: c[1] for c in checks},
                          {"draft-file": None, "draft-doctor": None})
 
+    def test_verify_falls_back_to_project_copy_when_installed_is_encrypted(self):
+        """装桥是可选能力：草稿箱那份读不了，退到工程内副本并记 unchecked。"""
+        import verify
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            installed = root / "installed"
+            project_copy = root / "project"
+            installed.mkdir()
+            project_copy.mkdir()
+            (installed / "draft_info.json").write_text("A" * 64, encoding="utf-8")
+            _write(project_copy / "draft_content.json", _draft())
+            checks = []
+            with patch.object(draft_native, "file_order",
+                              return_value=("draft_info.json", "draft_content.json")), \
+                 patch.object(draft_native, "probe",
+                              return_value={"available": False, "hint": "跑 setup"}):
+                verify.check_native_draft(
+                    installed,
+                    lambda name, status, detail="": checks.append(
+                        (name, status, detail)),
+                    fallback=project_copy)
+        got = {c[0]: c for c in checks}
+        self.assertIsNone(got["draft-file"][1])
+        self.assertIn("工程内明文副本", got["draft-file"][2])
+        self.assertIsNone(got["draft-doctor"][1])
+
 
 if __name__ == "__main__":
     unittest.main()

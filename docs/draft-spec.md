@@ -18,6 +18,12 @@ work/draft-qc.json     执行后和规格对账的结果
 - 贴纸 / 特效 / 滤镜 / 转场数量
 - 素材路径是否存在
 - 草稿是否真的装进剪映草稿箱
+- 活动文件与明文副本是否一致（`draft-twin`）
+
+> 审计读的是**活动文件**（macOS `draft_info.json`，Windows `draft_content.json`），
+> 不是只读 `draft_content.json`。剪映保存过、文件被加密时，经 `workflow/draft_native.py`
+> 的 jianying-tool 桥解出来再对账；桥不可用时 `draft-readable` 直接红，
+> 不会拿旧副本冒充通过。两份文件不一致时，先跑 `python scripts/draft_native.py sync`。
 
 `verify.py` 会把它作为 **`draft-audit`** 一项计入三态质检；失败是红项，不是“没查”。
 

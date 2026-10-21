@@ -252,10 +252,12 @@ def _slot_check(cfg: dict, total: float, srt: Path) -> list[tuple[str, object, s
     return out
 
 
-def check_native_draft(target: Path, add) -> None:
+def check_native_draft(target: Path, add, *, fallback: Path | None = None) -> None:
     """草稿的「活动文件」检查：剪映下次打开真正读的那份。
 
-    加密时走 jianying-tool 桥；桥不在就明确红/没查，不把「读不了」当「没问题」。
+    加密时走 jianying-tool 桥。桥不在且草稿箱那份是密文时，**退到工程内明文副本**
+    并记 `unchecked`（写清检查的是哪份）—— 装桥是可选的，不能让没装桥的用户
+    每次都被判红；但也不能把「没读到交付那份」说成通过。
     """
     from workflow import draft_native
 
@@ -264,21 +266,52 @@ def check_native_draft(target: Path, add) -> None:
         add("draft-file", None, "草稿目录不存在，本项没查")
         add("draft-doctor", None, "草稿目录不存在，本项没查")
         return
+    read_target, note, delivered_unreadable = target, "", False
     try:
         _, meta = draft_native.read_draft(target)
-        status = draft_native.twin_status(target)
-        if status.get("equal") is True:
-            twin_note = "两份内容一致"
-        elif status.get("equal") is False:
-            twin_note = f"{Path(status['twin']).name} 与活动文件不一致（副本可能过期）"
-        elif status.get("twin_exists"):
-            twin_note = "两份无法比较（一份加密且桥不可用）"
+    except draft_native.DraftEncrypted as exc:
+        fallback = Path(fallback) if fallback else None
+        if fallback and fallback != target and fallback.is_dir():
+            try:
+                _, meta = draft_native.read_draft(fallback)
+            except (draft_native.DraftNativeError, OSError) as fallback_exc:
+                add("draft-file", False, f"{exc}；工程内副本也读不了：{fallback_exc}")
+                add("draft-doctor", None, "没有可读的草稿，无法诊断")
+                return
+            read_target = fallback
+            delivered_unreadable = True
+            note = (f"草稿箱那份读不了（{exc}）；本项检查的是工程内明文副本 "
+                    f"{fallback.name}。")
         else:
-            twin_note = "只有活动文件，没有明文副本"
-        add("draft-file", True, f"{meta['file']}（{meta['format']}）· {twin_note}")
+            add("draft-file", False, str(exc))
+            add("draft-doctor", None, "草稿不可读，无法诊断")
+            return
     except (draft_native.DraftNativeError, OSError) as exc:
         add("draft-file", False, str(exc))
-    doc = draft_native.doctor(target)
+        add("draft-doctor", None, "草稿不可读，无法诊断")
+        return
+
+    try:
+        status = draft_native.twin_status(read_target)
+    except OSError as exc:
+        status = {}
+        note += f"副本对账失败（{exc}）；"
+    if status.get("equal") is True:
+        twin_note = "两份内容一致"
+    elif status.get("equal") is False:
+        twin_note = f"{Path(status['twin']).name} 与活动文件不一致（副本可能过期）"
+    elif status.get("twin_exists"):
+        twin_note = "两份无法比较（一份加密且桥不可用）"
+    else:
+        twin_note = "只有活动文件，没有明文副本"
+    detail = note + f"{meta['file']}（{meta['format']}）· {twin_note}"
+    add("draft-file", None if delivered_unreadable else True, detail)
+
+    try:
+        doc = draft_native.doctor(read_target)
+    except (draft_native.DraftNativeError, OSError) as exc:
+        add("draft-doctor", None, f"诊断跑不完：{exc}")
+        return
     source = doc.get("source")
     if source == "jianying-tool":
         errors = doc.get("errors") or []
@@ -568,7 +601,7 @@ def run_checks(cfg: dict, project: Path) -> dict:
                   else "草稿没进剪映草稿箱（覆盖保护触发或草稿箱不可写），看 [draft] 的 ⚠"))
 
     # ---- 草稿的「活动文件」：剪映下次打开真正读的那份（加密时靠 jianying-tool 解）
-    check_native_draft(Path(draft_record.get("installed_to") or draft), add)
+    check_native_draft(Path(draft_record.get("installed_to") or draft), add, fallback=draft)
 
     # ---- 草稿字体：config 写了不等于剪映认；必须看 text material 与 range font
     jy_font = (cfg.get("captions") or {}).get("jianying_font") or {}

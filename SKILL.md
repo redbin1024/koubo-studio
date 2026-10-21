@@ -461,12 +461,13 @@ python scripts/jy_hybrid.py PROJECT_DIR --name "片名_混合后端"
 python scripts/draft_native.py setup                 # vendor/jytool-venv，不动 .venv
 python scripts/draft_native.py info "工程/draft-store/片名"
 python scripts/draft_native.py doctor "工程/draft-store/片名"
-python scripts/draft_native.py sync "工程/draft-store/片名"   # 活动文件 → 明文副本
+python scripts/draft_native.py sync "工程/draft-store/片名"   # 较新的一份 → 另一份
 ```
 
 - `draft_audit` 现在审**活动文件**；`verify` 新增 `draft-file` / `draft-doctor`。
 - 字体/行距这类收尾步骤改成**两份都写**；构建结束再做一次双向对齐。
-- 不装 `jianying-tool` 不影响出片：`draft-doctor` 记 `unchecked`，不会假 pass。
+- 不装 `jianying-tool` 不影响出片：交付那份加密时 `draft-file` / `draft-doctor`
+  记 `unchecked` 并退回工程内副本检查，不会假 pass。
 - 细节与限制见 [docs/native-backend.md](docs/native-backend.md)。
 
 ## 写旁白：先算字数，再写字

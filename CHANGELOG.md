@@ -1,5 +1,26 @@
 # Changelog
 
+## 1.22.0 — 2026-10-21
+
+### 原生草稿：接上剪映真正读的那份
+
+- 新增 `workflow/draft_native.py` + `scripts/draft_native.py` + `scripts/jytool_bridge.py`：
+  可选接入 `jianying-tool==0.5.0`，用本机 `libvideoeditor.dylib` / `videoeditor.dll`
+  解出剪映保存后的加密 `draft_info.json`；桥跑在独立的 3.10+ 环境
+  （`python scripts/draft_native.py setup`，装到 `vendor/jytool-venv`，不动 `.venv`）。
+- `draft_audit` 改为审**活动文件**（macOS `draft_info.json` / Windows `draft_content.json`），
+  并新增 `draft-twin` 对账；不再只看明文副本。
+- `verify` 新增 `draft-file` / `draft-doctor`：交付那份读不了（加密且没装桥）时退回
+  工程内明文副本并记 `unchecked`，`draft-doctor` 也记 `unchecked`；`doctor` 新增
+  `jianying-tool` 自检。
+- `draft_native.py sync` 以**较新的明文**为默认方向（`--from active|twin` 可指定），
+  写前备份到 `.koubo-backups/`；时间相同/目标加密时要求确认，不猜。
+- 修复：`set_text_font` / `set_text_line_spacing` 之前只写 `draft_content.json`，
+  而 macOS 剪映读 `draft_info.json`，会出现「预览对了、剪映打开还是 0.02 行距」。
+  现在两份都写，构建收尾再做一次双向对齐。用真实旧草稿验证：活动文件 0.02、
+  副本 0.22，`draft-audit` 现在会红；`sync` 一次后两份一致并转绿。
+- `koubo native` 别名；新增 [原生草稿适配层](docs/native-backend.md)；新增 21 项原生草稿测试，全量通过。
+
 ## 1.21.0 — 2026-10-21
 
 ### 素材库：可检索、可调用、授权台账

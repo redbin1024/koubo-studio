@@ -96,6 +96,7 @@ brew install --cask font-noto-sans-cjk-sc
 | edge-tts | 见 `requirements-narration.txt` | 自动旁白需要 | 无声素材旁白 | 回退无旁白 + BGM |
 | faster-whisper | 见 `requirements-transcribe.txt` | 全自动口播必需 | 离线 ASR / 自动字幕 / 原声证据 | 只能手工写字幕或走无语音 |
 | mediainfo + pymediainfo | 任意 | 仅 `jy_hybrid.py` | 元数据 | 默认后端不受影响 |
+| jianying-tool + uv | 0.5.0；独立 Python 3.10+ | 可选 | 读剪映加密草稿 / 原生导出（`koubo native`） | 普通草稿照常；`draft-doctor` 记 unchecked |
 
 ## 平台
 

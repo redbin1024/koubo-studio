@@ -27,7 +27,7 @@
         ├── workflow/draft_native.py
         │     ├─ probe()       找可用的 3.10+ 解释器
         │     ├─ read_draft()  明文直读；密文走桥解密
-        │     ├─ sync_twin()   活动文件 → 明文副本（带备份/方向保护）
+        │     ├─ sync_twin()   较新的一份 → 另一份（可指定方向，带备份）
         │     ├─ doctor()      桥在就用 jianying-tool 深度诊断，否则基础结构检查
         │     └─ export()      调剪映自己的导出对话框
         │
@@ -70,8 +70,9 @@ python scripts/draft_native.py info "my-video/draft-store/片名"
 # 深度诊断（jianying-tool doctor）
 python scripts/draft_native.py doctor "my-video/draft-store/片名" --json
 
-# 把活动文件镜像成明文副本，给 draft_audit / verify 读
+# 对齐两份文件：默认较新的一份为准；也可显式指定方向
 python scripts/draft_native.py sync "my-video/draft-store/片名"
+python scripts/draft_native.py sync "my-video/draft-store/片名" --from active
 
 # 驱动剪映导出（GUI；先关掉剪映里的这个草稿，或让它自己打开）
 python scripts/draft_native.py export \
@@ -91,9 +92,10 @@ python scripts/draft_native.py export \
 
 ## 三条保护
 
-1. **不猜方向。** `sync` 默认「活动文件 → 副本」；如果副本比活动文件新，直接拒绝，
-   确认后加 `--force`。构建流程里的 `ensure_twin` 反过来以**较新的一份**为准，
-   但只处理明文，加密文件不盲改。
+1. **不猜方向。** `sync` 默认以**较新的那份**为准：剪映保存后活动文件更新，就活动 → 副本；
+   本项目只改明文副本时，就副本 → 活动。两份时间几乎相同（≤1s）时拒绝猜，要求
+   `--from active|twin` 指定；`--force` 表示「以活动文件为准」。构建收尾的 `ensure_twin`
+   同样走这套规则，但只处理明文，加密文件不盲改。
 2. **写前备份。** 被覆盖的文件先复制到草稿内 `.koubo-backups/<时间戳>/`。
 3. **加密文件不盲改。** `write_all` 跳过密文；要改加密草稿，走 jianying-tool 的
    命令或剪映本身。本项目只负责把明文副本对齐。
@@ -106,6 +108,10 @@ python scripts/draft_native.py export \
   文件从 48KB 变 90KB（重新加密），内容确认生效。
 - 对本项目产出的 9 键草稿 `inspect`/`doctor` 均通过——它能读我们的草稿。
 - 它在 macOS 上只写活动文件；`draft_content.json` 会留旧——这正是 `sync` 要解决的。
+- 用真实旧草稿发现过一类静默分叉：活动文件 `line_spacing=0.02`、明文副本 `0.22`。
+  `draft-audit` 改审活动文件后立刻红；`sync`（较新的一份为准）一次后两份一致并转绿。
+- 对加密草稿走 `read_draft`：`draft-readable` 报 `jianying-native`，`draft-twin`
+  由桥解出后比对，不会因为「读不了」把副本判成过期。
 
 ## 已知限制
 

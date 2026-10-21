@@ -316,7 +316,7 @@ Vlog 会先完成粗剪、画面/文案审核，再生成旁白；缺语音会�
 
 - **全自动是「可审核的自动」，不是「不用看」。** 口播选段依赖 ASR，Vlog 的旁白与故事线依赖 DeepSeek；没有 Key 时回退本地规则。发布前仍应看一遍成片与 `work/auto-decisions.json`。
 - **剪映原生特效只进草稿。** mp4 是 ffmpeg + Pillow 渲的，剪映的滤镜 / 特效 / 转场不会出现在 mp4 上。选了 `jianying_fx` 就等于「成片以剪映导出为准」。
-- **加密草稿要额外的桥。** 剪映保存后 `draft_info.json` 是密文；读它/原生导出需要可选的 `jianying-tool`（`python scripts/draft_native.py setup`）。没装时 `draft-file` 会红、`draft-doctor` 记 `unchecked`，不会假装通过。导出是 GUI 自动化，受剪映版本与辅助功能权限影响。
+- **加密草稿要额外的桥。** 剪映保存后 `draft_info.json` 是密文；读它/原生导出需要可选的 `jianying-tool`（`python scripts/draft_native.py setup`）。没装时交付那份记 `unchecked` 并退回工程内明文副本检查，`draft-doctor` 也记 `unchecked`，不会假装通过。导出是 GUI 自动化，受剪映版本与辅助功能权限影响。
 - **ASR 需要核对。** Whisper 对音乐可能产生幻觉，低置信、非中文和很短的口播会被拒绝。模型阈值不能证明内容真实。
 - **自动模式默认不做信息卡/画中画/插图。** 这些需要内容支撑；参考片只取字幕几何与配色。需要这些包装时走手动流程或改 `config.json`。
 - **Vlog 自动模式不删场景。** 按场景切点保留候选镜头，故事方案只排序；要删重复/废镜头需改 `work/edit-plan.json` 后重跑。

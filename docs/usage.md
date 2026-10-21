@@ -458,6 +458,24 @@ python scripts/jy_hybrid.py my-video --name "片名_混合后端"
 
 它是实测等价的后端，但依赖更多；默认后端仍是 `make_jianying_draft.py`。
 
+### 原生草稿（可选）
+
+剪映保存后会把活动时间线 `draft_info.json` 加密。要读它、把明文副本对齐，
+或者驱动剪映自己的导出：
+
+```bash
+python scripts/draft_native.py setup            # vendor/jytool-venv，不动 .venv
+python scripts/draft_native.py info "my-video/draft-store/片名"
+python scripts/draft_native.py sync "my-video/draft-store/片名"
+python scripts/draft_native.py export --draft "片名" --title "片名_导出" \
+    --output-dir output --resolution 1080P --framerate 30 --close
+```
+
+`sync` 默认以**较新的那份**为准，写前备份到 `.koubo-backups/`；`--from active|twin`
+可以显式指定方向。没有装桥时普通流程不受影响：交付那份加密时记 `unchecked` 并退回
+工程内明文副本检查，`draft-doctor` 也记 `unchecked`。完整说明见
+[原生草稿适配层](native-backend.md)。
+
 ---
 
 ## 质检与交付
