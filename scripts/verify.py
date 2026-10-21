@@ -290,8 +290,8 @@ def run_checks(cfg: dict, project: Path) -> dict:
                      "style-plan-consistent", "bgm-present", "jianying-fx",
                      "jianying-draft", "jianying-installed", "draft-audit",
                      "visual-contract", "visual-review", "advanced-fx",
-                     "style-lock", "caption-role", "overlay-fx", "bgm-cloud",
-                     "draft-font"):
+                     "style-lock", "caption-role", "grounded-claims",
+                     "overlay-fx", "bgm-cloud", "draft-font"):
             add(name, None, "没有成片，本项没查")
         return _write(p, out, {}, {}, checks)
 
@@ -578,6 +578,11 @@ def run_checks(cfg: dict, project: Path) -> dict:
             f"{summary.get('unchecked', 0)} 没查"
             + ("；" + "；".join(f"{c['name']} {c['detail']}" for c in bad[:3])
                if bad else ""))
+
+    # ---- 上屏品牌/承诺必须有口播依据；ASR 缺失只能记 unchecked
+    from workflow.grounding import check as grounding_check
+    grounded, grounded_detail = grounding_check(cfg, project)
+    add("grounded-claims", grounded, grounded_detail)
 
     # ---- 云端 BGM：选择记录、文件、ID 必须对得上
     bgm_cfg = (cfg.get("audio") or {}).get("bgm") or {}
